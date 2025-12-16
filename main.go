@@ -18,11 +18,11 @@ func main() {
 	}
 
 	cfg := models.DatabaseConfig{
-		Host:     os.Getenv("DB_HOST"),
-		Port:     os.Getenv("DB_PORT"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   os.Getenv("DB_NAME"),
+		Host:     os.Getenv("dbHost"),
+		Port:     os.Getenv("dbPort"),
+		User:     os.Getenv("dbUser"),
+		Password: os.Getenv("dbPassword"),
+		DBName:   os.Getenv("dbName"),
 	}
 
 	db, err := database.InitDatabase(cfg)

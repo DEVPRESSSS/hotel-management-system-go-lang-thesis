@@ -3,6 +3,7 @@ package database
 import (
 	"HMS-GO/internal/models"
 	"fmt"
+	"log"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -28,9 +29,23 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&models.User{}); err != nil {
-		return nil, err
+	err = db.AutoMigrate(&models.Role{}, &models.User{})
+	// err = db.AutoMigrate(
+	// 	&models.Role{},
+	// 	//&models.User{},
+	// )
+	// db.Exec(`ALTER TABLE users
+	//      ADD CONSTRAINT fk_users_role
+	//      FOREIGN KEY (role_id)
+	//      REFERENCES roles(role_id)
+	//      ON UPDATE CASCADE
+	//      ON DELETE RESTRICT`)
+
+	if err != nil {
+		log.Fatal("Migration failed:", err)
 	}
+
+	log.Println("Migration successful!")
 
 	return db, nil
 }
