@@ -5,16 +5,21 @@ import (
 	"os"
 
 	"HMS-GO/config/database"
+	"HMS-GO/config/server"
 	"HMS-GO/internal/models"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	//router := gin.Default()
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
+	}
+	host := os.Getenv("HOST_ADDR")
+	if host == "" {
+		host = ":8085"
 	}
 
 	cfg := models.DatabaseConfig{
@@ -32,6 +37,6 @@ func main() {
 
 	_ = db
 
-	r := gin.Default()
-	r.Run(":8085")
+	server.SetupServer(host, db)
+
 }

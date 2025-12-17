@@ -1,0 +1,26 @@
+{{ define "header.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<!-- Tailwind CSS -->
+	<link rel="stylesheet" href="/src/output.css">
+	<title>{{ .title }}</title>
+</head>
+<body class="h-full">
+	<nav class=" bg-regal-blue fixed top-0 left-0 right-0 shadow-sm z-10">
+		<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+			<div>
+			<p class="text-white">HMS</p>
+			</div>
+			<div>
+				<a href="#Home" class="text-default-font-color hover:text-blue-300 mx-2">Home</a>
+				<a href="/about" class="text-default-font-color hover:text-white mx-2">Login</a>
+				<a href="/contact" class="text-default-font-color hover:text-white mx-2">Register</a>
+			</div>
+		</div>
+	</nav>
+	
+	<!-- Main content wrapper with top padding to account for fixed navbar -->
+	<div class=" h-screen bg-default-font-color pt-20 ">
+{{ end }}
