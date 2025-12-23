@@ -14,9 +14,19 @@ func SetupServer(host string, db *gorm.DB) {
 
 	router.Static("/src", "./src")
 
-	router.LoadHTMLGlob("views/**/*.html")
+	//router.LoadHTMLGlob("views/**/*.html")
 	// Register routes
-	routes.AuthRoutes(db, router)
 
+	files := []string{
+		"views/Layout/footer.html",
+		"views/Layout/header.html",
+		"views/ErrorView/errors.html",
+		"views/defaultView/index.html",
+		"views/Areas/Admin/users/users.html",
+	}
+	//Try to load all the files here using LoadHtmlfiles not HtmlGlob
+	router.LoadHTMLFiles(files...)
+
+	routes.AuthRoutes(db, router)
 	router.Run(host)
 }

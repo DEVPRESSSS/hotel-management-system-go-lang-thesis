@@ -1,9 +1,12 @@
-{{ define "defaultView/index.html" }}
+{{ define "index.html" }}
 {{ template "header.html" . }}
 
-<div class="container mx-auto px-4 py-8 bg-amber-600">
-    <h3 class="text-2xl font-bold">Hello world</h3>
+<div class="mx-4 px-6 py-8 border-2 shadow-sm min-h-[calc(100vh-20rem)] mb-8">
+    <p class="text-blue-600 dark:text-sky-400">The quick brown fox...</p>
 </div>
+
+
+
 
 {{ template "footer.html" . }}
 {{ end }}
