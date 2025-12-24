@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"HMS-GO/internal/models"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
 )
 
 type User struct {
@@ -40,17 +42,43 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		Locked:   create.Locked,
 	}
 
-	//Validate first if there are input error
 	if err := s.Db.Create(&user).Error; err != nil {
 
-		ctx.JSON(http.StatusInternalServerError, gin.H{"Error:": err.Error()})
-		fmt.Println(err)
+		//Check first if the error number is 1062
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+
+			ctx.JSON(http.StatusConflict, gin.H{
+				"error": "Username or email already exists",
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create user",
+		})
 		return
 	}
 
 	//Return 200  if the input succeed
-	ctx.JSON(http.StatusOK, gin.H{"Success:": "User created created successfully"})
-
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "User created successfully",
+	})
 }
 
+// Fetch all the data from the database
+func (s *Server) GetAllUsers(ctx *gin.Context) {
 
+	var users []models.User
+
+	if err := s.Db.
+		Preload("Role").
+		Find(&users).Error; err != nil {
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}

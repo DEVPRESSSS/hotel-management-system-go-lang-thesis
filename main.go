@@ -32,6 +32,7 @@ func main() {
 
 	db, err := database.InitDatabase(cfg)
 	if err != nil {
+
 		log.Fatal("Database connection failed:", err)
 	}
 

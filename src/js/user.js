@@ -1,3 +1,5 @@
+
+//#region--Modal Upsert 
 function openModal() {
         document.getElementById('userModal').classList.remove('hidden');
         document.getElementById('userModal').classList.add('flex');
@@ -54,41 +56,33 @@ function openModal() {
             roleid: role
         };
 
-        fetch('/userslist',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
-                'Accept':'application/json',
-                //'Authorization': 'Bearer' +
+        fetch('/userslist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            body:JSON.stringify(formData)
+            body: JSON.stringify(formData)
         })
-        .then(response =>{
+        .then(async response => {
+            const data = await response.json();
 
-            if(response.ok){
-
-                alert('User created successfully');
-            }else{
-                return response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
             }
-        })
-        .then(data =>{
 
-            alert(data.error);
-            console.log(data.error);
+            return data;
         })
-         .catch(error =>{
-
-            console.error('Error:', error);
-            document.getElementById('message').textContent = 'An error occurred while processing your request.';
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(err => {
+            document.getElementById('error-message').textContent = err.message;
         });
-        
-
-
     });
 
+//#endregion
 
- //Create uuid
+//Create uuid for userid in usrs
 function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     .replace(/[xy]/g, function (c) {
@@ -97,3 +91,40 @@ function uuidv4() {
         return v.toString(16);
     });
 }
+
+//Fetch all users
+fetch('/api/users')
+    .then(response => response.json())
+        .then(users => {
+
+            const tbody = document.getElementById('users-body');
+
+            users.forEach(user => {
+                tbody.innerHTML += `
+                
+                    <tr>
+                        <td>${user.userid}</td>
+                        <td>${user.fullname}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role.rolename}</td>
+                        <td>
+                        ${
+                            user.locked === false
+                            ? '<p class="text-green-600 font-semibold">Active</p>'
+                            : '<p class="text-red-600 font-semibold">Locked</p>'
+                        }
+                        </td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+                            <button class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                        </td>
+                    </tr>
+                
+                `;
+            
+                
+            });
+})
+
+

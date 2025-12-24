@@ -26,6 +26,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// 		"title": "HoTel Management System",
 		// 	})
 		// })
+		//Default route of html file while loading
 
 		defaultRoute.GET("/", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
@@ -33,12 +34,18 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		//This routes are temporary, it will be move later if there is authentication
 		defaultRoute.POST("/userslist", server.CreateUser)
 		defaultRoute.GET("/userslist", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "users.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
+
+		//Fetch all app users
+		defaultRoute.GET("/api/users", server.GetAllUsers)
+		//Fetch all roles
+		defaultRoute.GET("/api/roles", server.GetRoles)
 
 	}
 
