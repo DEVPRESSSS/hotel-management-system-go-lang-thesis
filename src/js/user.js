@@ -1,6 +1,6 @@
 
 //#region--Modal Upsert 
-function openModal() {
+    function openModal() {
         document.getElementById('userModal').classList.remove('hidden');
         document.getElementById('userModal').classList.add('flex');
     }
@@ -69,14 +69,15 @@ function openModal() {
             if (!response.ok) {
                 throw new Error(data.error);
             }
-
             return data;
         })
         .then(data => {
-            alert(data.message);
+            notification("success", data.message);
+
         })
         .catch(err => {
-            document.getElementById('error-message').textContent = err.message;
+            //document.getElementById('error-message').textContent = err.message;
+            notification("error", err.message);
         });
     });
 

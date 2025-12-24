@@ -42,6 +42,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		defaultRoute.GET("/roles", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "role.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
 		//Fetch all app users
 		defaultRoute.GET("/api/users", server.GetAllUsers)
 		//Fetch all roles
