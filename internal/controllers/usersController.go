@@ -87,6 +87,64 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
+// Update user
+// func (s *Server) UpdateUser(ctx *gin.Context) {
+// 	userID := ctx.Param("userid")
+
+// 	var user models.User
+// 	if err := s.Db.Where("user_id = ?", userID).First(&user).Error; err != nil {
+// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authorized to update account"})
+// 		return
+// 	}
+
+// 	var input models.UpdateUserInput
+// 	if err := ctx.ShouldBind(&input); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	if err := s.Db.Save(&user).Error; err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	ctx.JSON(http.StatusOK, gin.H{"success": "User account updated"})
+// }
+
+func (s *Server) UpdateUser(ctx *gin.Context) {
+	userID := ctx.Param("userid")
+
+	var payload models.User
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid payload"})
+		return
+	}
+
+	if err := s.Db.Model(&models.User{}).
+		Where("user_id = ?", userID).
+		Updates(payload).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"success": "User updated successfully"})
+}
+
+// Fetch the information of the selected record
+func (s *Server) GetUser(ctx *gin.Context) {
+
+	userID := ctx.Param("userid")
+
+	var user models.User
+	if err := s.Db.
+		Where("user_id = ?", userID).First(&user).Error; err != nil {
+		fmt.Print(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"success": user})
+}
+
 // Fetch all the data from the database
 func (s *Server) GetAllUsers(ctx *gin.Context) {
 

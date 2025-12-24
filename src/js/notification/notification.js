@@ -14,4 +14,5 @@ function  notification(icon, title){
         });
     }
 }
+
 window.notification = notification;

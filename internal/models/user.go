@@ -25,3 +25,14 @@ type CreateUserInput struct {
 	RoleId   string `json:"roleid" binding:"required"`
 	Locked   bool   `json:"locked"`
 }
+
+//Handles update of user with binding required
+type UpdateUserInput struct {
+	UserId   string `json:"userid" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	FullName string `json:"fullname" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	RoleId   string `json:"roleid" binding:"required"`
+	Locked   bool   `json:"locked"`
+}

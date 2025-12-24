@@ -30,6 +30,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//This routes are temporary, it will be move later if there is authentication
 		defaultRoute.POST("/userslist", server.CreateUser)
+		defaultRoute.PUT("/api/update/:userid", server.UpdateUser)
 		defaultRoute.GET("/userslist", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "users.html", gin.H{
 				"title": "Hotel Management System",
@@ -45,9 +46,10 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Fetch all app users
 		defaultRoute.GET("/api/users", server.GetAllUsers)
-
+		//Perform delete
 		defaultRoute.DELETE("/api/delete/:userid", server.DeleteUser)
-
+		//Fetch selected user information
+		defaultRoute.GET("/api/user/:userid", server.GetUser)
 		//Fetch all roles
 		defaultRoute.GET("/api/roles", server.GetRoles)
 
