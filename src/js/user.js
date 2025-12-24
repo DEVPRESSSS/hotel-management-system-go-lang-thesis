@@ -118,7 +118,11 @@ fetch('/api/users')
                         <td>${new Date(user.created_at).toLocaleDateString()}</td>
                         <td>
                             <button class="text-blue-600 hover:text-blue-800 font-medium">Edit</button>
-                            <button class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                            <button 
+                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
+                                data-userid="${user.userid}">
+                                Delete
+                            </button>
                         </td>
                     </tr>
                 
@@ -126,6 +130,28 @@ fetch('/api/users')
             
                 
             });
-})
+});
+
+document.getElementById('users-body').addEventListener('click', function (e) {
+    if (!e.target.classList.contains('delete-btn')) return;
+
+    const userid = e.target.dataset.userid;
+    if (!userid) return;
+
+    if (!confirm('Are you sure you want to delete this user?')) return;
+
+    fetch(`/api/delete/${userid}`, {
+        method: 'DELETE'
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Delete failed');
+        e.target.closest('tr').remove(); // remove row instantly
+        alert('User deleted successfully');
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error deleting user');
+    });
+});
 
 

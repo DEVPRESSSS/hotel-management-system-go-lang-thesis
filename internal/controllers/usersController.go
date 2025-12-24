@@ -20,6 +20,7 @@ type User struct {
 	Locked   bool   `json:"locked"`
 }
 
+// Create user
 func (s *Server) CreateUser(ctx *gin.Context) {
 
 	var create models.CreateUserInput
@@ -63,6 +64,27 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "User created successfully",
 	})
+}
+
+// Delete user
+func (s *Server) DeleteUser(ctx *gin.Context) {
+	userid := ctx.Param("userid")
+
+	result := s.Db.
+		Where("user_id = ?", userid).
+		Delete(&models.User{})
+
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		ctx.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
+
+	ctx.Status(204)
 }
 
 // Fetch all the data from the database

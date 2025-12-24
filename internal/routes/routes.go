@@ -16,18 +16,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	})
 
 	// Default routes
+	server := controllers.NewServer(db)
 
 	defaultRoute := router.Group("/")
 	{
-		server := controllers.NewServer(db)
 
-		// defaultRoute.GET("/", func(ctx *gin.Context) {
-		// 	ctx.HTML(http.StatusOK, "defaultView/index.html", gin.H{
-		// 		"title": "HoTel Management System",
-		// 	})
-		// })
 		//Default route of html file while loading
-
 		defaultRoute.GET("/", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"title": "Hotel Management System",
@@ -42,6 +36,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		//Render role.html file
 		defaultRoute.GET("/roles", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
@@ -50,9 +45,17 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Fetch all app users
 		defaultRoute.GET("/api/users", server.GetAllUsers)
+
+		defaultRoute.DELETE("/api/delete/:userid", server.DeleteUser)
+
 		//Fetch all roles
 		defaultRoute.GET("/api/roles", server.GetRoles)
 
 	}
+
+	// authorize := router.Group("/user")
+	// {
+	// 	authorize.DELETE("/delete/:userid", server.DeleteUser)
+	// }
 
 }
