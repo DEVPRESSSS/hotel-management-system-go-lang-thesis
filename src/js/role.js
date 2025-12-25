@@ -51,44 +51,52 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
 
     e.preventDefault();
     //Generate unique uid
-    const uid = uuidv4();
+    let uid = "";
     //Get the input in role textbox
     const roleName = document.getElementById('rolename').value;
+
+   
+
+    if( id === ""){
+        uid = uuidv4();
+    }else{
+        uid = id;
+    }
 
     const formData ={
         roleId: uid,
         roleName: roleName,
 
     };
+    if(id === "" || id === null){
+        fetch('/api/create', {
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData),
+            })
+            .then(async response => {
+                        const data = await response.json();
 
-    fetch('/api/create', {
-        method:'POST',
-        headers:{
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData),
-         })
-         .then(async response => {
-                    const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error);
+                        }
+                        return data;
+            
+            })
+            .then(data=>{
 
-                    if (!response.ok) {
-                        throw new Error(data.error);
-                    }
-                    return data;
-        
-         })
-         .then(data=>{
+                //Show notication success
+                notification("success", data.success);
 
-            //Show notication success
-            notification("success", data.success);
+            })
+            .catch(err=>{
 
-         })
-         .catch(err=>{
+                notification("error", err.message);
 
-            notification("error", err.message);
-
-         });
-
+            });
+    }
 
 });
 
