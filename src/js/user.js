@@ -75,6 +75,8 @@ document.getElementById('upsertform').addEventListener('submit',function(event){
 
         if(id === "" || id === null){
             //Create user
+            console.log(id);
+            
             fetch('/userslist', {
                 method: 'POST',
                 headers: {
@@ -92,11 +94,14 @@ document.getElementById('upsertform').addEventListener('submit',function(event){
                 })
                 .then(data => {
                     notification("success", data.message);
+                    closeModal();
 
                 })
                 .catch(err => {
                     notification("error", err.message);
             });
+
+            return;
         }else{
             //Update user
             const updateFormData = {
@@ -132,7 +137,7 @@ document.getElementById('upsertform').addEventListener('submit',function(event){
             });
         }
        
-
+        closeModal();
         
         
 

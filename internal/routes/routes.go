@@ -31,13 +31,16 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		//This routes are temporary, it will be move later if there is authentication
 		defaultRoute.POST("/userslist", server.CreateUser)
 		defaultRoute.PUT("/api/update/:userid", server.UpdateUser)
+		defaultRoute.DELETE("/api/delete/:userid", server.DeleteUser)
+
 		defaultRoute.GET("/userslist", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "users.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Render role.html file
+		// Render role.html file
+		defaultRoute.POST("/api/create", server.CreateRole)
 		defaultRoute.GET("/roles", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
@@ -46,18 +49,13 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Fetch all app users
 		defaultRoute.GET("/api/users", server.GetAllUsers)
-		//Perform delete
-		defaultRoute.DELETE("/api/delete/:userid", server.DeleteUser)
 		//Fetch selected user information
 		defaultRoute.GET("/api/user/:userid", server.GetUser)
+
 		//Fetch all roles
 		defaultRoute.GET("/api/roles", server.GetRoles)
+		//Fetch selected role information
+		defaultRoute.GET("/api/roles/:roleid", server.GetRole)
 
 	}
-
-	// authorize := router.Group("/user")
-	// {
-	// 	authorize.DELETE("/delete/:userid", server.DeleteUser)
-	// }
-
 }
