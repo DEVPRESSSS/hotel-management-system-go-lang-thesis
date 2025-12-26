@@ -119,5 +119,34 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		*/
 
+		/*
+			---------CRUD SERVICE-------
+		*/
+		//Create facility route
+		defaultRoute.POST("/api/createservice", server.CreateService)
+
+		//Update facility route
+		defaultRoute.PUT("/api/updateservice/:serviceid", server.UpdateService)
+
+		//Delete facility route
+		defaultRoute.DELETE("/api/deleteservice/:serviceid", server.DeleteService)
+
+		//Routes for facility
+		defaultRoute.GET("/service", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "service.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		//Fetch all roles
+		defaultRoute.GET("/api/services", server.GetServices)
+
+		//Fetch selected role information
+		defaultRoute.GET("/api/service/:serviceid", server.GetService)
+
+		/*
+			---------END USER-------
+
+		*/
 	}
 }

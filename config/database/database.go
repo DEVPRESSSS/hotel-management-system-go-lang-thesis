@@ -35,6 +35,7 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.Role{},
 		&models.User{},
 		&models.Facility{},
+		&models.Service{},
 	)
 	// db.Exec(`ALTER TABLE users
 	//      ADD CONSTRAINT fk_users_role
