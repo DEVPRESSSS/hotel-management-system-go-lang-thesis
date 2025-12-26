@@ -96,7 +96,38 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
                 notification("error", err.message);
 
             });
+    }else{
+           //Update user
+            const updateFormData = {
+                roleid: uid,
+                rolename: roleName,           
+            };
+            fetch(`/api/updaterole/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateFormData)
+                })
+                .then(async response => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    notification("success", data.success);
+
+                })
+                .catch(err => {
+                    notification("error", err.error);
+            });
     }
+
+    //Close the modal
+    closeModal();
 
 });
 
@@ -175,3 +206,45 @@ document.getElementById('users-body').addEventListener('click' , function(e){
     openModal();
 
 }); 
+
+
+//Delete user function
+document.getElementById('users-body').addEventListener('click', function (e) {
+    if (!e.target.classList.contains('delete-btn')) return;
+
+    const roleid = e.target.dataset.roleid;
+    if (!roleid) return;
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/api/deleterole/${roleid}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Delete failed');
+            e.target.closest('tr').remove(); 
+            
+        })
+        .catch(err => {
+            console.log(err);
+            alert('Error deleting user');
+        });
+
+        Swal.fire({
+        title: "Deleted!",
+        text: "Your file has been deleted.",
+        icon: "success"
+        });
+    }
+    });
+
+   
+});

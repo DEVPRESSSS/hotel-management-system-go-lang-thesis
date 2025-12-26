@@ -14,6 +14,7 @@ type Role struct {
 	RoleName string `json:"name"`
 }
 
+// Create role
 func (s *Server) CreateRole(ctx *gin.Context) {
 
 	var role models.Role
@@ -44,6 +45,48 @@ func (s *Server) CreateRole(ctx *gin.Context) {
 
 }
 
+// Update role
+func (s *Server) UpdateRole(ctx *gin.Context) {
+	userID := ctx.Param("roleid")
+
+	var payload models.Role
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid payload"})
+		return
+	}
+
+	if err := s.Db.Model(&models.Role{}).
+		Where("role_id = ?", userID).
+		Updates(payload).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"success": "Role updated successfully"})
+}
+
+// Delete role
+func (s *Server) DeleteRole(ctx *gin.Context) {
+	roleid := ctx.Param("roleid")
+
+	result := s.Db.
+		Where("role_id = ?", roleid).
+		Delete(&models.Role{})
+
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		ctx.JSON(404, gin.H{"error": "Role not found"})
+		return
+	}
+
+	ctx.Status(204)
+}
+
+// Get all the roles from db
 func (s *Server) GetRoles(ctx *gin.Context) {
 
 	var roles []models.Role
@@ -59,7 +102,7 @@ func (s *Server) GetRoles(ctx *gin.Context) {
 
 }
 
-// Fetch the information of the selected record
+// Fetch the information of the selected record in role
 func (s *Server) GetRole(ctx *gin.Context) {
 
 	roleID := ctx.Param("roleid")

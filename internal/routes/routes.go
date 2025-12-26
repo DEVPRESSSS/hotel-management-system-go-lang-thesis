@@ -39,8 +39,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
-		// Render role.html file
-		defaultRoute.POST("/api/create", server.CreateRole)
+		//Create role route
+		defaultRoute.POST("/api/createrole", server.CreateRole)
+		//Update role route
+		defaultRoute.PUT("/api/updaterole/:roleid", server.UpdateRole)
+		//Delete role route
+		defaultRoute.DELETE("/api/deleterole/:roleid", server.DeleteRole)
 		defaultRoute.GET("/roles", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
