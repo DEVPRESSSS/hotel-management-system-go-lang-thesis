@@ -9,41 +9,16 @@ function openModal() {
     document.getElementById('userModal').classList.add('flex');
 }
 
-function createModal(){
-    headerTitle.innerText = "Create user";
-    btnSubmit.innerText = "Create";
-    openModal();
-}
-
 function closeModal() {
         document.getElementById('userModal').classList.add('hidden');
         document.getElementById('userModal').classList.remove('flex');
 }
 function createModal(){
-    headerTitle.innerText = "Create user";
+    headerTitle.innerText = "Create facility";
     btnSubmit.innerText = "Create";
     openModal();
 }
 
-fetch('/api/roles')
-  .then(res => res.json())
-  .then(data => {
-      AppState.roles = data;
-
-      const select = document.getElementById('roleid');
-      if (!select) return;
-
-      // clear existing options
-      select.innerHTML = '<option value="">Select role</option>';
-
-      data.forEach(r => {
-          const option = document.createElement('option');
-          option.value = r.roleid;
-          option.textContent = r.rolename; 
-          select.appendChild(option);
-      });
-  })
-  .catch(err => console.error('Failed to load roles:', err));
 
 
   //Upsert role
@@ -53,9 +28,13 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     //Generate unique uid
     let uid = "";
     //Get the input in role textbox
-    const roleName = document.getElementById('rolename').value;
+    
+    const facilityName = document.getElementById('facilityname').value;
+    const dateInput = document.getElementById("maintenance_date").value;
+    const isoDate = new Date(dateInput + "T00:00:00").toISOString();
 
-   
+      
+
 
     if( id === ""){
         uid = uuidv4();
@@ -64,12 +43,13 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     }
 
     const formData ={
-        roleId: uid,
-        roleName: roleName,
+        facility_id: uid,
+        facility_name: facilityName,
+        maintenance_date: isoDate,
 
     };
     if(id === "" || id === null){
-        fetch('/api/createrole', {
+        fetch('/api/createfacility', {
             method:'POST',
             headers:{
                 'Content-Type': 'application/json'
@@ -99,10 +79,11 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     }else{
            //Update user
             const updateFormData = {
-                roleid: uid,
-                rolename: roleName,           
+                facility_id: uid,
+                facility_name: facilityName,
+                maintenance_date: isoDate,       
             };
-            fetch(`/api/updaterole/${id}`, {
+            fetch(`/api/updatefacility/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -141,27 +122,30 @@ function uuidv4() {
 }
 
 //Fetch all roles
-fetch('/api/roles')
+fetch('/api/facility')
     .then(response => response.json())
-        .then(roles => {
+        .then(facilities => {
 
             const tbody = document.getElementById('users-body');
 
-            roles.forEach(role => {
+            facilities.forEach(facility => {
                 tbody.innerHTML += `
                 
                     <tr>
-                        <td>${role.roleid}</td>
-                        <td>${role.rolename}</td>                  
+                        <td>${facility.facility_id}</td>
+                        <td>${facility.facility_name}</td>                  
+                        <td>${facility.status}</td>                  
+                        <td>${new Date(facility.maintenance_date).toLocaleDateString()}</td>                  
+                        <td>${new Date(facility.created_at).toLocaleDateString()}</td>                  
                         <td>
                             <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-roleid = "${role.roleid}"
+                                data-facility_id = "${facility.facility_id}"
                                 >Edit
                             
                             </button>
                             <button 
                                 class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-roleid="${role.roleid}">
+                                data-facility_id="${facility.facility_id}">
                                 Delete
                             </button>
                         </td>
@@ -175,31 +159,34 @@ document.getElementById('users-body').addEventListener('click' , function(e){
 
     if (!e.target.classList.contains('update-btn')) return;
 
-    id = e.target.dataset.roleid;
+    id = e.target.dataset.facility_id;
     if (!id) return;
 
-    const roleInputId = document.getElementById('input-id');
-    roleInputId.value = id;
+    const facility_id = document.getElementById('input-id');
+    facility_id.value = id;
 
     btnSubmit.innerText = "Update";
     headerTitle.innerText = "Update user";  
         
     
-    fetch(`/api/roles/${id}`)
+    fetch(`/api/facility/${id}`)
         .then(async res => {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Request failed");
             return data;
         })
-        .then(data => {
+        .then(facility => {
             //notification("success", data.success || "Operation successful");           
-            const userRole= data.success;
-            document.getElementById('rolename').value = userRole.rolename;
+            const fc= facility.success;
+            document.getElementById('facilityname').value = fc.facility_name;
+            const date = new Date(fc.maintenance_date);
+            const formattedDate = date.toISOString().split('T')[0];
 
+            document.getElementById('maintenance_date').value = formattedDate;
         })
         .catch(err => {
             console.log(err);
-            alert(`${err}`);
+                alert(`${err}`);
             //notification("error", err.err);
         });
 
@@ -212,8 +199,8 @@ document.getElementById('users-body').addEventListener('click' , function(e){
 document.getElementById('users-body').addEventListener('click', function (e) {
     if (!e.target.classList.contains('delete-btn')) return;
 
-    const roleid = e.target.dataset.roleid;
-    if (!roleid) return;
+    const facility_id = e.target.dataset.facility_id;
+    if (!facility_id) return;
 
     Swal.fire({
         title: "Are you sure?",
@@ -225,7 +212,7 @@ document.getElementById('users-body').addEventListener('click', function (e) {
         confirmButtonText: "Yes, delete it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/api/deleterole/${roleid}`, {
+            fetch(`/api/deletefacility/${facility_id}`, {
             method: 'DELETE'
         })
         .then(res => {

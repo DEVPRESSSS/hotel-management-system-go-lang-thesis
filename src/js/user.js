@@ -170,7 +170,7 @@ fetch('/api/users')
                         <td>${user.userid}</td>
                         <td>${user.fullname}</td>
                         <td>${user.email}</td>
-                        <td>${user.role.rolename}</td>
+                        <td>${user.Role.rolename}</td>
                         <td>
                         ${
                             user.locked === false

@@ -29,12 +29,13 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&models.Role{})
-	err = db.AutoMigrate(&models.User{})
-	// err = db.AutoMigrate(
-	// 	&models.Role{},
-	// 	//&models.User{},
-	// )
+	// err = db.AutoMigrate(&models.Role{})
+	// err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(
+		&models.Role{},
+		&models.User{},
+		&models.Facility{},
+	)
 	// db.Exec(`ALTER TABLE users
 	//      ADD CONSTRAINT fk_users_role
 	//      FOREIGN KEY (role_id)

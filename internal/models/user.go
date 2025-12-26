@@ -12,7 +12,7 @@ type User struct {
 	Locked    bool      `gorm:"column:locked;default:false" json:"locked"`
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	RoleId    string    `gorm:"column:role_id;type:varchar(30);not null" json:"roleid"`
-	Role      Role      `gorm:"foreignKey:RoleId;references:RoleId" json:"role"`
+	Role      Role      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 }
 
 //Handles creation of user with binding required

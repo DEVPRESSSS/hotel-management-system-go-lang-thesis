@@ -1,0 +1,122 @@
+{{ define "facility.html" }}
+{{ template "header.html" . }}
+
+
+
+<!-- users.html -->
+<section class="container mx-auto p-6">
+    <!-- Header with Create Button -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Facility Management</h1>
+            <p class="text-gray-600 mt-1">Manage all system facility</p>
+        </div>
+        <button 
+            type="button" 
+            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+            onclick="createModal()">
+            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Create 
+        </button>
+    </div>
+
+    <!-- Role Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facility ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facility name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Maintenance Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-body" class="bg-white divide-y divide-gray-200">
+                   
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Overlay -->
+<div id="userModal" class="fixed inset-0  hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800" id="header-action"></h3>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                onclick="closeModal()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="px-6 py-4 max-h-96 overflow-y-auto">
+            <!--Error message-->
+            <input id="input-id" hidden/>           
+            <form id="upsertform" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Facility Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Facility Name</label>
+                        <input 
+                            type="text" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter facility name"
+                            id="facilityname"
+                            name="facilityname"
+                            required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Maintenance Date (*optional)</label>
+                        <input 
+                            type="date" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter valid date"
+                            id="maintenance_date"
+                            name="maintenance_date"
+                            >
+                    </div>
+                 
+                </div>
+                <div>
+                        <button 
+                            id="btn-submit"
+                            type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Create
+                        </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+            <button 
+                type="button" 
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                onclick="closeModal()">
+                Cancel
+            </button>
+          
+        </div>
+    </div>
+</div>
+<script src="/src/js/state.js"></script>
+<script src="/src/js/notification/notification.js"></script>
+<script src="/src/js/facility.js"></script>
+
+{{ template "footer.html" . }}
+{{ end }}
