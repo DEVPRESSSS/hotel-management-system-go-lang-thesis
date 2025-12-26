@@ -28,10 +28,15 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     //Generate unique uid
     let uid = "";
     //Get the input in role textbox
-    
+    let isoDate = null;
     const facilityName = document.getElementById('facilityname').value;
     const dateInput = document.getElementById("maintenance_date").value;
-    const isoDate = new Date(dateInput + "T00:00:00").toISOString();
+    if(!dateInput){
+        isoDate = null;
+    }else{
+         isoDate = new Date(dateInput + "T00:00:00").toISOString();
+
+    }
 
       
 
