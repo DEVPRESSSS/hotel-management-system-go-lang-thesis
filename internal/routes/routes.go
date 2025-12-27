@@ -122,27 +122,88 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		/*
 			---------CRUD SERVICE-------
 		*/
-		//Create facility route
+		//Create services route
 		defaultRoute.POST("/api/createservice", server.CreateService)
 
-		//Update facility route
+		//Update services route
 		defaultRoute.PUT("/api/updateservice/:serviceid", server.UpdateService)
 
-		//Delete facility route
+		//Delete services route
 		defaultRoute.DELETE("/api/deleteservice/:serviceid", server.DeleteService)
 
-		//Routes for facility
+		//Routes for services
 		defaultRoute.GET("/service", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "service.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Fetch all roles
+		//Fetch all services
 		defaultRoute.GET("/api/services", server.GetServices)
 
-		//Fetch selected role information
+		//Fetch selected services information
 		defaultRoute.GET("/api/service/:serviceid", server.GetService)
+
+		/*
+			---------END USER-------
+
+		*/
+
+		/*
+			---------CRUD SERVICE-------
+		*/
+		//Create room route
+		defaultRoute.POST("/api/createroom", server.CreateRoom)
+
+		//Update room route
+		defaultRoute.PUT("/api/updateroom/:roomid", server.UpdateRoom)
+
+		//Delete room route
+		defaultRoute.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
+
+		//Routes for room
+		defaultRoute.GET("/rooms", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "room.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		//Fetch all room
+		defaultRoute.GET("/api/rooms", server.GetRooms)
+
+		//Fetch selected room information
+		defaultRoute.GET("/api/room/:roomid", server.GetRoom)
+
+		/*
+			---------END USER-------
+
+		*/
+
+		/*
+			---------CRUD FLOOR-------
+		*/
+		// //Create room route
+		// defaultRoute.POST("/api/createroom", server.CreateRoom)
+
+		// //Update room route
+		// defaultRoute.PUT("/api/updateroom/:roomid", server.UpdateRoom)
+
+		// //Delete room route
+		// defaultRoute.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
+
+		//Routes for room
+		// defaultRoute.GET("/rooms", func(ctx *gin.Context) {
+		// 	ctx.HTML(http.StatusOK, "room.html", gin.H{
+		// 		"title": "Hotel Management System",
+		// 	})
+		// })
+
+		//Fetch all room
+		defaultRoute.GET("/api/floors", server.GetFloor)
+		defaultRoute.GET("/api/roomtypes", server.GetRoomtype)
+
+		// //Fetch selected room information
+		// defaultRoute.GET("/api/room/:roomid", server.GetService)
 
 		/*
 			---------END USER-------

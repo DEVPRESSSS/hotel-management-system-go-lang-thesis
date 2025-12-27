@@ -17,6 +17,47 @@ fetch('/api/roles')
           select.appendChild(option);
       });
   })
-  .catch(err => console.error('Failed to load roles:', err));
+.catch(err => console.error('Failed to load roles:', err));
 
 
+//Fetch all floor here and populate html element 
+fetch('/api/floors')
+  .then(res => res.json())
+  .then(floors => {
+      AppState.floors = floors;
+
+      const select = document.getElementById('floorid');
+      if (!select) return;
+
+      // clear existing options
+      select.innerHTML = '<option value="">Select floor</option>';
+
+      floors.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r.floorid;
+          option.textContent = r.floorname; 
+          select.appendChild(option);
+      });
+  })
+.catch(err => console.error('Failed to load roles:', err));
+
+//Fetch all floor here and populate html element 
+fetch('/api/roomtypes')
+  .then(res => res.json())
+  .then(rt => {
+      AppState.rt = rt;
+
+      const select = document.getElementById('roomtypeid');
+      if (!select) return;
+
+      // clear existing options
+      select.innerHTML = '<option value="">Select room type</option>';
+
+      rt.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r.roomtypeid;
+          option.textContent = r.roomtypename; 
+          select.appendChild(option);
+      });
+  })
+.catch(err => console.error('Failed to load roles:', err));

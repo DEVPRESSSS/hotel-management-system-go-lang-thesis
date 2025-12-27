@@ -26,6 +26,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Admin/roles/role.html",
 		"views/Areas/Admin/facilities/facility.html",
 		"views/Areas/Admin/services/service.html",
+		"views/Areas/Admin/rooms/room.html",
 	}
 	//Try to load all the files here using LoadHtmlfiles not HtmlGlob
 	router.LoadHTMLFiles(files...)
