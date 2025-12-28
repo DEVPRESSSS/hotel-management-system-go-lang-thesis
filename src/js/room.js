@@ -174,7 +174,7 @@ document.getElementById('users-body').addEventListener('click' , function(e){
     roomid.value = id;
 
     btnSubmit.innerText = "Update";
-    headerTitle.innerText = "Update user";  
+    headerTitle.innerText = "Update room";  
         
     
     fetch(`/api/room/${id}`)
@@ -186,6 +186,12 @@ document.getElementById('users-body').addEventListener('click' , function(e){
         .then(room => {
             //notification("success", data.success || "Operation successful");           
             const r= room.success;
+            document.getElementById('roomnumber').value= r.roomnumber;
+            document.getElementById('roomtypeid').value = r.roomtypeid;
+            document.getElementById('floorid').value = r.floorid;
+            document.getElementById('capacity').value= r.capacity;
+            document.getElementById('price').value= r.price;
+   
      
         })
         .catch(err => {
