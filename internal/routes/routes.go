@@ -29,6 +29,20 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		/*
+			---------Authentication route-------
+		*/
+		defaultRoute.GET("/login", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "login.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+		defaultRoute.POST("/api/auth", server.Login)
+
+		/*
+			END
+		*/
+
+		/*
 			---------CRUD USER-------
 		*/
 

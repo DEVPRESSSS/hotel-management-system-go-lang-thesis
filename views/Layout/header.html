@@ -6,12 +6,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Tailwind CSS -->
 	<link href="/src/output.css" rel="stylesheet">
-
-	<!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
 	<link rel="stylesheet" href="/src/vendor/sweetalert2/sweetalert2.min.css">
 	<script src="/src/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 	<title>{{ .title }}</title>
 </head>
+
 <body class="bg-gray-50 flex flex-col min-h-screen">
 	<nav class="bg-white shadow-md sticky top-0 z-50">
 		<div class="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -21,12 +20,16 @@
 			</div>
 			<div class="flex items-center space-x-6">
 				<a href="/" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300">Home</a>
-				<a href="#login" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300">Login</a>
+				<a href="/userslist" class="text-white hover:text-white mx-2">Users</a>
+				<!-- <a href="/roles" class="text-white hover:text-white mx-2">Roles</a>
+				<a href="/facility" class="text-white hover:text-white mx-2">Facility</a>
+				<a href="/service" class="text-gray-700 hover:text-white mx-2">Services</a>
+				<a href="/rooms" class="text-gray-700 hover:text-white mx-2">Rooms</a> -->
+				<a href="/login" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300">Login</a>
 				<a href="#register" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300 font-medium">Register</a>
 			</div>
 		</div>
 	</nav>
-
 	<!-- Main content wrapper -->
-	<div class="flex-1 w-full">
+	<div class="flex-1 flex items-center justify-center w-full">
 {{ end }}

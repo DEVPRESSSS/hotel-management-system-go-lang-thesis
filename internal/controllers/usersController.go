@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"HMS-GO/internal/models"
+	"HMS-GO/internal/utils"
 	"errors"
 	"fmt"
 	"net/http"
@@ -30,7 +31,6 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(create)
 
 	//Assign the value of each input
 	user := models.User{
@@ -42,6 +42,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		RoleId:   create.RoleId,
 		Locked:   create.Locked,
 	}
+	utils.HashPassword(&user)
 
 	if err := s.Db.Create(&user).Error; err != nil {
 
@@ -59,7 +60,6 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		})
 		return
 	}
-
 	//Return 200  if the input succeed
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "User created successfully",

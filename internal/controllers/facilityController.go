@@ -18,7 +18,7 @@ type Facility struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-// Create role
+// Create facility
 func (s *Server) CreateFacility(ctx *gin.Context) {
 
 	var facility models.Facility

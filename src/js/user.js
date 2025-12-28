@@ -168,7 +168,7 @@ fetch('/api/users')
                 
                     <tr>
                         <td>${user.userid}</td>
-                        <td>${user.fullname}</td>
+                        <td>${user.username}</td>
                         <td>${user.email}</td>
                         <td>${user.Role.rolename}</td>
                         <td>
