@@ -34,6 +34,9 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 	err = db.AutoMigrate(
 		&models.Role{},
 		&models.User{},
+		&models.Access{},
+		&models.RoleAccess{},
+		&models.UserRole{},
 		&models.Facility{},
 		&models.Service{},
 		&models.Floor{},

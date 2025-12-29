@@ -36,6 +36,7 @@ document.getElementById('loginform').addEventListener('submit', function (event)
 
        if(data.token){
           localStorage.setItem('token', data.token);
+          window.location.href = '/dashboard';
           notification("success", "Login successful");
 
        }else{

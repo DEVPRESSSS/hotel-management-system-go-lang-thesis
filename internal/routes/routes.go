@@ -2,6 +2,7 @@ package routes
 
 import (
 	"HMS-GO/internal/controllers"
+	"HMS-GO/internal/middlewares"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -42,30 +43,36 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			END
 		*/
 
+	}
+
+	authorize := router.Group("/hms")
+	authorize.Use(middlewares.AuthMiddleware())
+	{
+
 		/*
 			---------CRUD USER-------
 		*/
 
 		//Create user route
-		defaultRoute.POST("/userslist", server.CreateUser)
+		authorize.POST("/userslist", server.CreateUser)
 
 		//Update user route
-		defaultRoute.PUT("/api/update/:userid", server.UpdateUser)
+		authorize.PUT("/api/update/:userid", server.UpdateUser)
 
 		//Delete user route
-		defaultRoute.DELETE("/api/delete/:userid", server.DeleteUser)
+		authorize.DELETE("/api/delete/:userid", server.DeleteUser)
 
 		//Route for users list
-		defaultRoute.GET("/userslist", func(ctx *gin.Context) {
+		authorize.GET("/userslist", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "users.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 		//Populate user.html using api/user API
-		defaultRoute.GET("/api/users", server.GetAllUsers)
+		authorize.GET("/api/users", server.GetAllUsers)
 
 		//Fetch selected user from API
-		defaultRoute.GET("/api/user/:userid", server.GetUser)
+		authorize.GET("/api/user/:userid", server.GetUser)
 
 		/*
 			---------END USER-------
@@ -77,26 +84,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		*/
 
 		//Create role route
-		defaultRoute.POST("/api/createrole", server.CreateRole)
+		authorize.POST("/api/createrole", server.CreateRole)
 
 		//Update role route
-		defaultRoute.PUT("/api/updaterole/:roleid", server.UpdateRole)
+		authorize.PUT("/api/updaterole/:roleid", server.UpdateRole)
 
 		//Delete role route
-		defaultRoute.DELETE("/api/deleterole/:roleid", server.DeleteRole)
+		authorize.DELETE("/api/deleterole/:roleid", server.DeleteRole)
 
 		//Route for roles list
-		defaultRoute.GET("/roles", func(ctx *gin.Context) {
+		authorize.GET("/roles", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		//Fetch all roles
-		defaultRoute.GET("/api/roles", server.GetRoles)
+		authorize.GET("/api/roles", server.GetRoles)
 
 		//Fetch selected role information
-		defaultRoute.GET("/api/roles/:roleid", server.GetRole)
+		authorize.GET("/api/roles/:roleid", server.GetRole)
 
 		/*
 			---------END USER-------
@@ -107,26 +114,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			---------CRUD FACILITY-------
 		*/
 		//Create facility route
-		defaultRoute.POST("/api/createfacility", server.CreateFacility)
+		authorize.POST("/api/createfacility", server.CreateFacility)
 
 		//Update facility route
-		defaultRoute.PUT("/api/updatefacility/:facilityid", server.UpdateFacility)
+		authorize.PUT("/api/updatefacility/:facilityid", server.UpdateFacility)
 
 		//Delete facility route
-		defaultRoute.DELETE("/api/deletefacility/:facilityid", server.Deletefacility)
+		authorize.DELETE("/api/deletefacility/:facilityid", server.Deletefacility)
 
 		//Routes for facility
-		defaultRoute.GET("/facility", func(ctx *gin.Context) {
+		authorize.GET("/facility", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "facility.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		//Fetch all roles
-		defaultRoute.GET("/api/facility", server.GetFacilities)
+		authorize.GET("/api/facility", server.GetFacilities)
 
 		//Fetch selected role information
-		defaultRoute.GET("/api/facility/:facilityid", server.GetFacility)
+		authorize.GET("/api/facility/:facilityid", server.GetFacility)
 
 		/*
 			---------END USER-------
@@ -137,26 +144,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			---------CRUD SERVICE-------
 		*/
 		//Create services route
-		defaultRoute.POST("/api/createservice", server.CreateService)
+		authorize.POST("/api/createservice", server.CreateService)
 
 		//Update services route
-		defaultRoute.PUT("/api/updateservice/:serviceid", server.UpdateService)
+		authorize.PUT("/api/updateservice/:serviceid", server.UpdateService)
 
 		//Delete services route
-		defaultRoute.DELETE("/api/deleteservice/:serviceid", server.DeleteService)
+		authorize.DELETE("/api/deleteservice/:serviceid", server.DeleteService)
 
 		//Routes for services
-		defaultRoute.GET("/service", func(ctx *gin.Context) {
+		authorize.GET("/service", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "service.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		//Fetch all services
-		defaultRoute.GET("/api/services", server.GetServices)
+		authorize.GET("/api/services", server.GetServices)
 
 		//Fetch selected services information
-		defaultRoute.GET("/api/service/:serviceid", server.GetService)
+		authorize.GET("/api/service/:serviceid", server.GetService)
 
 		/*
 			---------END USER-------
@@ -167,26 +174,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			---------CRUD SERVICE-------
 		*/
 		//Create room route
-		defaultRoute.POST("/api/createroom", server.CreateRoom)
+		authorize.POST("/api/createroom", server.CreateRoom)
 
 		//Update room route
-		defaultRoute.PUT("/api/updateroom/:roomid", server.UpdateRoom)
+		authorize.PUT("/api/updateroom/:roomid", server.UpdateRoom)
 
 		//Delete room route
-		defaultRoute.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
+		authorize.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
 
 		//Routes for room
-		defaultRoute.GET("/rooms", func(ctx *gin.Context) {
+		authorize.GET("/rooms", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "room.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		//Fetch all room
-		defaultRoute.GET("/api/rooms", server.GetRooms)
+		authorize.GET("/api/rooms", server.GetRooms)
 
 		//Fetch selected room information
-		defaultRoute.GET("/api/room/:roomid", server.GetRoom)
+		authorize.GET("/api/room/:roomid", server.GetRoom)
 
 		/*
 			---------END USER-------
@@ -213,8 +220,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// })
 
 		//Fetch all room
-		defaultRoute.GET("/api/floors", server.GetFloor)
-		defaultRoute.GET("/api/roomtypes", server.GetRoomtype)
+		authorize.GET("/api/floors", server.GetFloor)
+		authorize.GET("/api/roomtypes", server.GetRoomtype)
 
 		// //Fetch selected room information
 		// defaultRoute.GET("/api/room/:roomid", server.GetService)
@@ -225,10 +232,11 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		*/
 
 		//Route for admin dashboard
-		defaultRoute.GET("/dashboard", func(ctx *gin.Context) {
+		authorize.GET("/dashboard", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
 				"title": "Admin dashboard",
 			})
 		})
+
 	}
 }
