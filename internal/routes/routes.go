@@ -223,5 +223,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			---------END USER-------
 
 		*/
+
+		//Route for admin dashboard
+		defaultRoute.GET("/dashboard", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
+				"title": "Admin dashboard",
+			})
+		})
 	}
 }

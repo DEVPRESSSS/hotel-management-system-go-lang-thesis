@@ -40,12 +40,6 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.RoomType{},
 		&models.Room{},
 	)
-	// db.Exec(`ALTER TABLE users
-	//      ADD CONSTRAINT fk_users_role
-	//      FOREIGN KEY (role_id)
-	//      REFERENCES roles(role_id)
-	//      ON UPDATE CASCADE
-	//      ON DELETE RESTRICT`)
 
 	if err != nil {
 		log.Fatal("Migration failed:", err)

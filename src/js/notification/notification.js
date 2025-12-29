@@ -10,7 +10,7 @@ function  notification(icon, title){
     }else if(icon === "error"){
         Swal.fire({
         icon: icon,
-        title: "Error" + title,
+        title:  title,
         });
     }
 }

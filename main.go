@@ -39,6 +39,24 @@ func main() {
 
 	_ = db
 
+	type User struct {
+		UserId   string
+		Username string
+		Email    string
+	}
+
+	// token, err := utils.CreateToken(models.User{
+	// 	UserId:   "USER-101",
+	// 	Username: "Jerald",
+	// 	Email:    "xmont@gmail.com",
+	// })
+
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	//fmt.Println(token)
+
 	server.SetupServer(host, db)
 
 }
