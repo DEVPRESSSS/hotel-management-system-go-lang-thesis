@@ -10,25 +10,29 @@ import (
 )
 
 func (s *Server) Login(ctx *gin.Context) {
-
 	var user models.LoginInput
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	token, err := s.AuthenticateUser(user.Username, user.Password)
 
+	token, err := s.AuthenticateUser(user.Username, user.Password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		fmt.Print(err)
 		return
 	}
 
-	//Set the cookie here
-	ctx.SetCookie("token", token, 3600, "/", "localhost", false, true)
-	//Show status code OK and a success message
+	ctx.SetCookie(
+		"token", // name
+		token,   // value
+		3600,    // max age in seconds
+		"/",     // path
+		"",      // domain (empty = current domain)
+		false,   // secure (set true in production with HTTPS)
+		true,    // httpOnly
+	)
+
 	ctx.JSON(http.StatusOK, gin.H{"success": "Account found", "token": token})
 }
 
@@ -46,7 +50,16 @@ func (s *Server) AuthenticateUser(username, password string) (string, error) {
 		return "", fmt.Errorf("Incorrect username or password")
 	}
 
-	token, err := utils.CreateToken(user)
+	//Load permissions
+	var roleAccess []models.RoleAccess
+	if err := s.Db.Preload("Access").
+		Where("role_id = ?", user.RoleId).
+		Find(&roleAccess).Error; err != nil {
+
+		return "", fmt.Errorf("failed to load permissions!!!!")
+	}
+
+	token, err := utils.CreateToken(user, roleAccess)
 	if err != nil {
 
 		return "", fmt.Errorf("failed to generate token")

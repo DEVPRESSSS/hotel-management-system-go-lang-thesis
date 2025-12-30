@@ -3,6 +3,7 @@ package routes
 import (
 	"HMS-GO/internal/controllers"
 	"HMS-GO/internal/middlewares"
+	rbac "HMS-GO/internal/middlewares/RBAC"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,33 +23,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	defaultRoute := router.Group("/")
 	{
 
-		//Default route of html file while loading
-		defaultRoute.GET("/", func(ctx *gin.Context) {
+		defaultRoute.GET("/home", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		/*
-			---------Authentication route-------
-		*/
+		//Login post method handler
+		defaultRoute.POST("/api/auth", server.Login)
+		//Login page route
 		defaultRoute.GET("/login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "login.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
-		defaultRoute.POST("/api/auth", server.Login)
-
-		/*
-			END
-		*/
 
 	}
 
-	authorize := router.Group("/hms")
+	authorize := router.Group("/")
 	authorize.Use(middlewares.AuthMiddleware())
 	{
-
 		/*
 			---------CRUD USER-------
 		*/
@@ -68,6 +62,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+
 		//Populate user.html using api/user API
 		authorize.GET("/api/users", server.GetAllUsers)
 
@@ -123,7 +118,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.DELETE("/api/deletefacility/:facilityid", server.Deletefacility)
 
 		//Routes for facility
-		authorize.GET("/facility", func(ctx *gin.Context) {
+		authorize.GET("/facility", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "facility.html", gin.H{
 				"title": "Hotel Management System",
 			})
@@ -144,13 +139,13 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			---------CRUD SERVICE-------
 		*/
 		//Create services route
-		authorize.POST("/api/createservice", server.CreateService)
+		authorize.POST("/api/createservice", rbac.RBACMiddleware("create"), server.CreateService)
 
 		//Update services route
-		authorize.PUT("/api/updateservice/:serviceid", server.UpdateService)
+		authorize.PUT("/api/updateservice/:serviceid", rbac.RBACMiddleware("update"), server.UpdateService)
 
 		//Delete services route
-		authorize.DELETE("/api/deleteservice/:serviceid", server.DeleteService)
+		authorize.DELETE("/api/deleteservice/:serviceid", rbac.RBACMiddleware("delete"), server.DeleteService)
 
 		//Routes for services
 		authorize.GET("/service", func(ctx *gin.Context) {
@@ -232,11 +227,16 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		*/
 
 		//Route for admin dashboard
-		authorize.GET("/dashboard", func(ctx *gin.Context) {
+		authorize.GET("/api/dashboard", rbac.RBACMiddleware("update"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
 				"title": "Admin dashboard",
 			})
 		})
 
+		authorize.GET("/test", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
 	}
 }

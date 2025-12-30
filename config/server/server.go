@@ -18,30 +18,33 @@ func SetupServer(host string, db *gorm.DB) {
 	// Register routes
 
 	files := []string{
-		//Header and footer for default page
-		"views/Layout/footer.html",
+		// Default layout
 		"views/Layout/header.html",
-		//Error html page
+		"views/Layout/footer.html",
+
+		// Error
 		"views/ErrorView/errors.html",
-		//Default page
+
+		// Public
 		"views/defaultView/index.html",
-		//User html
-		"views/Areas/Admin/users/users.html",
-		//Roles html
-		"views/Areas/Admin/roles/role.html",
-		//Facility html
-		"views/Areas/Admin/facilities/facility.html",
-		//Service html
-		"views/Areas/Admin/services/service.html",
-		//Room html
-		"views/Areas/Admin/rooms/room.html",
-		//Login html
 		"views/Auth/login.html",
-		//Admin dashboard layout
+
+		// Admin layouts (ORDER MATTERS)
+		"views/Areas/Admin/Layout.html",
 		"views/Areas/Admin/dashboard_header.html",
-		"views/Areas/Admin/dashboard/dashboard.html",
 		"views/Areas/Admin/dashboard_footer.html",
+
+		// Admin pages
+		"views/Areas/Admin/dashboard/dashboard.html",
+		"views/Areas/Admin/users/users.html",
+		"views/Areas/Admin/roles/role.html",
+		"views/Areas/Admin/facilities/facility.html",
+		"views/Areas/Admin/services/service.html",
+		"views/Areas/Admin/rooms/room.html",
+		"views/Areas/Admin/rbac/rbac.html",
 	}
+	router.LoadHTMLFiles(files...)
+
 	router.LoadHTMLFiles(files...)
 
 	routes.AuthRoutes(db, router)

@@ -9,6 +9,7 @@ document.getElementById('loginform').addEventListener('submit', function (event)
    const token = localStorage.getItem('token');
   fetch('/api/auth', {
     method: 'POST',
+    credentials: 'include', 
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -32,20 +33,21 @@ document.getElementById('loginform').addEventListener('submit', function (event)
     })
     .then(data => {
        //notification("success", "Login successful");
-       //window.location.href = "/dashboard";
 
        if(data.token){
           localStorage.setItem('token', data.token);
-          window.location.href = '/dashboard';
           notification("success", "Login successful");
-
+  // Use a slight delay
+          setTimeout(() => {
+              window.location.href = "/api/dashboard";
+          }, 100);
        }else{
             notification("error", `${data.token}`);
 
        }
     })
-    .catch(err => {
-      notification("error", err.message);
+    .catch(error => {
+      notification("error", error.error);
       //window.location.href = "/login"
     });
 });

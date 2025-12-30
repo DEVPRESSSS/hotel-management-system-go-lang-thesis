@@ -13,10 +13,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateToken(user models.User) (string, error) {
+func CreateToken(user models.User, roleAccess []models.RoleAccess) (string, error) {
 	tokenLifespan, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
 		return "", err
+	}
+
+	var permissions []string
+	for _, ra := range roleAccess {
+		permissions = append(permissions, ra.Access.AccessName)
 	}
 
 	claims := jwt.MapClaims{
@@ -25,7 +30,7 @@ func CreateToken(user models.User) (string, error) {
 		"email":    user.Email,
 		"username": user.Username,
 		"exp":      time.Now().Add(time.Hour * time.Duration(tokenLifespan)).Unix(),
-		"Role":     user.Role.RoleName,
+		"access":   permissions,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -34,7 +39,6 @@ func CreateToken(user models.User) (string, error) {
 		return "", err
 	}
 
-	fmt.Print(token)
 	return tokenString, nil
 }
 
@@ -90,4 +94,42 @@ func GetTokenFromRequest(c *gin.Context) (string, error) {
 	}
 
 	return token, nil
+}
+
+// func GetTokenFromRequest(c *gin.Context) (string, error) {
+
+// 	authHeader := c.GetHeader("Authorization")
+// 	if strings.HasPrefix(authHeader, "Bearer ") {
+// 		return strings.TrimPrefix(authHeader, "Bearer "), nil
+// 	}
+
+// 	token, err := c.Cookie("token")
+// 	if err != nil {
+// 		return "", errors.New("missing tokens")
+// 	}
+
+// 	return token, nil
+// }
+
+func ParseToken(tokenString string) (jwt.MapClaims, error) {
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(os.Getenv("secret_key")), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return claims, nil
 }
