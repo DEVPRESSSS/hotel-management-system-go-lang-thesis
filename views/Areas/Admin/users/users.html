@@ -1,5 +1,5 @@
 {{ define "users.html" }}
-{{ template "header.html" . }}
+{{ template "dashboard_header.html" . }}
 
 
 
@@ -18,7 +18,7 @@
             <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Create User
+            Create
         </button>
     </div>
 
@@ -171,5 +171,5 @@
 <script src="/src/js/appuser.js"></script>
 <script src="/src/js/notification/notification.js"></script>
 <script src="/src/js/user.js"></script>
-{{ template "footer.html" . }}
+{{ template "dashboard_footer.html" . }}
 {{ end }}

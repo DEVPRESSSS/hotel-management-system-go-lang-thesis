@@ -37,17 +37,18 @@ document.getElementById('loginform').addEventListener('submit', function (event)
        if(data.token){
           localStorage.setItem('token', data.token);
           notification("success", "Login successful");
-  // Use a slight delay
+
+          //Check first what role
+          
           setTimeout(() => {
               window.location.href = "/api/dashboard";
           }, 100);
        }else{
-            notification("error", `${data.token}`);
+            notification("error", `${data.err}`);
 
        }
     })
     .catch(error => {
       notification("error", error.error);
-      //window.location.href = "/login"
     });
 });

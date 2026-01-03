@@ -19,42 +19,101 @@
 		</div>
 		
 		<nav class="mt-6">
-			<ul class="space-y-2 px-3">
-				<li>
-					<a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Home</span>
-					</a>
-				</li>
-				<li>
-					<a href="/roles" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Roles</span>
-					</a>
-				</li>
-				<li>
-					<a href="/facility" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Facility</span>
-					</a>
-				</li>
-				<li>
-					<a href="/service" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Services</span>
-					</a>
-				</li>
-				<li>
-					<a href="/rooms" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Rooms</span>
-					</a>
-				</li>
-				<li>
-					<a href="/test" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition duration-200">
-						<span>Rooms</span>
-					</a>
-				</li>
-			</ul>
+		<ul class="space-y-2">
+
+			<!-- DASHBOARD -->
+			<li>
+				<a href="/api/dashboard"
+				class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+					🏠 <span class="ml-3">Dashboard</span>
+				</a>
+			</li>
+
+			<!-- ADMINISTRATION -->
+			<li>
+				<details class="group">
+					<summary
+						class="flex items-center justify-between px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-700 hover:text-white rounded-lg">
+						<span>⚙️ Administration</span>
+						<span class="transition-transform group-open:rotate-180"></span>
+					</summary>
+
+					<ul class="mt-2 ml-4 space-y-1">
+						<li>
+							<a href="/roles" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								Roles
+							</a>
+						</li>
+						<li>
+							<a href="/users" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								App users
+							</a>
+						</li>
+						
+					</ul>
+				</details>
+			</li>
+
+			<!-- HOTEL MANAGEMENT -->
+			<li>
+				<details class="group">
+					<summary
+						class="flex items-center justify-between px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-700 hover:text-white rounded-lg">
+						<span>🏨 Hotel Management</span>
+						<span class="transition-transform group-open:rotate-180"></span>
+					</summary>
+
+					<ul class="mt-2 ml-4 space-y-1">
+						<li>
+							<a href="/rooms" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								Rooms
+							</a>
+						</li>
+						
+						<li>
+							<a href="/service" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								Services
+							</a>
+						</li>
+						<li>
+							<a href="/facility" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								Facility
+							</a>
+						</li>
+						
+					</ul>
+				</details>
+			</li>
+
+			<!-- DEV / TEST -->
+			<li>
+				<details class="group">
+					<summary
+						class="flex items-center justify-between px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-700 hover:text-white rounded-lg">
+						<span>🧪 Development</span>
+						<span class="transition-transform group-open:rotate-180"></span>
+					</summary>
+
+					<ul class="mt-2 ml-4 space-y-1">
+						<li>
+							<a href="/test" class="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+								Test Page
+							</a>
+						</li>
+					</ul>
+				</details>
+			</li>
+
+			<li>
+				<a href="/Logout">Logout</a>
+			</li>
+
+		</ul>
+
 		</nav>
 	</aside>
 
 	<!-- Main Content Area -->
-	<div class=" min-h-screen flex flex-col bg-amber-500 border-2" style="margin-left: 150px; ">
+	<div class=" min-h-screen flex flex-col bg-amber-500 border-2" style="margin-left: 190px; ">
 		<main class="flex-1 p-6">
 {{ end }}

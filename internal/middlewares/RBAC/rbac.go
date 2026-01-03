@@ -11,9 +11,6 @@ import (
 
 func RBACMiddleware(permission string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		fmt.Println("=== RBAC Middleware Debug ===")
-		fmt.Println("Request URL:", ctx.Request.URL.Path)
-		fmt.Println("All Cookies Received:", ctx.Request.Header.Get("Cookie"))
 
 		tokenString := ctx.GetHeader("Authorization")
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
@@ -22,8 +19,7 @@ func RBACMiddleware(permission string) gin.HandlerFunc {
 			cookie, err := ctx.Cookie("token")
 
 			if err != nil {
-				fmt.Println("ERROR: No token cookie found!")
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+				ctx.Redirect(http.StatusUnauthorized, "/login")
 				return
 			}
 			tokenString = cookie
@@ -35,7 +31,24 @@ func RBACMiddleware(permission string) gin.HandlerFunc {
 			return
 		}
 
-		permissions := claims["access"].([]interface{})
+		rawAccess, exists := claims["access"]
+		fmt.Println(rawAccess)
+		if !exists || rawAccess == nil {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "no permissions assigned to role",
+			})
+			//ctx.Redirect(http.StatusUnauthorized, "/login")
+
+			return
+		}
+
+		permissions, ok := rawAccess.([]interface{})
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "invalid permissions format",
+			})
+			return
+		}
 		for _, p := range permissions {
 			if p == permission {
 				fmt.Println("SUCCESS: Permission granted")

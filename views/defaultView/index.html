@@ -20,79 +20,38 @@
 	</div>
 
 	<!-- Room Cards Grid -->
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+	<!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> -->
 		
 		<!-- Room Card 1 -->
-		<div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
+		<!-- <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
 			<div class="relative overflow-hidden h-64 bg-gray-300">
 				<img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop" alt="Deluxe Room" class="w-full h-full object-cover hover:scale-105 transition duration-300">
 				<span class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">$150/night</span>
 			</div>
 			<div class="p-6">
-				<h3 class="text-xl font-bold text-gray-800 mb-2">Deluxe Room</h3>
+				<h3 id = "roomtypename" name="roomtypename" class="text-xl font-bold text-gray-800 mb-2">Deluxe Room</h3>
 				<div class="flex items-center mb-3">
 					<span class="text-yellow-400">★★★★★</span>
 					<span class="text-gray-600 text-sm ml-2">(89 reviews)</span>
 				</div>
-				<p class="text-gray-600 text-sm mb-4">Spacious room with king-size bed, premium bedding, and city view balcony.</p>
+				<p id="description" name="description" class="text-gray-600 text-sm mb-4">Spacious room with king-size bed, premium bedding, and city view balcony.</p>
 				<div class="flex items-center text-gray-500 text-sm mb-4 space-x-4">
-					<span>👥 2 Guests</span>
+					<span class="capacity" name="capacity" >👥 2 Guests</span>
 					<span>📐 45 m²</span>
 				</div>
 				<button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold">
 					Book Now
 				</button>
 			</div>
-		</div>
+		</div> -->	
+	<!-- 
+	</div> -->
 
-		<!-- Room Card 2 -->
-		<div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
-			<div class="relative overflow-hidden h-64 bg-gray-300">
-				<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop" alt="Suite Room" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-				<span class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">$220/night</span>
-			</div>
-			<div class="p-6">
-				<h3 class="text-xl font-bold text-gray-800 mb-2">Executive Suite</h3>
-				<div class="flex items-center mb-3">
-					<span class="text-yellow-400">★★★★★</span>
-					<span class="text-gray-600 text-sm ml-2">(156 reviews)</span>
-				</div>
-				<p class="text-gray-600 text-sm mb-4">Luxury suite with separate living area, Jacuzzi, and panoramic city views.</p>
-				<div class="flex items-center text-gray-500 text-sm mb-4 space-x-4">
-					<span>👥 4 Guests</span>
-					<span>📐 85 m²</span>
-				</div>
-				<button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold">
-					Book Now
-				</button>
-			</div>
-		</div>
+	<div id="roomsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 
-		<!-- Room Card 3 -->
-		<div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
-			<div class="relative overflow-hidden h-64 bg-gray-300">
-			<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop" alt="Suite Room" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-				<span class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">$220/night</span>
-			</div>
-			<div class="p-6">
-				<h3 class="text-xl font-bold text-gray-800 mb-2">Standard Room</h3>
-				<div class="flex items-center mb-3">
-					<span class="text-yellow-400">★★★★☆</span>
-					<span class="text-gray-600 text-sm ml-2">(122 reviews)</span>
-				</div>
-				<p class="text-gray-600 text-sm mb-4">Comfortable room with queen-size bed, modern amenities, and street view.</p>
-				<div class="flex items-center text-gray-500 text-sm mb-4 space-x-4">
-					<span>👥 2 Guests</span>
-					<span>📐 32 m²</span>
-				</div>
-				<button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold">
-					Book Now
-				</button>
-			</div>
-		</div>
 
-	</div>
 </div>
+<script src="/src/js/home.js"></script>
 
 {{ template "footer.html" . }}
 {{ end }}

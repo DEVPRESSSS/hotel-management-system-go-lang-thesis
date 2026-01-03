@@ -143,7 +143,7 @@ fetch('/api/rooms')
                         <td>${room.capacity}</td>                  
                         <td>${room.price}</td>                  
                         <td>${room.status}</td>                  
-                        <td>${room.created_at}</td>                  
+                        <td>${new Date(room.created_at).toLocaleDateString()}</td>                  
                         <td>
                             <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
                                 data-roomid = "${room.roomid}"

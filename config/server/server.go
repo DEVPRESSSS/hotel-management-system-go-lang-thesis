@@ -14,9 +14,6 @@ func SetupServer(host string, db *gorm.DB) {
 
 	router.Static("/src", "./src")
 
-	//router.LoadHTMLGlob("views/**/*.html")
-	// Register routes
-
 	files := []string{
 		// Default layout
 		"views/Layout/header.html",
@@ -29,7 +26,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/defaultView/index.html",
 		"views/Auth/login.html",
 
-		// Admin layouts (ORDER MATTERS)
+		// Admin layouts
 		"views/Areas/Admin/Layout.html",
 		"views/Areas/Admin/dashboard_header.html",
 		"views/Areas/Admin/dashboard_footer.html",
@@ -43,8 +40,6 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Admin/rooms/room.html",
 		"views/Areas/Admin/rbac/rbac.html",
 	}
-	router.LoadHTMLFiles(files...)
-
 	router.LoadHTMLFiles(files...)
 
 	routes.AuthRoutes(db, router)

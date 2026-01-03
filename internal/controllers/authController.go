@@ -24,16 +24,19 @@ func (s *Server) Login(ctx *gin.Context) {
 	}
 
 	ctx.SetCookie(
-		"token", // name
-		token,   // value
-		3600,    // max age in seconds
-		"/",     // path
-		"",      // domain (empty = current domain)
-		false,   // secure (set true in production with HTTPS)
-		true,    // httpOnly
+		"token",
+		token,
+		3600,
+		"/",
+		"",
+		false,
+		true,
 	)
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Account found", "token": token})
+
+	//Redirect the user to Dashboard
+	//ctx.Redirect(http.StatusFound, "/api/dashboard")
 }
 
 func (s *Server) AuthenticateUser(username, password string) (string, error) {

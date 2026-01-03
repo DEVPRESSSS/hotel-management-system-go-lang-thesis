@@ -12,226 +12,165 @@ import (
 
 func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
-	// 404 handler
+	// --------------------------------------------------
+	// Global Handlers
+	// --------------------------------------------------
+
+	// Custom 404 handler
 	router.NoRoute(func(ctx *gin.Context) {
 		ctx.HTML(http.StatusNotFound, "errors.html", gin.H{})
 	})
 
-	// Default routes
+	// Initialize controller server
 	server := controllers.NewServer(db)
 
+	// --------------------------------------------------
+	// Public Routes (No Authentication Required)
+	// --------------------------------------------------
 	defaultRoute := router.Group("/")
 	{
-
-		defaultRoute.GET("/home", func(ctx *gin.Context) {
+		// Home page
+		defaultRoute.GET("/", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
-
 		//Login post method handler
 		defaultRoute.POST("/api/auth", server.Login)
-		//Login page route
+		// Get rooms
+		defaultRoute.GET("/avail/rooms", server.GetRooms)
+		//Get the selected room
+		defaultRoute.GET("/api/roomselected/:roomid", server.RoomSelected)
+
+		// Login page
 		defaultRoute.GET("/login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "login.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
-
 	}
 
+	// --------------------------------------------------
+	// Protected Routes (JWT Authentication Required)
+	// --------------------------------------------------
 	authorize := router.Group("/")
 	authorize.Use(middlewares.AuthMiddleware())
 	{
-		/*
-			---------CRUD USER-------
-		*/
+		// ==============================================
+		// USER MANAGEMENT (CRUD)
+		// ==============================================
 
-		//Create user route
-		authorize.POST("/userslist", server.CreateUser)
+		authorize.POST("/userslist", rbac.RBACMiddleware("create"), server.CreateUser)
+		authorize.PUT("/api/update/:userid", rbac.RBACMiddleware("update"), server.UpdateUser)
+		authorize.DELETE("/api/delete/:userid", rbac.RBACMiddleware("delete"), server.DeleteUser)
 
-		//Update user route
-		authorize.PUT("/api/update/:userid", server.UpdateUser)
-
-		//Delete user route
-		authorize.DELETE("/api/delete/:userid", server.DeleteUser)
-
-		//Route for users list
-		authorize.GET("/userslist", func(ctx *gin.Context) {
+		// Users page
+		authorize.GET("/users", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "users.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Populate user.html using api/user API
-		authorize.GET("/api/users", server.GetAllUsers)
-
-		//Fetch selected user from API
+		// User APIs
+		authorize.GET("/api/users", rbac.RBACMiddleware("read"), server.GetAllUsers)
 		authorize.GET("/api/user/:userid", server.GetUser)
 
-		/*
-			---------END USER-------
+		// ==============================================
+		// ROLE MANAGEMENT (CRUD)
+		// ==============================================
 
-		*/
-
-		/*
-			---------CRUD ROLE-------
-		*/
-
-		//Create role route
 		authorize.POST("/api/createrole", server.CreateRole)
-
-		//Update role route
 		authorize.PUT("/api/updaterole/:roleid", server.UpdateRole)
-
-		//Delete role route
 		authorize.DELETE("/api/deleterole/:roleid", server.DeleteRole)
 
-		//Route for roles list
+		// Roles page
 		authorize.GET("/roles", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Fetch all roles
+		// Role APIs
 		authorize.GET("/api/roles", server.GetRoles)
-
-		//Fetch selected role information
 		authorize.GET("/api/roles/:roleid", server.GetRole)
 
-		/*
-			---------END USER-------
+		// ==============================================
+		// FACILITY MANAGEMENT (CRUD)
+		// ==============================================
 
-		*/
-
-		/*
-			---------CRUD FACILITY-------
-		*/
-		//Create facility route
 		authorize.POST("/api/createfacility", server.CreateFacility)
-
-		//Update facility route
 		authorize.PUT("/api/updatefacility/:facilityid", server.UpdateFacility)
-
-		//Delete facility route
 		authorize.DELETE("/api/deletefacility/:facilityid", server.Deletefacility)
 
-		//Routes for facility
+		// Facility page (RBAC: Read Permission)
 		authorize.GET("/facility", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "facility.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Fetch all roles
+		// Facility APIs
 		authorize.GET("/api/facility", server.GetFacilities)
-
-		//Fetch selected role information
 		authorize.GET("/api/facility/:facilityid", server.GetFacility)
 
-		/*
-			---------END USER-------
+		// ==============================================
+		// SERVICE MANAGEMENT (CRUD + RBAC)
+		// ==============================================
 
-		*/
-
-		/*
-			---------CRUD SERVICE-------
-		*/
-		//Create services route
 		authorize.POST("/api/createservice", rbac.RBACMiddleware("create"), server.CreateService)
-
-		//Update services route
 		authorize.PUT("/api/updateservice/:serviceid", rbac.RBACMiddleware("update"), server.UpdateService)
-
-		//Delete services route
 		authorize.DELETE("/api/deleteservice/:serviceid", rbac.RBACMiddleware("delete"), server.DeleteService)
 
-		//Routes for services
+		// Services page
 		authorize.GET("/service", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "service.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Fetch all services
+		// Service APIs
 		authorize.GET("/api/services", server.GetServices)
-
-		//Fetch selected services information
 		authorize.GET("/api/service/:serviceid", server.GetService)
 
-		/*
-			---------END USER-------
+		// ==============================================
+		// ROOM MANAGEMENT (CRUD)
+		// ==============================================
 
-		*/
-
-		/*
-			---------CRUD SERVICE-------
-		*/
-		//Create room route
 		authorize.POST("/api/createroom", server.CreateRoom)
-
-		//Update room route
 		authorize.PUT("/api/updateroom/:roomid", server.UpdateRoom)
-
-		//Delete room route
 		authorize.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
 
-		//Routes for room
+		// Rooms page
 		authorize.GET("/rooms", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "room.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
-		//Fetch all room
+		// Room APIs
 		authorize.GET("/api/rooms", server.GetRooms)
-
-		//Fetch selected room information
 		authorize.GET("/api/room/:roomid", server.GetRoom)
 
-		/*
-			---------END USER-------
+		// ==============================================
+		// FLOOR & ROOM TYPE (READ ONLY)
+		// ==============================================
 
-		*/
-
-		/*
-			---------CRUD FLOOR-------
-		*/
-		// //Create room route
-		// defaultRoute.POST("/api/createroom", server.CreateRoom)
-
-		// //Update room route
-		// defaultRoute.PUT("/api/updateroom/:roomid", server.UpdateRoom)
-
-		// //Delete room route
-		// defaultRoute.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
-
-		//Routes for room
-		// defaultRoute.GET("/rooms", func(ctx *gin.Context) {
-		// 	ctx.HTML(http.StatusOK, "room.html", gin.H{
-		// 		"title": "Hotel Management System",
-		// 	})
-		// })
-
-		//Fetch all room
 		authorize.GET("/api/floors", server.GetFloor)
 		authorize.GET("/api/roomtypes", server.GetRoomtype)
 
-		// //Fetch selected room information
-		// defaultRoute.GET("/api/room/:roomid", server.GetService)
+		// ==============================================
+		// ADMIN DASHBOARD (RBAC Protected)
+		// ==============================================
 
-		/*
-			---------END USER-------
-
-		*/
-
-		//Route for admin dashboard
 		authorize.GET("/api/dashboard", rbac.RBACMiddleware("update"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
-				"title": "Admin dashboard",
+				"title": "Admin Dashboard",
 			})
 		})
+
+		// ==============================================
+		// RBAC TEST PAGE
+		// ==============================================
 
 		authorize.GET("/test", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
