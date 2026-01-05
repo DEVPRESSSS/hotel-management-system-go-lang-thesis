@@ -79,12 +79,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ROLE MANAGEMENT (CRUD)
 		// ==============================================
 
-		authorize.POST("/api/createrole", server.CreateRole)
-		authorize.PUT("/api/updaterole/:roleid", server.UpdateRole)
-		authorize.DELETE("/api/deleterole/:roleid", server.DeleteRole)
+		authorize.POST("/api/createrole", rbac.RBACMiddleware("create"), server.CreateRole)
+		authorize.PUT("/api/updaterole/:roleid", rbac.RBACMiddleware("update"), server.UpdateRole)
+		authorize.DELETE("/api/deleterole/:roleid", rbac.RBACMiddleware("delete"), server.DeleteRole)
 
 		// Roles page
-		authorize.GET("/roles", func(ctx *gin.Context) {
+		authorize.GET("/roles", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "role.html", gin.H{
 				"title": "Hotel Management System",
 			})
@@ -169,13 +169,15 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		// ==============================================
-		// RBAC TEST PAGE
+		// ROLE BASED ACCESS ROUTE
 		// ==============================================
 
-		authorize.GET("/test", func(ctx *gin.Context) {
+		authorize.GET("api/rbac", server.RoleAccess)
+		authorize.GET("/rbac", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
+
 	}
 }
