@@ -174,11 +174,24 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Role based access api
 		authorize.GET("api/rbac", server.RoleAccess)
-		authorize.GET("api/access", server.Access)
-
-		//Create role access and access
+		//Create role access
 		authorize.POST("api/createrc", server.CreateRoleAccess)
+		//Update role access
+		authorize.POST("api/updaterc/:roleid", server.UpdateRoleAcccess)
+		//Delete role access
+		authorize.DELETE("api/deleterc/:roleid", server.DeleteRoleAccess)
+
+		// ==============================================
+		// ACCESS ROUTE
+		// ==============================================
+		//Get all access
+		authorize.GET("api/access", server.Access)
+		//Create access function
 		authorize.POST("api/createac", server.CreateAccess)
+		//Update access function
+		authorize.POST("api/updaterc/:accessid", server.UpdateAcccess)
+		//Delete access function
+		authorize.DELETE("api/deleterc/:accessid", server.DeleteAccess)
 
 		authorize.GET("/rbac", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{

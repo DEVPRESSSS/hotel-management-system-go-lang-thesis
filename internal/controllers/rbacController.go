@@ -9,6 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Create role access
 func (s *Server) CreateRoleAccess(ctx *gin.Context) {
 
 	var roleAccess models.RoleAccess
@@ -46,10 +47,10 @@ func (s *Server) CreateRoleAccess(ctx *gin.Context) {
 }
 
 // Update role access
-func (s *Server) UpdateAcccess(ctx *gin.Context) {
+func (s *Server) UpdateRoleAcccess(ctx *gin.Context) {
 	roleAccessID := ctx.Param("roleid")
 
-	var payload models.Role
+	var payload models.RoleAccess
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid payload"})
 		return
@@ -62,28 +63,28 @@ func (s *Server) UpdateAcccess(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"success": "Role updated successfully"})
+	ctx.JSON(200, gin.H{"success": "Role access updated successfully"})
 }
 
-// Create access
-func (s *Server) CreateAccess(ctx *gin.Context) {
+// Delete role access
+func (s *Server) DeleteRoleAccess(ctx *gin.Context) {
+	roleid := ctx.Param("roleid")
 
-	var access models.Access
-	if err := ctx.ShouldBind(&access); err != nil {
+	result := s.Db.
+		Where("role_id = ?", roleid).
+		Delete(&models.RoleAccess{})
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error.Error()})
 		return
 	}
 
-	//Create access error handling
-	if err := s.Db.Create(&access).Error; err != nil {
-
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create user",
-		})
+	if result.RowsAffected == 0 {
+		ctx.JSON(404, gin.H{"error": "Role access not found"})
+		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Accesss created successfully"})
+	ctx.Status(204)
 }
 
 // fetch all the role access properly
@@ -102,6 +103,69 @@ func (s *Server) RoleAccess(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, roleAccess)
+}
+
+// =====================================
+// =======Access Management=============
+// Create access function
+func (s *Server) CreateAccess(ctx *gin.Context) {
+
+	var access models.Access
+	if err := ctx.ShouldBind(&access); err != nil {
+
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := s.Db.Create(&access).Error; err != nil {
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create user",
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"success": "Accesss created successfully"})
+}
+
+// Update access
+func (s *Server) UpdateAcccess(ctx *gin.Context) {
+	accessId := ctx.Param("accessid")
+
+	var payload models.Access
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid payload"})
+		return
+	}
+
+	if err := s.Db.Model(&models.Access{}).
+		Where("access_id = ?", accessId).
+		Updates(payload).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"success": "Access updated successfully"})
+}
+
+// Delete access
+func (s *Server) DeleteAccess(ctx *gin.Context) {
+	roleid := ctx.Param("accessid")
+
+	result := s.Db.
+		Where("access_id = ?", roleid).
+		Delete(&models.Access{})
+
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		ctx.JSON(404, gin.H{"error": "Role access not found"})
+		return
+	}
+
+	ctx.Status(204)
 }
 
 // Fetch all the access
