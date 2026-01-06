@@ -61,3 +61,23 @@ fetch('/api/roomtypes')
       });
   })
 .catch(err => console.error('Failed to load roles:', err));
+
+//Fetch access
+fetch('api/access')
+  .then(res => res.json())
+  .then(access => {
+      AppState.access = access;
+
+      const select = document.getElementById('accessid');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">Select floor</option>';
+
+      access.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r.accessid
+          option.textContent = r.accessname; 
+          select.appendChild(option);
+      });
+  })
+.catch(err => console.error('Failed to load roles:', err));

@@ -9,12 +9,6 @@ function openModal() {
     document.getElementById('userModal').classList.add('flex');
 }
 
-function createModal(){
-    headerTitle.innerText = "Create user";
-    btnSubmit.innerText = "Create";
-    openModal();
-}
-
 function closeModal() {
         document.getElementById('userModal').classList.add('hidden');
         document.getElementById('userModal').classList.remove('flex');
@@ -227,7 +221,15 @@ document.getElementById('users-body').addEventListener('click', function (e) {
         if (result.isConfirmed) {
             fetch(`/api/deleterole/${roleid}`, {
             method: 'DELETE'
-        })
+
+            
+        },  
+            Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+            })
+        )
         .then(res => {
             if (!res.ok) throw new Error('Delete failed');
             e.target.closest('tr').remove(); 
@@ -238,11 +240,7 @@ document.getElementById('users-body').addEventListener('click', function (e) {
             alert('Error deleting user');
         });
 
-        Swal.fire({
-        title: "Deleted!",
-        text: "Your file has been deleted.",
-        icon: "success"
-        });
+      
     }
     });
 

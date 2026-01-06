@@ -63,7 +63,7 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 		return
 	}
 
-	if err := s.Db.Model(&models.Service{}).
+	if err := s.Db.Model(&models.Room{}).
 		Where("room_id = ?", roomid).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})

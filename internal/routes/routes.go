@@ -172,7 +172,14 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ROLE BASED ACCESS ROUTE
 		// ==============================================
 
+		//Role based access api
 		authorize.GET("api/rbac", server.RoleAccess)
+		authorize.GET("api/access", server.Access)
+
+		//Create role access and access
+		authorize.POST("api/createrc", server.CreateRoleAccess)
+		authorize.POST("api/createac", server.CreateAccess)
+
 		authorize.GET("/rbac", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
 				"title": "Hotel Management System",

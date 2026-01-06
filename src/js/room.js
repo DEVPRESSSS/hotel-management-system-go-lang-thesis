@@ -25,9 +25,8 @@ function createModal(){
 document.getElementById('upsertform').addEventListener('submit', function(e){
 
     e.preventDefault();
-    //Generate unique uid
+
     let uid = "";
-    //Get the input in role textbox
     const roomNumber = document.getElementById('roomnumber').value;
     const roomType = document.getElementById('roomtypeid').value;
     const floor = document.getElementById('floorid').value;
@@ -67,10 +66,7 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
             
             })
             .then(data=>{
-
-                //Show notication success
                 notification("success", data.success);
-
             })
             .catch(err=>{
 
@@ -103,6 +99,7 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
                     return data;
                 })
                 .then(data => {
+                    console.log(updateFormData);
                     notification("success", data.success);
 
                 })
@@ -205,7 +202,6 @@ document.getElementById('users-body').addEventListener('click' , function(e){
 }); 
 
 
-//Delete user function
 document.getElementById('users-body').addEventListener('click', function (e) {
     if (!e.target.classList.contains('delete-btn')) return;
 
@@ -221,29 +217,26 @@ document.getElementById('users-body').addEventListener('click', function (e) {
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, delete it!"
     }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/api/deleteroom/${roomid}`, {
+
+        if (!result.isConfirmed) return;
+
+        fetch(`/api/deleteroom/${roomid}`, {
             method: 'DELETE'
         })
         .then(res => {
             if (!res.ok) throw new Error('Delete failed');
-            e.target.closest('tr').remove(); 
-            
+
+            Swal.fire({
+                title: "Deleted!",
+                text: "Your file has been deleted.",
+                icon: "success"
+            });
+
+            e.target.closest('tr').remove();
         })
         .catch(err => {
-            console.log(err);
-            alert('Error deleting user');
-            return;
-        });
-
-       
-    }
-     Swal.fire({
-        title: "Deleted!",
-        text: "Your file has been deleted.",
-        icon: "success"
+            console.error(err);
+            Swal.fire("Error", "Failed to delete room", "error");
         });
     });
-
-   
 });
