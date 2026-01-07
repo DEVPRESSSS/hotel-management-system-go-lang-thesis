@@ -29,8 +29,6 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// err = db.AutoMigrate(&models.Role{})
-	// err = db.AutoMigrate(&models.User{})
 	err = db.AutoMigrate(
 		&models.Role{},
 		&models.User{},
@@ -42,6 +40,8 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.Floor{},
 		&models.RoomType{},
 		&models.Room{},
+		&models.Aminity{},
+		&models.RoomAminity{},
 	)
 
 	if err != nil {

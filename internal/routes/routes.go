@@ -73,7 +73,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		// User APIs
 		authorize.GET("/api/users", rbac.RBACMiddleware("read"), server.GetAllUsers)
-		authorize.GET("/api/user/:userid", server.GetUser)
+		authorize.GET("/api/user/:userid", rbac.RBACMiddleware("read"), server.GetUser)
 
 		// ==============================================
 		// ROLE MANAGEMENT (CRUD)
@@ -91,16 +91,16 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		// Role APIs
-		authorize.GET("/api/roles", server.GetRoles)
-		authorize.GET("/api/roles/:roleid", server.GetRole)
+		authorize.GET("/api/roles", rbac.RBACMiddleware("read"), server.GetRoles)
+		authorize.GET("/api/roles/:roleid", rbac.RBACMiddleware("read"), server.GetRole)
 
 		// ==============================================
 		// FACILITY MANAGEMENT (CRUD)
 		// ==============================================
 
-		authorize.POST("/api/createfacility", server.CreateFacility)
-		authorize.PUT("/api/updatefacility/:facilityid", server.UpdateFacility)
-		authorize.DELETE("/api/deletefacility/:facilityid", server.Deletefacility)
+		authorize.POST("/api/createfacility", rbac.RBACMiddleware("create"), server.CreateFacility)
+		authorize.PUT("/api/updatefacility/:facilityid", rbac.RBACMiddleware("update"), server.UpdateFacility)
+		authorize.DELETE("/api/deletefacility/:facilityid", rbac.RBACMiddleware("delete"), server.Deletefacility)
 
 		// Facility page (RBAC: Read Permission)
 		authorize.GET("/facility", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
@@ -110,8 +110,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		// Facility APIs
-		authorize.GET("/api/facility", server.GetFacilities)
-		authorize.GET("/api/facility/:facilityid", server.GetFacility)
+		authorize.GET("/api/facility", rbac.RBACMiddleware("read"), server.GetFacilities)
+		authorize.GET("/api/facility/:facilityid", rbac.RBACMiddleware("read"), server.GetFacility)
 
 		// ==============================================
 		// SERVICE MANAGEMENT (CRUD + RBAC)
@@ -122,47 +122,47 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.DELETE("/api/deleteservice/:serviceid", rbac.RBACMiddleware("delete"), server.DeleteService)
 
 		// Services page
-		authorize.GET("/service", func(ctx *gin.Context) {
+		authorize.GET("/service", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "service.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		// Service APIs
-		authorize.GET("/api/services", server.GetServices)
-		authorize.GET("/api/service/:serviceid", server.GetService)
+		authorize.GET("/api/services", rbac.RBACMiddleware("read"), server.GetServices)
+		authorize.GET("/api/service/:serviceid", rbac.RBACMiddleware("read"), server.GetService)
 
 		// ==============================================
 		// ROOM MANAGEMENT (CRUD)
 		// ==============================================
 
-		authorize.POST("/api/createroom", server.CreateRoom)
-		authorize.PUT("/api/updateroom/:roomid", server.UpdateRoom)
-		authorize.DELETE("/api/deleteroom/:roomid", server.DeleteRoom)
+		authorize.POST("/api/createroom", rbac.RBACMiddleware("create"), server.CreateRoom)
+		authorize.PUT("/api/updateroom/:roomid", rbac.RBACMiddleware("update"), server.UpdateRoom)
+		authorize.DELETE("/api/deleteroom/:roomid", rbac.RBACMiddleware("delete"), server.DeleteRoom)
 
 		// Rooms page
-		authorize.GET("/rooms", func(ctx *gin.Context) {
+		authorize.GET("/rooms", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "room.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
 
 		// Room APIs
-		authorize.GET("/api/rooms", server.GetRooms)
-		authorize.GET("/api/room/:roomid", server.GetRoom)
+		authorize.GET("/api/rooms", rbac.RBACMiddleware("read"), server.GetRooms)
+		authorize.GET("/api/room/:roomid", rbac.RBACMiddleware("read"), server.GetRoom)
 
 		// ==============================================
 		// FLOOR & ROOM TYPE (READ ONLY)
 		// ==============================================
 
-		authorize.GET("/api/floors", server.GetFloor)
-		authorize.GET("/api/roomtypes", server.GetRoomtype)
+		authorize.GET("/api/floors", rbac.RBACMiddleware("read"), server.GetFloor)
+		authorize.GET("/api/roomtypes", rbac.RBACMiddleware("read"), server.GetRoomtype)
 
 		// ==============================================
 		// ADMIN DASHBOARD (RBAC Protected)
 		// ==============================================
 
-		authorize.GET("/api/dashboard", rbac.RBACMiddleware("update"), func(ctx *gin.Context) {
+		authorize.GET("/api/dashboard", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
 				"title": "Admin Dashboard",
 			})
@@ -172,30 +172,29 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ROLE BASED ACCESS ROUTE
 		// ==============================================
 
-		//Role based access api
-		authorize.GET("/api/rbac", server.RoleAccess)
 		//Create role access
 		authorize.POST("/api/createrc", server.CreateRoleAccess)
 		//Update role access
 		authorize.POST("/api/updaterc/:roleid", server.UpdateRoleAcccess)
 		//Delete role access
 		authorize.DELETE("/api/deleterc/:accessid", server.DeleteRoleAccess)
-
+		//Role based access api
+		authorize.GET("/api/rbac", rbac.RBACMiddleware("read"), server.RoleAccess)
 		// ==============================================
 		// ACCESS ROUTE
 		// ==============================================
 
 		//Create access function
-		authorize.POST("/api/createac", server.CreateAccess)
+		authorize.POST("/api/createac", rbac.RBACMiddleware("create"), server.CreateAccess)
 		//Update access function
-		authorize.POST("/api/updateac/:accessid", server.UpdateAcccess)
+		authorize.POST("/api/updateac/:accessid", rbac.RBACMiddleware("update"), server.UpdateAcccess)
 		//Delete access function
-		authorize.DELETE("/api/deleteac/:accessid", server.DeleteAccess)
+		authorize.DELETE("/api/deleteac/:accessid", rbac.RBACMiddleware("delete"), server.DeleteAccess)
 		//Get access record
-		authorize.GET("/api/access/:accessid", server.GetAccess)
+		authorize.GET("/api/access/:accessid", rbac.RBACMiddleware("read"), server.GetAccess)
 		//Get all access
-		authorize.GET("/api/access", server.Access)
-		authorize.GET("/rbac", func(ctx *gin.Context) {
+		authorize.GET("/api/access", rbac.RBACMiddleware("read"), server.Access)
+		authorize.GET("/rbac", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
 				"title": "Hotel Management System",
 			})
