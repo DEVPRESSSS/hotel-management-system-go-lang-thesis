@@ -3,6 +3,7 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -68,10 +69,10 @@ func (s *Server) UpdateRoleAcccess(ctx *gin.Context) {
 
 // Delete role access
 func (s *Server) DeleteRoleAccess(ctx *gin.Context) {
-	roleid := ctx.Param("roleid")
+	roleid := ctx.Param("accessid")
 
 	result := s.Db.
-		Where("role_id = ?", roleid).
+		Where("access_id = ?", roleid).
 		Delete(&models.RoleAccess{})
 
 	if result.Error != nil {
@@ -109,22 +110,27 @@ func (s *Server) RoleAccess(ctx *gin.Context) {
 // =======Access Management=============
 // Create access function
 func (s *Server) CreateAccess(ctx *gin.Context) {
-
 	var access models.Access
-	if err := ctx.ShouldBind(&access); err != nil {
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&access); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		log.Printf("BOUND: %+v\n", access)
+
 		return
 	}
 
 	if err := s.Db.Create(&access).Error; err != nil {
-
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create user",
+			"error": "Failed to create access",
 		})
+		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Accesss created successfully"})
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": "Access created successfully",
+	})
 }
 
 // Update access
@@ -166,6 +172,20 @@ func (s *Server) DeleteAccess(ctx *gin.Context) {
 	}
 
 	ctx.Status(204)
+}
+
+// Fetch the information of the selected record in role
+func (s *Server) GetAccess(ctx *gin.Context) {
+
+	accessId := ctx.Param("accessid")
+
+	var access models.Access
+	if err := s.Db.
+		Where("access_id = ?", accessId).First(&access).Error; err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"success": access})
 }
 
 // Fetch all the access

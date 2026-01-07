@@ -1,21 +1,27 @@
+
 //#region--Modal navigations
 const headerTitle = document.getElementById('header-action');
 const btnSubmit = document.getElementById('btn-submit');
 let id = "";
-function openModal() {
-    document.getElementById('roleAccessModal').classList.remove('hidden');
-    document.getElementById('roleAccessModal').classList.add('flex');
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
 
-function closeModal() {
-        document.getElementById('roleAccessModal').classList.add('hidden');
-        document.getElementById('roleAccessModal').classList.remove('flex');
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
-function createModal(){
-    headerTitle.innerText = "Create user";
+
+function createModal(modalId){
+    headerTitle.innerText = "Create";
     btnSubmit.innerText = "Create";
-    openModal();
-}  
+    openModal(modalId);
+}
+ 
 //#endregion
 
 //#region--Role based access management
@@ -35,7 +41,7 @@ fetch('/api/rbac')
                           
                             <button 
                                 class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-rbacid="${rbac.RoleID}">
+                                data-rbacid="${rbac.AccessID}">
                                 Remove
                             </button>
                         </td>
@@ -79,7 +85,7 @@ document.getElementById('upsertform').addEventListener('submit', function (e) {
     })
     .then(data => {
         notification("success", data.success);
-        closeModal(); 
+        closeModal('roleAccessModal'); 
     })
     .catch(err => {
         notification("error", err.message);
@@ -117,9 +123,9 @@ document.getElementById('role-access-body').addEventListener('click', function (
                 text: "Role access has been deleted.",
                 icon: "success"
             });
-
-            e.target.closest('tr').remove();
             rbacid.value = "";
+            e.target.closest('tr').remove();
+          
         })
         .catch(err => {
             console.error(err);
@@ -173,42 +179,170 @@ fetch('/api/access')
 });
 //#endregion
 
-//#region --CRUD Access Functions
-// document.getElementById('upsertform').addEventListener('submit', function (e) {
+//Generate Unique Id
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    .replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0, 
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+//#region --Update and insert access
+document.getElementById('upsertcreateform').addEventListener('submit', function (e) {
 
-//     e.preventDefault();
+    e.preventDefault();
 
-//     const accessId = document.getElementById('access-name').value;
+    let uid = "";
+    //Get the accessname 
+    const accessId = document.getElementById('access-id').value;
+    const accessName = document.getElementById('access-name').value;
+    if( id === ""){
+        uid = uuidv4();
+    }else{
+        uid = id;
+    }
+    const formData = {
+        accessid: uid,
+        accessname: accessName
+    };
 
-//     const formData = {
-//         RoleID: roleId,
-//         AccessID: accessId
-//     };
+    if(accessId == ""){
+        //Create access
+        fetch('/api/createac', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(async response => {
+            const data = await response.json();
 
-//     fetch('/api/createrc', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(formData),
-//     })
-//     .then(async response => {
-//         const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Request failed");
+            }
 
-//         if (!response.ok) {
-//             throw new Error(data.error || "Request failed");
-//         }
+            return data;
+        })
+        .then(data => {
+            notification("success", data.success);
+            id = "";
+            closeModal('access-modal'); 
+        })
+        .catch(err => {
+            notification("error", err.message);
+        });
+    }else{
+        fetch(`/api/updateac/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(async response => {
+            const data = await response.json();
 
-//         return data;
-//     })
-//     .then(data => {
-//         notification("success", data.success);
-//         closeModal(); 
-//     })
-//     .catch(err => {
-//         notification("error", err.message);
-//     });
-// });
+            if (!response.ok) {
+                throw new Error(data.error || "Request failed");
+            }
+
+            return data;
+        })
+        .then(data => {
+            notification("success", data.success);
+            id = "";
+            closeModal('access-modal'); 
+        })
+        .catch(err => {
+            notification("error", err.message);
+        });
+    }
+
+});
 
 
 //#endregion
+//#region--Update function
+document.getElementById('Access-body').addEventListener('click' , function(e){
+
+    if (!e.target.classList.contains('update-btn')) return;
+
+    id = e.target.dataset.accessid;
+    if (!id) return;
+
+    const accessInputId = document.getElementById('access-id');
+    accessInputId.value = id;
+    
+    btnSubmit.innerText = "Update";
+    headerTitle.innerText = "Update access";  
+        
+    fetch(`/api/access/${id}`)
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Request failed");
+            return data;
+        })
+        .then(data => {
+            const accessName= data.success;
+            document.getElementById('access-name').value = accessName.accessname;
+
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+    openModal('access-modal');
+
+
+
+}); 
+//#endregion
+
+//#region--Delete access function
+
+document.getElementById('Access-body').addEventListener('click', function (e) {
+    if (!e.target.classList.contains('delete-btn')) return;
+
+    const accessid = e.target.dataset.accessid;
+    if (!accessid) return;
+
+        Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/deleteac/${accessid}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Delete failed');
+
+            Swal.fire({
+                title: "Deleted!",
+                text: "Access has been deleted.",
+                icon: "success"
+            });
+            accessid.value = "";
+            e.target.closest('tr').remove();
+          
+        })
+        .catch(err => {
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete role access.",
+                icon: "error"
+            });
+        });
+
+    }
+    });
+
+   
+});

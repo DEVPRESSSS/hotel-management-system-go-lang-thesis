@@ -173,26 +173,28 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ==============================================
 
 		//Role based access api
-		authorize.GET("api/rbac", server.RoleAccess)
+		authorize.GET("/api/rbac", server.RoleAccess)
 		//Create role access
-		authorize.POST("api/createrc", server.CreateRoleAccess)
+		authorize.POST("/api/createrc", server.CreateRoleAccess)
 		//Update role access
-		authorize.POST("api/updaterc/:roleid", server.UpdateRoleAcccess)
+		authorize.POST("/api/updaterc/:roleid", server.UpdateRoleAcccess)
 		//Delete role access
-		authorize.DELETE("api/deleterc/:roleid", server.DeleteRoleAccess)
+		authorize.DELETE("/api/deleterc/:accessid", server.DeleteRoleAccess)
 
 		// ==============================================
 		// ACCESS ROUTE
 		// ==============================================
-		//Get all access
-		authorize.GET("api/access", server.Access)
-		//Create access function
-		authorize.POST("api/createac", server.CreateAccess)
-		//Update access function
-		authorize.POST("api/updaterc/:accessid", server.UpdateAcccess)
-		//Delete access function
-		authorize.DELETE("api/deleterc/:accessid", server.DeleteAccess)
 
+		//Create access function
+		authorize.POST("/api/createac", server.CreateAccess)
+		//Update access function
+		authorize.POST("/api/updateac/:accessid", server.UpdateAcccess)
+		//Delete access function
+		authorize.DELETE("/api/deleteac/:accessid", server.DeleteAccess)
+		//Get access record
+		authorize.GET("/api/access/:accessid", server.GetAccess)
+		//Get all access
+		authorize.GET("/api/access", server.Access)
 		authorize.GET("/rbac", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "rbac.html", gin.H{
 				"title": "Hotel Management System",

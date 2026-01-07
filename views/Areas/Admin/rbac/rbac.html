@@ -1,20 +1,20 @@
 {{ define "content" }}
-<section class="container mx-auto p-6">
-    <div class="flex justify-between items-center mb-6">
+
+<div class="flex justify-between items-center mb-6">
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Role based Access Management</h1>
             <p class="text-gray-600 mt-1">Manage all system access</p>
             <h3>Role access</h3>
         </div>
            <button 
-            type="button" 
-            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
-            onclick="createModal()">
-            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Create 
-        </button>
+                type="button" 
+                class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+                onclick="createModal('roleAccessModal')">
+                <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Create 
+            </button>
 
     </div>
 
@@ -39,6 +39,15 @@
         <div>
             <h3>Access</h3>
         </div>
+        <button 
+                type="button" 
+                class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+                onclick="createModal('access-modal')">
+                <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Create 
+        </button>
 
     </div> 
 
@@ -57,10 +66,10 @@
                 </tbody>
             </table>
         </div>
-    </div> 
-</section>
+</div> 
 
-<!-- Modal Overlay -->
+
+<!-- Modal for role access -->
 <div id="roleAccessModal" class="fixed inset-0  hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all">
         <!-- Modal Header -->
@@ -69,7 +78,7 @@
             <button 
                 type="button" 
                 class="text-gray-400 hover:text-gray-600 transition-colors"
-                onclick="closeModal()">
+                onclick="closeModal('roleAccessModal')">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -90,7 +99,8 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                             <option value="">--Select role---</option>
-                        <select>
+                      </select>
+                        <!--Access name-->
                         <label class="block text-sm font-medium text-gray-700 mb-1">Access Name</label>
                        <select id="accessid"
                             name="accessid"
@@ -118,13 +128,69 @@
             <button 
                 type="button" 
                 class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                onclick="closeModal()">
+                onclick="closeModal('roleAccessModal')">
                 Cancel
             </button>
           
         </div>
     </div>
 </div>
+
+
+<!-- Modal for access -->
+<div id="access-modal" class="fixed inset-0  hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800" id="header-action"></h3>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                onclick="closeModal('access-modal')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="px-6 py-4 max-h-96 overflow-y-auto">
+            <!--Error message-->
+            <input id="access-id" hidden/>           
+            <form id="upsertcreateform" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <!--Access name-->
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Access Name</label>
+                        <input type="text" id="access-name" required>
+                
+                    </div>   
+                    <!--Create and update button-->
+                    <div>
+                        <button 
+                                id="btn-submit"
+                                type="submit" 
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Create
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+            <button 
+                type="button" 
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                onclick="closeModal('access-modal')">
+                Cancel
+            </button>
+          
+        </div>
+    </div>
+</div>
+
 <script src="/src/js/state.js"></script>
 <script src="/src/js/appuser.js"></script>
 <script src="/src/js/notification/notification.js"></script>

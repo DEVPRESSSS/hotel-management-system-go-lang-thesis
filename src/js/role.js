@@ -48,9 +48,6 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     let uid = "";
     //Get the input in role textbox
     const roleName = document.getElementById('rolename').value;
-
-   
-
     if( id === ""){
         uid = uuidv4();
     }else{
