@@ -81,6 +81,20 @@ func (s *Server) DeleteAminity(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
+// Fetch the information of the selected record in aminity
+func (s *Server) GetAminity(ctx *gin.Context) {
+
+	aminityId := ctx.Param("aminityid")
+
+	var aminity models.Aminity
+	if err := s.Db.
+		Where("aminity_id = ?", aminityId).First(&aminity).Error; err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"success": aminity})
+}
+
 // Get all the aminity from db
 func (s *Server) GetAminities(ctx *gin.Context) {
 

@@ -56,6 +56,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	authorize := router.Group("/")
 	authorize.Use(middlewares.AuthMiddleware())
 	{
+
+		// ==============================================
+		// AMINITY MANAGEMENT (CRUD)
+		// ==============================================
+
+		authorize.POST("/api/createaminity", rbac.RBACMiddleware("create"), server.CreateAminity)
+		authorize.PUT("/api/updateaminity/:aminityid", rbac.RBACMiddleware("update"), server.UpdateAminity)
+		authorize.DELETE("/api/deleteaminity/:aminityid", rbac.RBACMiddleware("delete"), server.DeleteAminity)
+
+		// Aminity
+		authorize.GET("/aminities", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "aminity.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		// Aminity APIs
+		authorize.GET("/api/aminities", rbac.RBACMiddleware("read"), server.GetAminities)
+		authorize.GET("/api/aminity/:aminityid", rbac.RBACMiddleware("read"), server.GetAminity)
+
 		// ==============================================
 		// USER MANAGEMENT (CRUD)
 		// ==============================================
