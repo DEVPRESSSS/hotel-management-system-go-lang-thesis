@@ -3,4 +3,6 @@ window.AppState  = {
     floors:[],
     rt:[],
     access:[],
+    aminities:[],
+    rooms:[],
 }

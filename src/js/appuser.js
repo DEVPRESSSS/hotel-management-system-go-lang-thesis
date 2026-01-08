@@ -81,3 +81,44 @@ fetch('api/access')
       });
   })
 .catch(err => console.error('Failed to load roles:', err));
+
+//Fetch amenity
+fetch('api/aminities')
+  .then(res => res.json())
+  .then(aminities => {
+      AppState.aminities = aminities;
+
+      const select = document.getElementById('aminityid');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">Select Aminity</option>';
+
+      aminities.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r.aminityid
+          option.textContent = r.aminityname; 
+          select.appendChild(option);
+      });
+  })
+.catch(err => console.error('Failed to load aminity:', err));
+
+
+//Fetch rooms
+fetch('api/rooms')
+  .then(res => res.json())
+  .then(rooms => {
+      AppState.rooms = rooms;
+
+      const select = document.getElementById('roomid');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">Select Room</option>';
+
+      rooms.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r.roomid
+          option.textContent = r.roomnumber; 
+          select.appendChild(option);
+      });
+  })
+.catch(err => console.error('Failed to load aminity:', err));

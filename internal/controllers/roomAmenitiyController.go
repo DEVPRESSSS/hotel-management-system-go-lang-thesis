@@ -85,7 +85,9 @@ func (s *Server) GetRoomAminities(ctx *gin.Context) {
 
 	var roomAminities []models.RoomAminity
 
-	if err := s.Db.Find(&roomAminities).Error; err != nil {
+	if err := s.Db.Preload("Room").
+		Preload("Amenity").
+		Find(&roomAminities).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
