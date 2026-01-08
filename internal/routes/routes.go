@@ -57,6 +57,25 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	authorize.Use(middlewares.AuthMiddleware())
 	{
 		// ==============================================
+		// ROOM TYPES MANAGEMENT (CRUD)
+		// ==============================================
+
+		authorize.POST("/api/createroomtype", rbac.RBACMiddleware("create"), server.CreateRoomType)
+		authorize.PUT("/api/updateroomtype/:roomtypeid", rbac.RBACMiddleware("update"), server.UpdateRoomType)
+		authorize.DELETE("/api/deleteroomtype/:roomtypeid", rbac.RBACMiddleware("delete"), server.DeleteRoomType)
+
+		// Room Types page
+		authorize.GET("/roomtype", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "roomtype.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		//Room type APIs
+		authorize.GET("/api/roomtypes", rbac.RBACMiddleware("read"), server.GetRoomtype)
+		authorize.GET("/api/roomtype/:roomtypeid", rbac.RBACMiddleware("read"), server.GetRoomTypeRecord)
+
+		// ==============================================
 		// ROOM AMINITY MANAGEMENT (CRUD)
 		// ==============================================
 
@@ -194,7 +213,6 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ==============================================
 
 		authorize.GET("/api/floors", rbac.RBACMiddleware("read"), server.GetFloor)
-		authorize.GET("/api/roomtypes", rbac.RBACMiddleware("read"), server.GetRoomtype)
 
 		// ==============================================
 		// ADMIN DASHBOARD (RBAC Protected)
