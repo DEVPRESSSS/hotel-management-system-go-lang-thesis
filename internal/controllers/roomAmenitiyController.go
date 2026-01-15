@@ -12,7 +12,7 @@ import (
 // Create room aminity
 func (s *Server) CreateRoomAminity(ctx *gin.Context) {
 
-	var roomAminity models.RoomAminity
+	var roomAminity models.RoomAmenity
 	//Validate first if
 	if err := ctx.ShouldBind(&roomAminity); err != nil {
 
@@ -26,7 +26,7 @@ func (s *Server) CreateRoomAminity(ctx *gin.Context) {
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
 
 			ctx.JSON(http.StatusConflict, gin.H{
-				"error": "Room aminity name already exist",
+				"error": "Room aminity name already exist for this room!!",
 			})
 			return
 		}
@@ -43,13 +43,13 @@ func (s *Server) CreateRoomAminity(ctx *gin.Context) {
 func (s *Server) UpdateRoomAminity(ctx *gin.Context) {
 	roomAminityId := ctx.Param("roomid")
 
-	var payload models.RoomAminity
+	var payload models.RoomAmenity
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid payload"})
 		return
 	}
 
-	if err := s.Db.Model(&models.Aminity{}).
+	if err := s.Db.Model(&models.Amenity{}).
 		Where("room_id = ?", roomAminityId).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
@@ -65,7 +65,7 @@ func (s *Server) DeleteRoomAminity(ctx *gin.Context) {
 
 	result := s.Db.
 		Where("room_id= ?", roomAminityId).
-		Delete(&models.RoomAminity{})
+		Delete(&models.RoomAmenity{})
 
 	if result.Error != nil {
 		ctx.JSON(500, gin.H{"error": result.Error.Error()})
@@ -83,7 +83,7 @@ func (s *Server) DeleteRoomAminity(ctx *gin.Context) {
 // Get all the aminity from db
 func (s *Server) GetRoomAminities(ctx *gin.Context) {
 
-	var roomAminities []models.RoomAminity
+	var roomAminities []models.RoomAmenity
 
 	if err := s.Db.Preload("Room").
 		Preload("Amenity").

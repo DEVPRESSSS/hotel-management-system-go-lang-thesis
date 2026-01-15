@@ -95,8 +95,8 @@ fetch('api/aminities')
 
       aminities.forEach(r => {
           const option = document.createElement('option');
-          option.value = r.aminityid
-          option.textContent = r.aminityname; 
+          option.value = r.amenityid
+          option.textContent = r.amenityname; 
           select.appendChild(option);
       });
   })

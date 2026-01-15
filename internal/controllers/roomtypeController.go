@@ -9,6 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Get all room types
 func (s *Server) GetRoomtype(ctx *gin.Context) {
 
 	var rt []models.RoomType
@@ -49,6 +50,7 @@ func (s *Server) CreateRoomType(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create user",
 		})
+
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Role created successfully"})

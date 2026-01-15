@@ -12,7 +12,7 @@ import (
 // Create aminity
 func (s *Server) CreateAminity(ctx *gin.Context) {
 
-	var aminity models.Aminity
+	var aminity models.Amenity
 	//Validate first if
 	if err := ctx.ShouldBind(&aminity); err != nil {
 
@@ -27,31 +27,31 @@ func (s *Server) CreateAminity(ctx *gin.Context) {
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
 
 			ctx.JSON(http.StatusConflict, gin.H{
-				"error": "Aminity name already exist",
+				"error": "Amenity name already exist",
 			})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create Aminity",
+			"error": "Failed to create Amenity",
 		})
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Aminity created successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"success": "Amenity created successfully"})
 
 }
 
 // Update aminity
 func (s *Server) UpdateAminity(ctx *gin.Context) {
-	aminityId := ctx.Param("aminityid")
+	aminityId := ctx.Param("amenityid")
 
-	var payload models.Aminity
+	var payload models.Amenity
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid payload"})
 		return
 	}
 
-	if err := s.Db.Model(&models.Aminity{}).
-		Where("aminity_id = ?", aminityId).
+	if err := s.Db.Model(&models.Amenity{}).
+		Where("amenity_id = ?", aminityId).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
 		return
@@ -62,11 +62,11 @@ func (s *Server) UpdateAminity(ctx *gin.Context) {
 
 // Delete aminity
 func (s *Server) DeleteAminity(ctx *gin.Context) {
-	aminityId := ctx.Param("aminityid")
+	aminityId := ctx.Param("amenityid")
 
 	result := s.Db.
-		Where("aminity_id= ?", aminityId).
-		Delete(&models.Aminity{})
+		Where("amenity_id= ?", aminityId).
+		Delete(&models.Amenity{})
 
 	if result.Error != nil {
 		ctx.JSON(500, gin.H{"error": result.Error.Error()})
@@ -84,11 +84,11 @@ func (s *Server) DeleteAminity(ctx *gin.Context) {
 // Fetch the information of the selected record in aminity
 func (s *Server) GetAminity(ctx *gin.Context) {
 
-	aminityId := ctx.Param("aminityid")
+	aminityId := ctx.Param("amenityid")
 
-	var aminity models.Aminity
+	var aminity models.Amenity
 	if err := s.Db.
-		Where("aminity_id = ?", aminityId).First(&aminity).Error; err != nil {
+		Where("amenity_id = ?", aminityId).First(&aminity).Error; err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
 		return
 	}
@@ -98,7 +98,7 @@ func (s *Server) GetAminity(ctx *gin.Context) {
 // Get all the aminity from db
 func (s *Server) GetAminities(ctx *gin.Context) {
 
-	var aminities []models.Aminity
+	var aminities []models.Amenity
 
 	if err := s.Db.Find(&aminities).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

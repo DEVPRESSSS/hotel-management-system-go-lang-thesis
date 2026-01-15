@@ -22,7 +22,7 @@ type Room struct {
 	CreatedAt  time.Time       `json:"created_at"`
 }
 
-// Create Service
+// Create Room
 func (s *Server) CreateRoom(ctx *gin.Context) {
 
 	var room models.Room
@@ -33,20 +33,20 @@ func (s *Server) CreateRoom(ctx *gin.Context) {
 		return
 	}
 
-	//Create Role error handling
 	if err := s.Db.Create(&room).Error; err != nil {
 
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-
 			ctx.JSON(http.StatusConflict, gin.H{
 				"error": "Room number already exists",
 			})
 			return
 		}
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create user",
+			"error": err.Error(),
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Room created successfully"})

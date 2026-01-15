@@ -27,7 +27,7 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     let uid = "";
     //Get the input in role textbox
     const roomid = document.getElementById('roomid').value;
-    // const roomid = document.getElementById('roomid').value;
+    const aminityid = document.getElementById('aminityid').value;
     if( id === ""){
         uid = uuidv4();
     }else{
@@ -35,12 +35,12 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     }
 
     const formData ={
-        aminityid: uid,
-        aminityname: aminityname,
+        RoomId: roomid,
+        AmenityId: aminityid,
 
     };
     if(id === "" || id === null){
-        fetch('/api/createaminity', {
+        fetch('/api/createroomaminity', {
             method:'POST',
             headers:{
                 'Content-Type': 'application/json'
@@ -70,8 +70,8 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     }else{
            //Update user
             const updateFormData = {
-                  aminityid: uid,
-                  aminityname: aminityname,       
+                  RoomId: roomid,
+                  AmenityId: aminityid,      
             };
             fetch(`/api/updateroomaminity/${id}`, {
                 method: 'PUT',
@@ -123,7 +123,7 @@ fetch('/api/roomaminities')
                 
                     <tr>
                         <td>${aminity.Room.roomnumber}</td>
-                        <td>${aminity.Amenity.aminityname}</td>                  
+                        <td>${aminity.Amenity.amenityname}</td>                  
                         <td>
                             <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
                                 data-roomid = "${aminity.RoomId}"

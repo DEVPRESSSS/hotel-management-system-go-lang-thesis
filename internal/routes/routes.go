@@ -41,6 +41,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		defaultRoute.GET("/avail/rooms", server.GetRooms)
 		//Get the selected room
 		defaultRoute.GET("/api/roomselected/:roomid", server.RoomSelected)
+		//Populate the details of the room
+		defaultRoute.GET("/roomdetails", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "booking.html", gin.H{
+				"title": "Room details",
+			})
+		})
 
 		// Login page
 		defaultRoute.GET("/login", func(ctx *gin.Context) {
@@ -76,7 +82,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.GET("/api/roomtype/:roomtypeid", rbac.RBACMiddleware("read"), server.GetRoomTypeRecord)
 
 		// ==============================================
-		// ROOM AMINITY MANAGEMENT (CRUD)
+		// ROOM AMENITY MANAGEMENT (CRUD)
 		// ==============================================
 
 		authorize.POST("/api/createroomaminity", rbac.RBACMiddleware("create"), server.CreateRoomAminity)
@@ -99,8 +105,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ==============================================
 
 		authorize.POST("/api/createaminity", rbac.RBACMiddleware("create"), server.CreateAminity)
-		authorize.PUT("/api/updateaminity/:aminityid", rbac.RBACMiddleware("update"), server.UpdateAminity)
-		authorize.DELETE("/api/deleteaminity/:aminityid", rbac.RBACMiddleware("delete"), server.DeleteAminity)
+		authorize.PUT("/api/updateaminity/:amenityid", rbac.RBACMiddleware("update"), server.UpdateAminity)
+		authorize.DELETE("/api/deleteaminity/:amenityid", rbac.RBACMiddleware("delete"), server.DeleteAminity)
 
 		// Aminity
 		authorize.GET("/aminities", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
@@ -111,7 +117,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		// Aminity APIs
 		authorize.GET("/api/aminities", rbac.RBACMiddleware("read"), server.GetAminities)
-		authorize.GET("/api/aminity/:aminityid", rbac.RBACMiddleware("read"), server.GetAminity)
+		authorize.GET("/api/aminity/:amenityid", rbac.RBACMiddleware("read"), server.GetAminity)
 
 		// ==============================================
 		// USER MANAGEMENT (CRUD)

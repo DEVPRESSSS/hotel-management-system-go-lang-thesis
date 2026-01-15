@@ -34,8 +34,8 @@ document.getElementById('upsertform').addEventListener('submit', function(e){
     }
 
     const formData ={
-        aminityid: uid,
-        aminityname: aminityname,
+        amenityid: uid,
+        amenityname: aminityname,
 
     };
     if(id === "" || id === null){
@@ -121,17 +121,17 @@ fetch('/api/aminities')
                 tbody.innerHTML += `
                 
                     <tr>
-                        <td>${aminity.aminityid}</td>
-                        <td>${aminity.aminityname}</td>                  
+                        <td>${aminity.amenityid}</td>
+                        <td>${aminity.amenityname}</td>                  
                         <td>
                             <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-aminityid = "${aminity.aminityid}"
+                                data-amenityid = "${aminity.amenityid}"
                                 >Edit
                             
                             </button>
                             <button 
                                 class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-aminityid="${aminity.aminityid}">
+                                data-amenityid="${aminity.amenityid}">
                                 Delete
                             </button>
                         </td>
@@ -145,7 +145,7 @@ document.getElementById('users-body').addEventListener('click' , function(e){
 
     if (!e.target.classList.contains('update-btn')) return;
 
-    id = e.target.dataset.aminityid;
+    id = e.target.dataset.amenityid;
     if (!id) return;
 
     const roleInputId = document.getElementById('input-id');
@@ -163,13 +163,12 @@ document.getElementById('users-body').addEventListener('click' , function(e){
         })
         .then(data => {
             //notification("success", data.success || "Operation successful");           
-            const aminityname= data.success;
-            document.getElementById('aminity').value = aminityname.aminityname;
+            const amenityname= data.success;
+            document.getElementById('aminity').value = amenityname.amenityname;
 
         })
         .catch(err => {
             console.log(err);
-            alert(`${err}`);
         });
 
     openModal();
@@ -181,8 +180,8 @@ document.getElementById('users-body').addEventListener('click' , function(e){
 document.getElementById('users-body').addEventListener('click', function (e) {
     if (!e.target.classList.contains('delete-btn')) return;
 
-    const aminityid = e.target.dataset.aminityid;
-    if (!aminityid) return;
+    const amenityid = e.target.dataset.amenityid;
+    if (!amenityid) return;
 
     Swal.fire({
         title: "Are you sure?",
@@ -194,7 +193,7 @@ document.getElementById('users-body').addEventListener('click', function (e) {
         confirmButtonText: "Yes, delete it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/api/deleteaminity/${aminityid}`, {
+            fetch(`/api/deleteaminity/${amenityid}`, {
             method: 'DELETE'
 
             

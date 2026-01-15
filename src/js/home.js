@@ -32,7 +32,7 @@ function renderRooms(rooms) {
                     class="w-full h-full object-cover hover:scale-105 transition duration-300"
                 >
                 <span class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    $${room.price}/night
+                    ${room.price}/night
                 </span>
             </div>
 
@@ -55,12 +55,12 @@ function renderRooms(rooms) {
                     <span>🏢 ${room.Floor.floorname}</span>
                 </div>
 
-                <button id="book-btn" data-room_id = "${room.roomid}"
+                <a id="book-btn" data-room_id = "${room.roomid}"
                     class="booknow-btn w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
                     ${room.status !== "available" ? "disabled class='opacity-50 cursor-not-allowed'" : ""}
                 >
                     ${room.status === "available" ? "Book Now" : "Unavailable"}
-                </button>
+                </a>
             </div>
         `;
 
@@ -68,6 +68,7 @@ function renderRooms(rooms) {
     });
 }
 
+//Get the selected room to populate the cards
 document.getElementById("roomsGrid").addEventListener("click", function (e) {
     if (!e.target.classList.contains("booknow-btn")) return;
 
@@ -76,15 +77,10 @@ document.getElementById("roomsGrid").addEventListener("click", function (e) {
     const id = e.target.dataset.room_id;
     if (!id) return;
 
-    fetch(`/api/roomselected/${id}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to retrieve record");
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data);
-        })
-        .catch(error => console.log(error));
+    //Store the selected room to session storage
+    sessionStorage.setItem("selectedRoomId", JSON.stringify(id));
+    window.location.href = "/roomdetails";
+
+    
 });
+

@@ -24,6 +24,7 @@ func SetupServer(host string, db *gorm.DB) {
 
 		// Public
 		"views/defaultView/index.html",
+		"views/defaultView/Booking.html",
 		"views/Auth/login.html",
 
 		// Admin layouts
