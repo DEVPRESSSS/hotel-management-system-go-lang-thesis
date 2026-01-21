@@ -22,7 +22,7 @@ function renderRooms(rooms) {
     rooms.forEach(room => {
         const card = document.createElement("div");
         card.className =
-            "bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300";
+            "bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 gap-8";
 
         card.innerHTML = `
             <div class="relative overflow-hidden h-64 bg-gray-300">

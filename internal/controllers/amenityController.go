@@ -74,7 +74,7 @@ func (s *Server) DeleteAminity(ctx *gin.Context) {
 	}
 
 	if result.RowsAffected == 0 {
-		ctx.JSON(404, gin.H{"error": "Role not found"})
+		ctx.JSON(404, gin.H{"error": "Amenity already exist"})
 		return
 	}
 
