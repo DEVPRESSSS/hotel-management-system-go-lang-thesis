@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         rooms.forEach(room => {
           const option = document.createElement('option');
           option.value = room.roomid;
-          option.textContent = `Room ${room.roomnumber}`;
+          option.textContent = `${room.roomnumber}`;
           roomSelect.appendChild(option);
         });
       })

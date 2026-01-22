@@ -56,7 +56,7 @@ function renderRooms(rooms) {
                 </div>
 
                 <a id="book-btn" data-room_id = "${room.roomid}"
-                    class="booknow-btn w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
+                    class="booknow-btn w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold p-2"
                     ${room.status !== "available" ? "disabled class='opacity-50 cursor-not-allowed'" : ""}
                 >
                     ${room.status === "available" ? "Book Now" : "Unavailable"}
