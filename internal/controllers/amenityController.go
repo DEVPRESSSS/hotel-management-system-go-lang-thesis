@@ -3,41 +3,56 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Create aminity
 func (s *Server) CreateAminity(ctx *gin.Context) {
+	var amenity models.Amenity
 
-	var aminity models.Amenity
-	//Validate first if
-	if err := ctx.ShouldBind(&aminity); err != nil {
-
+	// Bind request
+	if err := ctx.ShouldBind(&amenity); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//Create aminity error handling
-	if err := s.Db.Create(&aminity).Error; err != nil {
+	// Generate sequential ID
+	amenityID, err := GenerateAmenityID(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Amenity ID",
+		})
+		return
+	}
+
+	amenity.AmenityId = amenityID
+
+	// Create record
+	if err := s.Db.Create(&amenity).Error; err != nil {
 
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-
 			ctx.JSON(http.StatusConflict, gin.H{
-				"error": "Amenity name already exist",
+				"error": "Amenity name already exists",
 			})
 			return
 		}
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create Amenity",
 		})
+		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Amenity created successfully"})
-
+	ctx.JSON(http.StatusOK, gin.H{
+		"success":    "Amenity created successfully",
+		"amenity_id": amenity.AmenityId,
+	})
 }
 
 // Update aminity
@@ -109,4 +124,29 @@ func (s *Server) GetAminities(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, aminities)
 
+}
+
+// Generate auto IncrementId
+func GenerateAmenityID(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Amenity{}).
+		Select("amenity_id").
+		Order("amenity_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "AMENITY-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("AMENITY-%03d", nextNumber), nil
 }
