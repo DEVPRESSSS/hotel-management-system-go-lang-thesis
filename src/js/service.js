@@ -1,241 +1,206 @@
-//Access the header title to modify it later
-const headerTitle = document.getElementById('header-action');
-//Access the header text to modify its text inside
-const btnSubmit = document.getElementById('btn-submit');
-//Stors user id globally
-let id = "";
-function openModal() {
-    document.getElementById('userModal').classList.remove('hidden');
-    document.getElementById('userModal').classList.add('flex');
-}
+document.addEventListener("DOMContentLoaded", () => {
 
-function closeModal() {
-        document.getElementById('userModal').classList.add('hidden');
-        document.getElementById('userModal').classList.remove('flex');
-}
-function createModal(){
-    headerTitle.innerText = "Create service";
-    btnSubmit.innerText = "Create";
+  /* =====================
+     DOM ELEMENTS
+  ====================== */
+  const headerTitle = document.getElementById('header-action');
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnText = document.getElementById('btn-text');
+  const form = document.getElementById('upsertform');
+  const tbody = document.getElementById('users-body');
+  const tableElement = document.querySelector("#default-table");
+  const userModal = document.getElementById('userModal');
+
+  if (!tbody || !form || !headerTitle || !btnSubmit || !tableElement) {
+    console.warn("Service page elements not found. JS skipped.");
+    console.log({tbody, form, headerTitle, btnSubmit, tableElement});
+    return;
+  }
+
+  let id = "";
+  let dataTable = null;
+
+  /* =====================
+     MODAL FUNCTIONS
+  ====================== */
+  function openModal() {
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
+  }
+
+  function closeModal() {
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
+  }
+
+  window.closeModal = closeModal;
+
+  window.createModal = function () {
+    id = "";
+    headerTitle.innerText = "Create Service";
+    btnText.innerText = "Create";
+    form.reset();
     openModal();
-}
+  };
 
+  /* =====================
+     FETCH SERVICES & INIT TABLE
+  ====================== */
+  fetch('/api/services')
+    .then(res => {
+      if (!res.ok) throw new Error("API failed");
+      return res.json();
+    })
+    .then(services => {
+      // Populate table body
+      tbody.innerHTML = services.map(service => `
+        <tr>
+          <td class="px-4 py-3">${service.serviceid}</td>
+          <td class="px-4 py-3">${service.servicename}</td>
+          <td class="px-4 py-3">${formatTime(service.start_time)}</td>
+          <td class="px-4 py-3">${formatTime(service.end_time)}</td>
+          <td class="px-4 py-3">${new Date(service.created_at).toLocaleDateString()}</td>
+          <td class="px-4 py-3 text-center">
+            <button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${service.serviceid}">Edit</button>
+            <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${service.serviceid}">Delete</button>
+          </td>
+        </tr>
+      `).join("");
 
-
-  //Upsert role
-document.getElementById('upsertform').addEventListener('submit', function(e){
-
-    e.preventDefault();
-    //Generate unique uid
-    let uid = "";
-    //Get the input in role textbox
-    const serviceName = document.getElementById('servicename').value;
-    const startTimeInput = document.getElementById('start-time').value;
-    const endTimeInput = document.getElementById('end-time').value;
-   
-    if( id === ""){
-        uid = uuidv4();
-    }else{
-        uid = id;
-    }
-
-    const formData ={
-        serviceid: uid,
-        servicename: serviceName,
-        start_time: startTimeInput,
-        end_time: endTimeInput,
-
-    };
-    if(id === "" || id === null){
-        fetch('/api/createservice', {
-            method:'POST',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-            })
-            .then(async response => {
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.error);
-                        }
-                        return data;
-            
-            })
-            .then(data=>{
-
-                //Show notication success
-                notification("success", data.success);
-
-            })
-            .catch(err=>{
-
-                notification("error", err.message);
-
-            });
-    }else{
-           //Update user
-            const updateFormData = {
-                service_id: uid,
-                service_name: serviceName,
-                start_time: startTimeInput,
-                end_time: endTimeInput,     
-            };
-            fetch(`/api/updateservice/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateFormData)
-                })
-                .then(async response => {
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error);
-                    }
-                    return data;
-                })
-                .then(data => {
-                    notification("success", data.success);
-
-                })
-                .catch(err => {
-                    notification("error", err.error);
-            });
-    }
-
-    //Close the modal
-    closeModal();
-
-});
-
-function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    .replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, 
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-//Fetch all roles
-fetch('/api/services')
-    .then(response => response.json())
-        .then(services => {
-
-            const tbody = document.getElementById('users-body');
-
-            services.forEach(service => {
-                tbody.innerHTML += `
-                
-                    <tr>
-                        <td>${service.serviceid}</td>
-                        <td>${service.servicename}</td>                  
-                        <td>${service.start_time}</td> 
-                        <td>${service.end_time}</td>                  
-                        <td>${service.created_at}</td>                  
-                        <td>
-                            <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-serviceid = "${service.serviceid}"
-                                >Edit
-                            
-                            </button>
-                            <button 
-                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-serviceid="${service.serviceid}">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                
-                `;               
-            });
-});
-
-//Edit click 
-document.getElementById('users-body').addEventListener('click' , function(e){
-
-    if (!e.target.classList.contains('update-btn')) return;
-
-    id = e.target.dataset.serviceid;
-    if (!id) return;
-
-    const serviceid = document.getElementById('input-id');
-    serviceid.value = id;
-
-    btnSubmit.innerText = "Update";
-    headerTitle.innerText = "Update user";  
-        
-    
-    fetch(`/api/service/${id}`)
-        .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Request failed");
-            return data;
-        })
-        .then(service => {
-            //notification("success", data.success || "Operation successful");           
-            const sv= service.success;
-            document.getElementById('servicename').value = sv.servicename;
-            const st = new Date(sv.start_time);
-            const formattedDateSt = st.toISOString().split('T')[0];
-            document.getElementById('start-time').value = formattedDateSt;
-
-            const et = new Date(sv.end_time);
-            const formattedDateEt = st.toISOString().split('T')[0];
-            document.getElementById('end-time').value = formattedDateEt;
-        })
-        .catch(err => {
-            console.log(err);
-            alert(`${err}`);
-            //notification("error", err.err);
+      // Initialize DataTable AFTER populating data
+      if (window.simpleDatatables && tableElement) {
+        dataTable = new simpleDatatables.DataTable(tableElement, {
+          searchable: true,
+          paging: true,
+          perPage: 10,
+          perPageSelect: [5, 10, 20, 50],
+          sortable: true,
         });
+      }
+    })
+    .catch(console.error);
 
-    openModal();
+  /* =====================
+     HELPER: Format time for input[type="time"]
+  ====================== */
+  function formatTimeForInput(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
 
-}); 
+  /* =====================
+     FORM SUBMIT
+  ====================== */
+  form.addEventListener('submit', e => {
+    e.preventDefault();
 
+    const serviceName = document.getElementById('servicename').value;
+    const startTime = document.getElementById('start-time').value;
+    const endTime = document.getElementById('end-time').value;
 
-//Delete user function
-document.getElementById('users-body').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('delete-btn')) return;
+    const payload = {
+      servicename: serviceName,
+      start_time: startTime,
+      end_time: endTime
+    };
 
-    const serviceid = e.target.dataset.serviceid;
-    if (!serviceid) return;
+    const url = id ? `/api/updateservice/${id}` : '/api/createservice';
+    const method = id ? 'PUT' : 'POST';
 
-    Swal.fire({
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      return res.json().then(data => {
+        // Check if request was successful
+        if (!res.ok) {
+          // Throw error with server message
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      });
+    })
+    .then(data => {
+      notification("success", data.success);
+      closeModal();
+      setTimeout(() => location.reload(), 500);
+    })
+    .catch(err => {
+      notification("error", err.message);
+    });
+  });
+
+  /* =====================
+     TABLE CLICK HANDLER
+  ====================== */
+  tbody.addEventListener('click', e => {
+
+    // Handle Update Button
+    if (e.target.classList.contains('update-btn')) {
+      id = e.target.dataset.id;
+      fetch(`/api/service/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          const service = data.success;
+          document.getElementById('servicename').value = service.servicename;
+          document.getElementById('start-time').value = formatTimeForInput(service.start_time);
+          document.getElementById('end-time').value = formatTimeForInput(service.end_time);
+          
+          headerTitle.innerText = "Update Service";
+          btnText.innerText = "Update";
+          openModal();
+        })
+        .catch(err => notification("error", err.message));
+    }
+
+    // Handle Delete Button
+    if (e.target.classList.contains('delete-btn')) {
+      const serviceid = e.target.dataset.id;
+      
+      Swal.fire({
         title: "Are you sure?",
-        text: "You won't be able to revert this!",
+        text: "This action cannot be undone!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
         confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
+      }).then(result => {
         if (result.isConfirmed) {
-            fetch(`/api/deleteservice/${serviceid}`, {
-            method: 'DELETE'
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Delete failed');
-            e.target.closest('tr').remove(); 
-            
-        })
-        .catch(err => {
-            console.log(err);
-            alert('Error deleting user');
-            return;
-        });
-
-       
+          fetch(`/api/deleteservice/${serviceid}`, { method: 'DELETE' })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Delete failed');
+              }
+              return;
+            })
+            .then(() => {
+              Swal.fire("Deleted!", "Service has been deleted.", "success");
+              setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => notification("error", err.message));
+        }
+      });
     }
-     Swal.fire({
-        title: "Deleted!",
-        text: "Your file has been deleted.",
-        icon: "success"
-        });
-    });
+  });
 
-   
 });
+
+function formatTime(time) {
+  if (!time) return '';
+
+  const [hours, minutes] = time.split(':');
+  const date = new Date();
+  date.setHours(hours, minutes);
+
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+}

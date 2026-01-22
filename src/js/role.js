@@ -1,245 +1,194 @@
-//Access the header title to modify it later
-const headerTitle = document.getElementById('header-action');
-//Access the header text to modify its text inside
-const btnSubmit = document.getElementById('btn-submit');
-//Stors user id globally
-let id = "";
-function openModal() {
-    document.getElementById('userModal').classList.remove('hidden');
-    document.getElementById('userModal').classList.add('flex');
-}
+document.addEventListener("DOMContentLoaded", () => {
 
-function closeModal() {
-        document.getElementById('userModal').classList.add('hidden');
-        document.getElementById('userModal').classList.remove('flex');
-}
-function createModal(){
-    headerTitle.innerText = "Create user";
-    btnSubmit.innerText = "Create";
+  /* =====================
+     DOM ELEMENTS
+  ====================== */
+  const headerTitle = document.getElementById('header-action');
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnText = document.getElementById('btn-text');
+  const form = document.getElementById('upsertform');
+  const tbody = document.getElementById('users-body');
+  const tableElement = document.querySelector("#default-table");
+  const userModal = document.getElementById('userModal');
+
+  if (!tbody || !form || !headerTitle || !btnSubmit || !tableElement) {
+    console.warn("Role page elements not found. JS skipped.");
+    console.log({tbody, form, headerTitle, btnSubmit, tableElement});
+    return;
+  }
+
+  let id = "";
+  let dataTable = null;
+
+  /* =====================
+     MODAL FUNCTIONS
+  ====================== */
+  function openModal() {
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
+  }
+
+  function closeModal() {
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
+  }
+
+  window.closeModal = closeModal;
+
+  window.createModal = function () {
+    id = "";
+    headerTitle.innerText = "Create Role";
+    btnText.innerText = "Create";
+    form.reset();
     openModal();
-}
+  };
 
-fetch('/api/roles')
-  .then(res => res.json())
-  .then(data => {
-      AppState.roles = data;
+  /* =====================
+     FETCH ROLES & INIT TABLE
+  ====================== */
+  fetch('/api/roles')
+    .then(res => {
+      if (!res.ok) throw new Error("API failed");
+      return res.json();
+    })
+    .then(roles => {
+      // Store roles in global state if needed
+      if (window.AppState) {
+        window.AppState.roles = roles;
+      }
 
-      const select = document.getElementById('roleid');
-      if (!select) return;
+      // Populate table body
+      tbody.innerHTML = roles.map(role => `
+        <tr>
+          <td class="px-4 py-3">${role.roleid}</td>
+          <td class="px-4 py-3">${role.rolename}</td>
+          <td class="px-4 py-3 text-center">
+            <button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${role.roleid}">Edit</button>
+            <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${role.roleid}">Delete</button>
+          </td>
+        </tr>
+      `).join("");
 
-      // clear existing options
-      select.innerHTML = '<option value="">Select role</option>';
-
-      data.forEach(r => {
-          const option = document.createElement('option');
-          option.value = r.roleid;
-          option.textContent = r.rolename; 
-          select.appendChild(option);
-      });
-  })
-  .catch(err => console.error('Failed to load roles:', err));
-
-
-  //Upsert role
-document.getElementById('upsertform').addEventListener('submit', function(e){
-
-    e.preventDefault();
-    //Generate unique uid
-    let uid = "";
-    //Get the input in role textbox
-    const roleName = document.getElementById('rolename').value;
-    if( id === ""){
-        uid = uuidv4();
-    }else{
-        uid = id;
-    }
-
-    const formData ={
-        roleId: uid,
-        roleName: roleName,
-
-    };
-    if(id === "" || id === null){
-        fetch('/api/createrole', {
-            method:'POST',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-            })
-            .then(async response => {
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.error);
-                        }
-                        return data;
-            
-            })
-            .then(data=>{
-
-                //Show notication success
-                notification("success", data.success);
-
-            })
-            .catch(err=>{
-
-                notification("error", err.message);
-
-            });
-    }else{
-           //Update user
-            const updateFormData = {
-                roleid: uid,
-                rolename: roleName,           
-            };
-            fetch(`/api/updaterole/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateFormData)
-                })
-                .then(async response => {
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error);
-                    }
-                    return data;
-                })
-                .then(data => {
-                    notification("success", data.success);
-
-                })
-                .catch(err => {
-                    notification("error", err.error);
-            });
-    }
-
-    //Close the modal
-    closeModal();
-
-});
-
-function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    .replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, 
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-//Fetch all roles
-fetch('/api/roles')
-    .then(response => response.json())
-        .then(roles => {
-
-            const tbody = document.getElementById('users-body');
-
-            roles.forEach(role => {
-                tbody.innerHTML += `
-                
-                    <tr>
-                        <td>${role.roleid}</td>
-                        <td>${role.rolename}</td>                  
-                        <td>
-                            <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-roleid = "${role.roleid}"
-                                >Edit
-                            
-                            </button>
-                            <button 
-                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-roleid="${role.roleid}">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                
-                `;               
-            });
-});
-//Edit click 
-document.getElementById('users-body').addEventListener('click' , function(e){
-
-    if (!e.target.classList.contains('update-btn')) return;
-
-    id = e.target.dataset.roleid;
-    if (!id) return;
-
-    const roleInputId = document.getElementById('input-id');
-    roleInputId.value = id;
-
-    btnSubmit.innerText = "Update";
-    headerTitle.innerText = "Update user";  
-        
-    
-    fetch(`/api/roles/${id}`)
-        .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Request failed");
-            return data;
-        })
-        .then(data => {
-            //notification("success", data.success || "Operation successful");           
-            const userRole= data.success;
-            document.getElementById('rolename').value = userRole.rolename;
-
-        })
-        .catch(err => {
-            console.log(err);
-            alert(`${err}`);
-            //notification("error", err.err);
+      // Initialize DataTable AFTER populating data
+      if (window.simpleDatatables && tableElement) {
+        dataTable = new simpleDatatables.DataTable(tableElement, {
+          searchable: true,
+          paging: true,
+          perPage: 10,
+          perPageSelect: [5, 10, 20, 50],
+          sortable: true,
         });
+      }
+    })
+    .catch(console.error);
 
-    openModal();
+  /* =====================
+     FORM SUBMIT
+  ====================== */
+  form.addEventListener('submit', e => {
+    e.preventDefault();
 
-}); 
+    const roleName = document.getElementById('rolename').value;
+    let uid = "";
 
+        if (id === "" || id === null) {
+            uid = uuidv4(); 
+        } else {
+            uid = id;      
+    }
+    const payload = {
+      roleid: uid,
+      roleName: roleName
+    };
 
-//Delete user function
-document.getElementById('users-body').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('delete-btn')) return;
+    const url = id ? `/api/updaterole/${id}` : '/api/createrole';
+    const method = id ? 'PUT' : 'POST';
 
-    const roleid = e.target.dataset.roleid;
-    if (!roleid) return;
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      return res.json().then(data => {
+        // Check if request was successful
+        if (!res.ok) {
+          // Throw error with server message
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      });
+    })
+    .then(data => {
+      notification("success", data.success);
+      closeModal();
+      setTimeout(() => location.reload(), 500);
+    })
+    .catch(err => {
+      notification("error", err.message);
+    });
+  });
 
-    Swal.fire({
+  /* =====================
+     TABLE CLICK HANDLER
+  ====================== */
+  tbody.addEventListener('click', e => {
+
+    // Handle Update Button
+    if (e.target.classList.contains('update-btn')) {
+      id = e.target.dataset.id;
+      fetch(`/api/roles/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          const role = data.success;
+          document.getElementById('rolename').value = role.rolename;
+          
+          headerTitle.innerText = "Update Role";
+          btnText.innerText = "Update";
+          openModal();
+        })
+        .catch(err => notification("error", err.message));
+    }
+
+    // Handle Delete Button
+    if (e.target.classList.contains('delete-btn')) {
+      const roleid = e.target.dataset.id;
+      
+      Swal.fire({
         title: "Are you sure?",
-        text: "You won't be able to revert this!",
+        text: "This action cannot be undone!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
         confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
+      }).then(result => {
         if (result.isConfirmed) {
-            fetch(`/api/deleterole/${roleid}`, {
-            method: 'DELETE'
-
-            
-        },  
-            Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success"
+          fetch(`/api/deleterole/${roleid}`, { method: 'DELETE' })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Delete failed');
+              }
+              return;
             })
-        )
-        .then(res => {
-            if (!res.ok) throw new Error('Delete failed');
-            e.target.closest('tr').remove(); 
-            
-        })
-        .catch(err => {
-            console.log(err);
-            alert('Error deleting user');
-        });
-
-      
+            .then(() => {
+              Swal.fire("Deleted!", "Role has been deleted.", "success");
+              setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => notification("error", err.message));
+        }
+      });
     }
-    });
+  });
 
-   
 });
+
+/* =====================
+   UUID GENERATOR (if needed)
+====================== */
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}

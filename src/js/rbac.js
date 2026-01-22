@@ -1,348 +1,358 @@
+document.addEventListener("DOMContentLoaded", () => {
 
-//#region--Modal navigations
-const headerTitle = document.getElementById('header-action');
-const btnSubmit = document.getElementById('btn-submit');
-let id = "";
+  /* =====================
+     DOM ELEMENTS
+  ====================== */
+  // Role Access Elements
+  const roleAccessModal = document.getElementById('roleAccessModal');
+  const roleAccessHeader = document.getElementById('role-access-header');
+  const roleAccessBtnText = document.getElementById('role-access-btn-text');
+  const roleAccessForm = document.getElementById('role-access-form');
+  const roleAccessBody = document.getElementById('role-access-body');
+  const roleAccessTable = document.querySelector("#role-access-table");
 
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
+  // Access Elements
+  const accessModal = document.getElementById('accessModal');
+  const accessHeader = document.getElementById('access-header');
+  const accessBtnText = document.getElementById('access-btn-text');
+  const accessForm = document.getElementById('access-form');
+  const accessBody = document.getElementById('access-body');
+  const accessTable = document.querySelector("#access-table");
 
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
+  let accessId = "";
+  let roleAccessDataTable = null;
+  let accessDataTable = null;
 
-function createModal(modalId){
-    headerTitle.innerText = "Create";
-    btnSubmit.innerText = "Create";
-    openModal(modalId);
-}
- 
-//#endregion
+  /* =====================
+     MODAL FUNCTIONS - ROLE ACCESS
+  ====================== */
+  function openRoleAccessModal() {
+    roleAccessModal.classList.remove('hidden');
+    roleAccessModal.classList.add('flex');
+  }
 
-//#region--Role based access management
-fetch('/api/rbac')
-    .then(response => response.json())
-        .then(roleAccess => {
+  function closeRoleAccessModal() {
+    roleAccessModal.classList.add('hidden');
+    roleAccessModal.classList.remove('flex');
+  }
 
-            const tbody = document.getElementById('role-access-body');
+  window.closeRoleAccessModal = closeRoleAccessModal;
 
-            roleAccess.forEach(rbac => {
-                tbody.innerHTML += `
-                
-                    <tr>
-                        <td>${rbac.AccessID}</td>
-                        <td>${rbac.RoleID}</td>
-                        <td>
-                          
-                            <button 
-                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-rbacid="${rbac.AccessID}">
-                                Remove
-                            </button>
-                        </td>
-                    </tr>
-                
-                `;               
-            });
-});
-//#endregion
+  window.createRoleAccessModal = function () {
+    roleAccessHeader.innerText = "Create Role Access";
+    roleAccessBtnText.innerText = "Create";
+    roleAccessForm.reset();
+    openRoleAccessModal();
+  };
 
+  /* =====================
+     MODAL FUNCTIONS - ACCESS
+  ====================== */
+  function openAccessModal() {
+    accessModal.classList.remove('hidden');
+    accessModal.classList.add('flex');
+  }
 
+  function closeAccessModal() {
+    accessModal.classList.add('hidden');
+    accessModal.classList.remove('flex');
+  }
 
-//#region--Update and insert role access
-document.getElementById('upsertform').addEventListener('submit', function (e) {
+  window.closeAccessModal = closeAccessModal;
 
+  window.createAccessModal = function () {
+    accessId = "";
+    accessHeader.innerText = "Create Access";
+    accessBtnText.innerText = "Create";
+    accessForm.reset();
+    openAccessModal();
+  };
+
+  /* =====================
+     LOAD ROLES & ACCESS FOR DROPDOWNS
+  ====================== */
+  function loadRolesDropdown() {
+    fetch('/api/roles')
+      .then(res => res.json())
+      .then(roles => {
+        const roleSelect = document.getElementById('roleid');
+        roleSelect.innerHTML = '<option value="">-- Select Role --</option>';
+        
+        roles.forEach(role => {
+          const option = document.createElement('option');
+          option.value = role.roleid;
+          option.textContent = role.rolename;
+          roleSelect.appendChild(option);
+        });
+      })
+      .catch(err => console.error('Failed to load roles:', err));
+  }
+
+  function loadAccessDropdown() {
+    fetch('/api/access')
+      .then(res => res.json())
+      .then(accessList => {
+        const accessSelect = document.getElementById('accessid');
+        accessSelect.innerHTML = '<option value="">-- Select Access --</option>';
+        
+        accessList.forEach(access => {
+          const option = document.createElement('option');
+          option.value = access.accessid;
+          option.textContent = access.accessname;
+          accessSelect.appendChild(option);
+        });
+      })
+      .catch(err => console.error('Failed to load access:', err));
+  }
+
+  // Load dropdowns on page load
+  loadRolesDropdown();
+  loadAccessDropdown();
+
+  /* =====================
+     FETCH ROLE ACCESS & INIT TABLE
+  ====================== */
+  fetch('/api/rbac')
+    .then(res => {
+      if (!res.ok) throw new Error("API failed");
+      return res.json();
+    })
+    .then(roleAccessList => {
+      // Populate table body
+      roleAccessBody.innerHTML = roleAccessList.map(rbac => `
+        <tr>
+          <td class="px-4 py-3">${rbac.AccessID}</td>
+          <td class="px-4 py-3">${rbac.RoleID}</td>
+          <td class="px-4 py-3 text-center">
+            <button class="delete-rbac-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${rbac.AccessID}">Remove</button>
+          </td>
+        </tr>
+      `).join("");
+
+      // Initialize DataTable AFTER populating data
+      if (window.simpleDatatables && roleAccessTable) {
+        roleAccessDataTable = new simpleDatatables.DataTable(roleAccessTable, {
+          searchable: true,
+          paging: true,
+          perPage: 10,
+          perPageSelect: [5, 10, 20, 50],
+          sortable: true,
+        });
+      }
+    })
+    .catch(console.error);
+
+  /* =====================
+     FETCH ACCESS & INIT TABLE
+  ====================== */
+  fetch('/api/access')
+    .then(res => {
+      if (!res.ok) throw new Error("API failed");
+      return res.json();
+    })
+    .then(accessList => {
+      // Populate table body
+      accessBody.innerHTML = accessList.map(access => `
+        <tr>
+          <td class="px-4 py-3">${access.accessid}</td>
+          <td class="px-4 py-3">
+             <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
+                          ${access.accessname}
+              </span>
+                    
+          </td>
+          <td class="px-4 py-3 text-center">
+            <button class="update-access-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${access.accessid}">Edit</button>
+            <button class="delete-access-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${access.accessid}">Delete</button>
+          </td>
+        </tr>
+      `).join("");
+
+      // Initialize DataTable AFTER populating data
+      if (window.simpleDatatables && accessTable) {
+        accessDataTable = new simpleDatatables.DataTable(accessTable, {
+          searchable: true,
+          paging: true,
+          perPage: 10,
+          perPageSelect: [5, 10, 20, 50],
+          sortable: true,
+        });
+      }
+    })
+    .catch(console.error);
+
+  /* =====================
+     ROLE ACCESS FORM SUBMIT
+  ====================== */
+  roleAccessForm.addEventListener('submit', e => {
     e.preventDefault();
 
     const roleId = document.getElementById('roleid').value;
-    const accessId = document.getElementById('accessid').value;
+    const accessIdValue = document.getElementById('accessid').value;
 
-    const formData = {
-        RoleID: roleId,
-        AccessID: accessId
+    const payload = {
+      RoleID: roleId,
+      AccessID: accessIdValue
     };
 
     fetch('/api/createrc', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     })
-    .then(async response => {
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || "Request failed");
+    .then(res => {
+      return res.json().then(data => {
+        if (!res.ok) {
+          throw new Error(data.error || 'Request failed');
         }
-
         return data;
+      });
     })
     .then(data => {
-        notification("success", data.success);
-        closeModal('roleAccessModal'); 
+      notification("success", data.success);
+      closeRoleAccessModal();
+      setTimeout(() => location.reload(), 500);
     })
     .catch(err => {
-        notification("error", err.message);
+      notification("error", err.message);
     });
-});
-//#endregion
+  });
 
-
-//#region--Delete role access function
-
-document.getElementById('role-access-body').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('delete-btn')) return;
-
-    const rbacid = e.target.dataset.rbacid;
-    if (!rbacid) return;
-
-        Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/api/deleterc/${rbacid}`, {
-            method: 'DELETE'
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Delete failed');
-
-            Swal.fire({
-                title: "Deleted!",
-                text: "Role access has been deleted.",
-                icon: "success"
-            });
-            rbacid.value = "";
-            e.target.closest('tr').remove();
-          
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                title: "Error!",
-                text: "Failed to delete role access.",
-                icon: "error"
-            });
-        });
-
-
-      
-    }
-    });
-
-   
-});
-
-//#endregion
-
-
-//#region--Access management 
-fetch('/api/access')
-    .then(response => response.json())
-        .then(access => {
-
-            const tbody = document.getElementById('Access-body');
-
-            access.forEach(ac => {
-                tbody.innerHTML += `
-                
-                    <tr>
-                        <td>${ac.accessid}</td>
-                        <td>${ac.accessname}</td>    
-                        <td>
-                            <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-accessid = "${ac.accessid}"
-                                >Edit
-                            
-                            </button>
-                            <button 
-                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-accessid="${ac.accessid}">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                
-                `;               
-            });
-});
-//#endregion
-
-//Generate Unique Id
-function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    .replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, 
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-//#region --Update and insert access
-document.getElementById('upsertcreateform').addEventListener('submit', function (e) {
-
+  /* =====================
+     ACCESS FORM SUBMIT
+  ====================== */
+  accessForm.addEventListener('submit', e => {
     e.preventDefault();
 
-    let uid = "";
-    //Get the accessname 
-    const accessId = document.getElementById('access-id').value;
     const accessName = document.getElementById('access-name').value;
-    if( id === ""){
-        uid = uuidv4();
-    }else{
-        uid = id;
-    }
-    const formData = {
-        accessid: uid,
-        accessname: accessName
+
+    const payload = {
+      accessname: accessName
     };
 
-    if(accessId == ""){
-        //Create access
-        fetch('/api/createac', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(async response => {
-            const data = await response.json();
+    const url = accessId ? `/api/updateac/${accessId}` : '/api/createac';
+    const method = accessId ? 'PUT' : 'POST';
 
-            if (!response.ok) {
-                throw new Error(data.error || "Request failed");
-            }
-
-            return data;
-        })
-        .then(data => {
-            notification("success", data.success);
-            id = "";
-            closeModal('access-modal'); 
-        })
-        .catch(err => {
-            notification("error", err.message);
-        });
-    }else{
-        fetch(`/api/updateac/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(async response => {
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Request failed");
-            }
-
-            return data;
-        })
-        .then(data => {
-            notification("success", data.success);
-            id = "";
-            closeModal('access-modal'); 
-        })
-        .catch(err => {
-            notification("error", err.message);
-        });
-    }
-
-});
-
-
-//#endregion
-//#region--Update function
-document.getElementById('Access-body').addEventListener('click' , function(e){
-
-    if (!e.target.classList.contains('update-btn')) return;
-
-    id = e.target.dataset.accessid;
-    if (!id) return;
-
-    const accessInputId = document.getElementById('access-id');
-    accessInputId.value = id;
-    
-    btnSubmit.innerText = "Update";
-    headerTitle.innerText = "Update access";  
-        
-    fetch(`/api/access/${id}`)
-        .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Request failed");
-            return data;
-        })
-        .then(data => {
-            const accessName= data.success;
-            document.getElementById('access-name').value = accessName.accessname;
-
-        })
-        .catch(err => {
-            console.log(err);
-        });
-
-    openModal('access-modal');
-
-
-
-}); 
-//#endregion
-
-//#region--Delete access function
-
-document.getElementById('Access-body').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('delete-btn')) return;
-
-    const accessid = e.target.dataset.accessid;
-    if (!accessid) return;
-
-        Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/api/deleteac/${accessid}`, {
-            method: 'DELETE'
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Delete failed');
-
-            Swal.fire({
-                title: "Deleted!",
-                text: "Access has been deleted.",
-                icon: "success"
-            });
-            accessid.value = "";
-            e.target.closest('tr').remove();
-          
-        })
-        .catch(err => {
-            Swal.fire({
-                title: "Error!",
-                text: "Failed to delete role access.",
-                icon: "error"
-            });
-        });
-
-    }
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      return res.json().then(data => {
+        if (!res.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      });
+    })
+    .then(data => {
+      notification("success", data.success);
+      closeAccessModal();
+      setTimeout(() => location.reload(), 500);
+    })
+    .catch(err => {
+      notification("error", err.message);
     });
+  });
 
-   
+  /* =====================
+     ROLE ACCESS TABLE CLICK HANDLER
+  ====================== */
+  roleAccessBody.addEventListener('click', e => {
+
+    // Handle Delete Button
+    if (e.target.classList.contains('delete-rbac-btn')) {
+      const rbacId = e.target.dataset.id;
+      
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, remove it!"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/api/deleterc/${rbacId}`, { method: 'DELETE' })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Delete failed');
+              }
+              return;
+            })
+            .then(() => {
+              Swal.fire("Deleted!", "Role access has been removed.", "success");
+              setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => notification("error", err.message));
+        }
+      });
+    }
+  });
+
+  /* =====================
+     ACCESS TABLE CLICK HANDLER
+  ====================== */
+  accessBody.addEventListener('click', e => {
+
+    // Handle Update Button
+    if (e.target.classList.contains('update-access-btn')) {
+      accessId = e.target.dataset.id;
+      
+      fetch(`/api/access/${accessId}`)
+        .then(res => res.json())
+        .then(data => {
+          const access = data.success;
+          document.getElementById('access-name').value = access.accessname;
+          
+          accessHeader.innerText = "Update Access";
+          accessBtnText.innerText = "Update";
+          openAccessModal();
+        })
+        .catch(err => notification("error", err.message));
+    }
+
+    // Handle Delete Button
+    if (e.target.classList.contains('delete-access-btn')) {
+      const deleteAccessId = e.target.dataset.id;
+      
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/api/deleteac/${deleteAccessId}`, { method: 'DELETE' })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Delete failed');
+              }
+              return;
+            })
+            .then(() => {
+              Swal.fire("Deleted!", "Access has been deleted.", "success");
+              setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => notification("error", err.message));
+        }
+      });
+    }
+  });
+
 });
+
+/* =====================
+   UUID GENERATOR (if needed)
+====================== */
+// function uuidv4() {
+//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+//     const r = Math.random() * 16 | 0;
+//     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+//   });
+// }

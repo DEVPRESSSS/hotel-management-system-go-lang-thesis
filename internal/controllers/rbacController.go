@@ -3,11 +3,13 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Create role access
@@ -121,6 +123,15 @@ func (s *Server) CreateAccess(ctx *gin.Context) {
 		return
 	}
 
+	accessID, err := GenerateAccess(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Amenity ID",
+		})
+		return
+	}
+
+	access.AccessId = accessID
 	if err := s.Db.Create(&access).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create access",
@@ -202,4 +213,29 @@ func (s *Server) Access(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, access)
+}
+
+// Generate auto IncrementId
+func GenerateAccess(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Access{}).
+		Select("access_id").
+		Order("access_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "ACCESS-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("ACCESS-%03d", nextNumber), nil
 }

@@ -3,11 +3,13 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Facility struct {
@@ -28,6 +30,16 @@ func (s *Server) CreateFacility(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Generate sequential ID
+	facilityID, err := GenerateFacilityID(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Amenity ID",
+		})
+		return
+	}
+
+	facility.FacilityId = facilityID
 
 	//Create Role error handling
 	if err := s.Db.Create(&facility).Error; err != nil {
@@ -118,4 +130,29 @@ func (s *Server) GetFacility(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"success": facility})
+}
+
+// Generate auto IncrementId
+func GenerateFacilityID(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Facility{}).
+		Select("facility_id").
+		Order("facility_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "FACILITY-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("FACILITY-%03d", nextNumber), nil
 }

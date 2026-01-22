@@ -3,11 +3,13 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -28,6 +30,15 @@ func (s *Server) CreateService(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	serviceID, err := GenerateServiceID(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Amenity ID",
+		})
+		return
+	}
+	service.ServiceId = serviceID
 
 	//Create Role error handling
 	if err := s.Db.Create(&service).Error; err != nil {
@@ -118,4 +129,29 @@ func (s *Server) GetService(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"success": service})
+}
+
+// Generate auto IncrementId
+func GenerateServiceID(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Service{}).
+		Select("service_id").
+		Order("service_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "AMENITY-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("AMENITY-%03d", nextNumber), nil
 }
