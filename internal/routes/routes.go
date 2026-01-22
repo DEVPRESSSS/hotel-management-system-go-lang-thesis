@@ -54,6 +54,15 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+
+		defaultRoute.POST("/createaccount", server.RegisterGuest)
+
+		//Register page
+		defaultRoute.GET("/register", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "register.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
 	}
 
 	// --------------------------------------------------
@@ -148,6 +157,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		// User APIs
 		authorize.GET("/api/users", rbac.RBACMiddleware("read"), server.GetAllUsers)
+		authorize.GET("/api/guest", rbac.RBACMiddleware("read"), server.GetAllGuest)
 		authorize.GET("/api/user/:userid", rbac.RBACMiddleware("read"), server.GetUser)
 
 		// ==============================================

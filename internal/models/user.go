@@ -26,6 +26,16 @@ type CreateUserInput struct {
 	Locked   bool   `json:"locked"`
 }
 
+type RegisterInput struct {
+	UserId   string `json:"userid"`
+	Username string `json:"username" binding:"required"`
+	FullName string `json:"fullname" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	RoleId   string `json:"roleid"`
+	Locked   bool   `json:"locked"`
+}
+
 //Handles update of user with binding required
 type UpdateUserInput struct {
 	UserId   string `json:"userid" binding:"required"`

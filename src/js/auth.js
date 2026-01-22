@@ -32,23 +32,20 @@ document.getElementById('loginform').addEventListener('submit', function (event)
       return data;
     })
     .then(data => {
-       //notification("success", "Login successful");
 
        if(data.token){
           localStorage.setItem('token', data.token);
           notification("success", "Login successful");
 
-          //Check first what role
-          
           setTimeout(() => {
               window.location.href = "/api/dashboard";
           }, 100);
        }else{
-            notification("error", `${data.err}`);
+            notification("error", `Incorect username or password`);
 
        }
     })
     .catch(error => {
-      notification("error", error.error);
+      notification("error", error.message);
     });
 });

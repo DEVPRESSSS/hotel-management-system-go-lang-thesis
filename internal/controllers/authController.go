@@ -35,8 +35,6 @@ func (s *Server) Login(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Account found", "token": token})
 
-	//Redirect the user to Dashboard
-	//ctx.Redirect(http.StatusFound, "/api/dashboard")
 }
 
 func (s *Server) AuthenticateUser(username, password string) (string, error) {

@@ -1,224 +1,204 @@
-//Access the header title to modify it later
-const headerTitle = document.getElementById('header-action');
-//Access the header text to modify its text inside
-const btnSubmit = document.getElementById('btn-submit');
-//Stors user id globally
-let id = "";
-function openModal() {
-    document.getElementById('userModal').classList.remove('hidden');
-    document.getElementById('userModal').classList.add('flex');
-}
+document.addEventListener("DOMContentLoaded", () => {
 
-function closeModal() {
-        document.getElementById('userModal').classList.add('hidden');
-        document.getElementById('userModal').classList.remove('flex');
-}
-function createModal(){
-    headerTitle.innerText = "Create room aminity";
-    btnSubmit.innerText = "Create";
+  /* =====================
+     DOM ELEMENTS
+  ====================== */
+  const headerTitle = document.getElementById('header-action');
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnText = document.getElementById('btn-text');
+  const form = document.getElementById('upsertform');
+  const tbody = document.getElementById('users-body');
+  const tableElement = document.querySelector("#default-table");
+  const userModal = document.getElementById('userModal');
+
+  if (!tbody || !form || !headerTitle || !btnSubmit || !tableElement) {
+    console.warn("Room Amenity page elements not found. JS skipped.");
+    console.log({tbody, form, headerTitle, btnSubmit, tableElement});
+    return;
+  }
+
+  let id = "";
+  let dataTable = null;
+
+  /* =====================
+     MODAL FUNCTIONS
+  ====================== */
+  function openModal() {
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
+  }
+
+  function closeModal() {
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
+  }
+
+  window.closeModal = closeModal;
+
+  window.createModal = function () {
+    id = "";
+    headerTitle.innerText = "Assign Room Amenity";
+    btnText.innerText = "Assign";
+    form.reset();
     openModal();
-}
+  };
 
-  //Upsert role
-document.getElementById('upsertform').addEventListener('submit', function(e){
-
-    e.preventDefault();
-    //Generate unique uid
-    let uid = "";
-    //Get the input in role textbox
-    const roomid = document.getElementById('roomid').value;
-    const aminityid = document.getElementById('aminityid').value;
-    if( id === ""){
-        uid = uuidv4();
-    }else{
-        uid = id;
-    }
-
-    const formData ={
-        RoomId: roomid,
-        AmenityId: aminityid,
-
-    };
-    if(id === "" || id === null){
-        fetch('/api/createroomaminity', {
-            method:'POST',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-            })
-            .then(async response => {
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.error);
-                        }
-                        return data;
-            
-            })
-            .then(data=>{
-
-                //Show notication success
-                notification("success", data.success);
-
-            })
-            .catch(err=>{
-
-                notification("error", err.message);
-
-            });
-    }else{
-           //Update user
-            const updateFormData = {
-                  RoomId: roomid,
-                  AmenityId: aminityid,      
-            };
-            fetch(`/api/updateroomaminity/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateFormData)
-                })
-                .then(async response => {
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error);
-                    }
-                    return data;
-                })
-                .then(data => {
-                    notification("success", data.success);
-
-                })
-                .catch(err => {
-                    notification("error", err.error);
-            });
-    }
-
-    //Close the modal
-    closeModal();
-
-});
-
-function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    .replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, 
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-//Fetch all room aminities
-fetch('/api/roomaminities')
-    .then(response => response.json())
-        .then(roomAminities => {
-
-            const tbody = document.getElementById('users-body');
-
-            roomAminities.forEach(aminity => {
-                tbody.innerHTML += `
-                
-                    <tr>
-                        <td>${aminity.Room.roomnumber}</td>
-                        <td>${aminity.Amenity.amenityname}</td>                  
-                        <td>
-                            <button class="update-btn text-blue-600 hover:text-blue-800 font-medium"
-                                data-roomid = "${aminity.RoomId}"
-                                >Edit
-                            
-                            </button>
-                            <button 
-                                class="delete-btn text-red-600 hover:text-red-800 font-medium"
-                                data-roomid="${aminity.RoomId}">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                
-                `;               
-            });
-});
-//Edit click 
-document.getElementById('users-body').addEventListener('click' , function(e){
-
-    if (!e.target.classList.contains('update-btn')) return;
-
-    id = e.target.dataset.roomid;
-    if (!id) return;
-
-    const roomid = document.getElementById('input-id');
-    roomid.value = id;
-
-    btnSubmit.innerText = "Update";
-    headerTitle.innerText = "Update aminity";  
+  /* =====================
+     LOAD ROOMS DROPDOWN
+  ====================== */
+  function loadRoomsDropdown() {
+    fetch('/api/rooms')
+      .then(res => res.json())
+      .then(rooms => {
+        const roomSelect = document.getElementById('roomid');
+        roomSelect.innerHTML = '<option value="">-- Select Room --</option>';
         
-    
-    fetch(`/api/roomaminity/${id}`)
-        .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Request failed");
-            return data;
-        })
-        .then(data => {
-            //notification("success", data.success || "Operation successful");           
-            const aminityname= data.success;
-            document.getElementById('aminity').value = aminityname.aminityname;
-
-        })
-        .catch(err => {
-            console.log(err);
-            alert(`${err}`);
+        rooms.forEach(room => {
+          const option = document.createElement('option');
+          option.value = room.roomid;
+          option.textContent = `Room ${room.roomnumber}`;
+          roomSelect.appendChild(option);
         });
+      })
+      .catch(err => console.error('Failed to load rooms:', err));
+  }
 
-    openModal();
+  /* =====================
+     LOAD AMENITIES DROPDOWN
+  ====================== */
+  function loadAmenitiesDropdown() {
+    fetch('/api/aminities')
+      .then(res => res.json())
+      .then(amenities => {
+        const amenitySelect = document.getElementById('aminityid');
+        amenitySelect.innerHTML = '<option value="">-- Select Amenity --</option>';
+        
+        amenities.forEach(amenity => {
+          const option = document.createElement('option');
+          option.value = amenity.amenityid;
+          option.textContent = amenity.amenityname;
+          amenitySelect.appendChild(option);
+        });
+      })
+      .catch(err => console.error('Failed to load amenities:', err));
+  }
 
-}); 
+  // Load dropdowns on page load
+  loadRoomsDropdown();
+  loadAmenitiesDropdown();
 
+  /* =====================
+     FETCH ROOM AMENITIES & INIT TABLE
+  ====================== */
+  fetch('/api/roomaminities')
+    .then(res => {
+      if (!res.ok) throw new Error("API failed");
+      return res.json();
+    })
+    .then(roomAmenities => {
+      // Populate table body
+      tbody.innerHTML = roomAmenities.map(amenity => `
+        <tr>
+          <td class="px-4 py-3">${amenity.Room ? amenity.Room.roomnumber : 'N/A'}</td>
+          <td class="px-4 py-3">${amenity.Amenity ? amenity.Amenity.amenityname : 'N/A'}</td>
+          <td class="px-4 py-3 text-center">
+            <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-roomid="${amenity.RoomId}" data-amenityid="${amenity.AmenityId}">Remove</button>
+          </td>
+        </tr>
+      `).join("");
 
-//Delete user function
-document.getElementById('users-body').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('delete-btn')) return;
+      // Initialize DataTable AFTER populating data
+      if (window.simpleDatatables && tableElement) {
+        dataTable = new simpleDatatables.DataTable(tableElement, {
+          searchable: true,
+          paging: true,
+          perPage: 10,
+          perPageSelect: [5, 10, 20, 50],
+          sortable: true,
+        });
+      }
+    })
+    .catch(console.error);
 
-    const aminityid = e.target.dataset.roomid;
-    if (!aminityid) return;
+  /* =====================
+     FORM SUBMIT
+  ====================== */
+  form.addEventListener('submit', e => {
+    e.preventDefault();
 
-    Swal.fire({
+    const roomId = document.getElementById('roomid').value;
+    const amenityId = document.getElementById('aminityid').value;
+
+    const payload = {
+      RoomId: roomId,
+      AmenityId: amenityId
+    };
+
+    const url = id ? `/api/updateroomaminity/${id}` : '/api/createroomaminity';
+    const method = id ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      return res.json().then(data => {
+        // Check if request was successful
+        if (!res.ok) {
+          // Throw error with server message
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      });
+    })
+    .then(data => {
+      notification("success", data.success);
+      closeModal();
+      setTimeout(() => location.reload(), 500);
+    })
+    .catch(err => {
+      notification("error", err.message);
+    });
+  });
+
+  /* =====================
+     TABLE CLICK HANDLER
+  ====================== */
+  tbody.addEventListener('click', e => {
+
+    // Handle Delete Button
+    if (e.target.classList.contains('delete-btn')) {
+      const roomId = e.target.dataset.roomid;
+      const amenityId = e.target.dataset.amenityid;
+      
+      Swal.fire({
         title: "Are you sure?",
-        text: "You won't be able to revert this!",
+        text: "This will remove the amenity from the room!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, remove it!"
+      }).then(result => {
         if (result.isConfirmed) {
-            fetch(`/api/deleteroomaminity/${aminityid}`, {
-            method: 'DELETE'
-
-            
-        },  
-            Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success"
+          // Use roomId as the identifier for deletion
+          fetch(`/api/deleteroomaminity/${roomId}`, { method: 'DELETE' })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Delete failed');
+              }
+              return;
             })
-        )
-        .then(res => {
-            if (!res.ok) throw new Error('Delete failed');
-            e.target.closest('tr').remove(); 
-            
-        })
-        .catch(err => {
-            console.log(err);
-            alert('Error deleting user');
-        });
-
-      
+            .then(() => {
+              Swal.fire("Removed!", "Room amenity has been removed.", "success");
+              setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => notification("error", err.message));
+        }
+      });
     }
-    });
+  });
 
-   
 });
+

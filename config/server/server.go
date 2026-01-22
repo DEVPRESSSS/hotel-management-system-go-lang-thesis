@@ -21,11 +21,14 @@ func SetupServer(host string, db *gorm.DB) {
 
 		// Error
 		"views/ErrorView/errors.html",
+		"views/ErrorView/404.html",
+		"views/ErrorView/forbidden.html",
 
 		// Public
 		"views/defaultView/index.html",
 		"views/defaultView/Booking.html",
 		"views/Auth/login.html",
+		"views/Auth/register.html",
 
 		// Admin layouts
 		"views/Areas/Admin/Layout.html",

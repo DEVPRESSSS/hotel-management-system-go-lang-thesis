@@ -37,7 +37,10 @@ func RBACMiddleware(permission string) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "no permissions assigned to role",
 			})
-			//ctx.Redirect(http.StatusUnauthorized, "/login")
+			// ctx.HTML(http.StatusForbidden, "404.html", gin.H{
+			// 	"code":    403,
+			// 	"message": "Access Forbidden",
+			// })
 
 			return
 		}
@@ -56,7 +59,7 @@ func RBACMiddleware(permission string) gin.HandlerFunc {
 				return
 			}
 		}
-
+		fmt.Print("This is the forbideen riggered")
 		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 	}
 }

@@ -120,13 +120,27 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(roleAccessList => {
       // Populate table body
       roleAccessBody.innerHTML = roleAccessList.map(rbac => `
-        <tr>
-          <td class="px-4 py-3">${rbac.AccessID}</td>
-          <td class="px-4 py-3">${rbac.RoleID}</td>
-          <td class="px-4 py-3 text-center">
-            <button class="delete-rbac-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${rbac.AccessID}">Remove</button>
-          </td>
-        </tr>
+      <tr>
+        <td class="px-4 py-3">${rbac.AccessID}</td>
+        <td class="px-4 py-3">${rbac.RoleID}</td>
+        <td class="px-4 py-3 text-center">
+          ${
+            rbac.Role.rolename !== "Admin"
+              ? `<button class="delete-rbac-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  data-id="${rbac.AccessID}">
+                  Remove permission
+                </button>`
+              : `<p class="text-sm text-success">
+                   <span
+                          class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100"
+                        >
+                          Default Admin Permission
+                    </span>
+                </p>`
+          }
+        </td>
+      </tr>
+
       `).join("");
 
       // Initialize DataTable AFTER populating data
