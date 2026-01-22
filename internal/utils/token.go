@@ -28,6 +28,7 @@ func CreateToken(user models.User, roleAccess []models.RoleAccess) (string, erro
 		"auth":     true,
 		"userid":   user.UserId,
 		"email":    user.Email,
+		"role":     user.Role.RoleName,
 		"username": user.Username,
 		"exp":      time.Now().Add(time.Hour * time.Duration(tokenLifespan)).Unix(),
 		"access":   permissions,
@@ -42,19 +43,19 @@ func CreateToken(user models.User, roleAccess []models.RoleAccess) (string, erro
 	return tokenString, nil
 }
 
-func ValidateToken(c *gin.Context) (jwt.MapClaims, error) {
-	token, err := GetToken(c)
+// func ValidateToken(c *gin.Context) (jwt.MapClaims, error) {
+// 	token, err := GetToken(c)
 
-	if err != nil {
-		return nil, err
-	}
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if user, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return user, nil
-	}
+// 	if user, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+// 		return user, nil
+// 	}
 
-	return nil, errors.New("invalid token provided")
-}
+// 	return nil, errors.New("invalid token provided")
+// }
 
 func GetToken(c *gin.Context) (*jwt.Token, error) {
 	tokenString, err := GetTokenFromRequest(c)
@@ -96,21 +97,6 @@ func GetTokenFromRequest(c *gin.Context) (string, error) {
 	return token, nil
 }
 
-// func GetTokenFromRequest(c *gin.Context) (string, error) {
-
-// 	authHeader := c.GetHeader("Authorization")
-// 	if strings.HasPrefix(authHeader, "Bearer ") {
-// 		return strings.TrimPrefix(authHeader, "Bearer "), nil
-// 	}
-
-// 	token, err := c.Cookie("token")
-// 	if err != nil {
-// 		return "", errors.New("missing tokens")
-// 	}
-
-// 	return token, nil
-// }
-
 func ParseToken(tokenString string) (jwt.MapClaims, error) {
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -130,6 +116,5 @@ func ParseToken(tokenString string) (jwt.MapClaims, error) {
 	if !ok || !token.Valid {
 		return nil, errors.New("invalid token")
 	}
-
 	return claims, nil
 }

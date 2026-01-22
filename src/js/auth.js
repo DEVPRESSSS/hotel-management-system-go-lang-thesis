@@ -36,10 +36,23 @@ document.getElementById('loginform').addEventListener('submit', function (event)
        if(data.token){
           localStorage.setItem('token', data.token);
           notification("success", "Login successful");
-
+          let url = "";
+          switch (data.role) {
+            case "Admin":
+              url = "/api/dashboard";
+              break;
+            case "Guest":
+              url= "/guest/dashboard";
+              break;
+            default:
+              window.location.href = "/unauthorized";
+          }
+        
           setTimeout(() => {
-              window.location.href = "/api/dashboard";
-          }, 100);
+             //Redirect to any dashboard depending on the role
+              window.location.href = url;
+              
+           }, 100);
        }else{
             notification("error", `Incorect username or password`);
 
