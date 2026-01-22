@@ -3,12 +3,14 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type Room struct {
@@ -28,11 +30,20 @@ func (s *Server) CreateRoom(ctx *gin.Context) {
 	var room models.Room
 	//Validate first
 	if err := ctx.ShouldBind(&room); err != nil {
-
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	roomID, err := GenerateRoomID(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Amenity ID",
+		})
+		return
+	}
+
+	//Asign the room id here
+	room.RoomId = roomID
 	if err := s.Db.Create(&room).Error; err != nil {
 
 		var mysqlErr *mysql.MySQLError
@@ -125,4 +136,29 @@ func (s *Server) GetRoom(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"success": room})
+}
+
+// Generate auto IncrementId
+func GenerateRoomID(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Room{}).
+		Select("room_id").
+		Order("room_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "ROOM-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("ROOM-%03d", nextNumber), nil
 }
