@@ -6,6 +6,15 @@ if(!id){
   window.location.href = "/"
 } 
 const roomId = JSON.parse(id);
+const roomType = document.getElementById('roomTitle');
+const roomPrice = document.getElementById('roomPrice');
+const roomNumber = document.getElementById('roomNumber');
+const roomCapacity = document.getElementById('roomCapacity');
+const roomFloor = document.getElementById('roomFloor');
+const description = document.getElementById('roomDescription');
+const amenitiesContainer = document.getElementById("amenities");
+//Book now button
+
 
 fetch(`/api/roomselected/${roomId}`)
         .then(response => {
@@ -19,31 +28,24 @@ fetch(`/api/roomselected/${roomId}`)
           const room = data.room;
           console.log(room);
           //Populate the room title
-          const roomType = document.getElementById('roomTitle');
           roomType.textContent = room.RoomType.roomtypename;
 
           //Populate the room number
-          const roomNumber = document.getElementById('roomNumber');
           roomNumber.textContent = room.roomnumber;
 
           //Populate the room price
-          const roomPrice = document.getElementById('roomPrice');
           roomPrice.textContent = room.price;
 
           //Populate the room capacity
-          const roomCapacity = document.getElementById('roomCapacity');
           roomCapacity.textContent = room.capacity;
 
          //Populate the room floor
-          const roomFloor = document.getElementById('roomFloor');
           roomFloor.textContent = room.Floor.floorname;
 
           //Populate the room description
-          const description = document.getElementById('roomDescription');
           description.textContent = room.RoomType.description;
 
           //Populate the room description
-          const amenitiesContainer = document.getElementById("amenities");
           amenitiesContainer.innerHTML = ""; 
 
           room.amenities.forEach(amenity => {
@@ -58,8 +60,44 @@ fetch(`/api/roomselected/${roomId}`)
             `;
 
             amenitiesContainer.appendChild(div);
-      });
+           });
 
 
         })
         .catch(error => console.log(error));
+
+//Store the information of the booking if the user click the book now btn
+const bookNowBtn = document.getElementById("book-now");
+
+bookNowBtn.addEventListener("click", function (e) {
+  e.preventDefault(); 
+
+  const checkIn = document.getElementById("check-in").value;
+  const checkOut = document.getElementById("check-out").value;
+  const numberOfGuest = document.getElementById("guest").value;
+
+  if (!checkIn || !checkOut) {
+    alert("Please select check-in and check-out dates");
+    return;
+  }
+
+  if(checkIn == checkOut){
+    alert("Same day checkout is not supported");
+    return;
+  }
+  // store draft booking
+  sessionStorage.setItem(
+    "bookingDraft",
+    JSON.stringify({
+      room_id:roomId,
+      room_type:roomType.textContent,
+      check_in: checkIn,
+      check_out: checkOut,
+      guests: numberOfGuest
+    })
+  );
+
+
+  // redirect to next page
+  window.location.href = "/booking/summary";
+});
