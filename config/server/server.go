@@ -30,6 +30,11 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Auth/login.html",
 		"views/Auth/register.html",
 
+		//Guest layout
+		"views/Areas/Guest/guest_header.html",
+		"views/Areas/Guest/guest_footer.html",
+		"views/Areas/Guest/dashboard/guest_index.html",
+
 		// Admin layouts
 		"views/Areas/Admin/Layout.html",
 		"views/Areas/Admin/dashboard_header.html",

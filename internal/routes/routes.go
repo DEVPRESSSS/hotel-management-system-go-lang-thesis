@@ -72,6 +72,15 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	authorize.Use(middlewares.AuthMiddleware())
 	{
 
+		//GUEST ROUTES
+		//===============================================
+		// Guest dashboard
+		authorize.GET("/guest/dashboard", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "guest_index.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+		//ADMIN ROUTES
 		// ==============================================
 		// GUEST  MANAGEMENT
 		// ==============================================
@@ -122,14 +131,14 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.GET("/api/roomaminity/:roomid", rbac.RBACMiddleware("read"), server.GetAminity)
 
 		// ==============================================
-		// AMINITY MANAGEMENT (CRUD)
+		// AMENITY MANAGEMENT (CRUD)
 		// ==============================================
 
 		authorize.POST("/api/createaminity", rbac.RBACMiddleware("create"), server.CreateAminity)
 		authorize.PUT("/api/updateaminity/:amenityid", rbac.RBACMiddleware("update"), server.UpdateAminity)
 		authorize.DELETE("/api/deleteamenity/:amenityid", rbac.RBACMiddleware("delete"), server.DeleteAminity)
 
-		// Aminity
+		// Amenity
 		authorize.GET("/amenities", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "aminity.html", gin.H{
 				"title": "Hotel Management System",
@@ -187,7 +196,6 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.PUT("/api/updatefacility/:facilityid", rbac.RBACMiddleware("update"), server.UpdateFacility)
 		authorize.DELETE("/api/deletefacility/:facilityid", rbac.RBACMiddleware("delete"), server.Deletefacility)
 
-		// Facility page (RBAC: Read Permission)
 		authorize.GET("/facility", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "facility.html", gin.H{
 				"title": "Hotel Management System",
@@ -264,6 +272,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.DELETE("/api/deleterc/:accessid", server.DeleteRoleAccess)
 		//Role based access api
 		authorize.GET("/api/rbac", rbac.RBACMiddleware("read"), server.RoleAccess)
+
 		// ==============================================
 		// ACCESS ROUTE
 		// ==============================================

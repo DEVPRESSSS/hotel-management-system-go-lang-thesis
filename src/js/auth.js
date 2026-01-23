@@ -33,30 +33,22 @@ document.getElementById('loginform').addEventListener('submit', function (event)
     })
     .then(data => {
 
-       if(data.token){
-          localStorage.setItem('token', data.token);
+      if (data.token) {
+          localStorage.setItem("token", data.token);
           notification("success", "Login successful");
-          let url = "";
-          switch (data.role) {
-            case "Admin":
-              url = "/api/dashboard";
-              break;
-            case "Guest":
-              url= "/guest/dashboard";
-              break;
-            default:
-              window.location.href = "/unauthorized";
-          }
-        
-          setTimeout(() => {
-             //Redirect to any dashboard depending on the role
-              window.location.href = url;
-              
-           }, 100);
-       }else{
-            notification("error", `Incorect username or password`);
 
-       }
+          const routes = {
+              Admin: "/api/dashboard",
+              Guest: "/guest/dashboard",
+          };
+
+          setTimeout(() => {
+              window.location.href = routes[data.role] || "/unauthorized";
+          }, 100);
+      } else {
+          notification("error", "Incorrect username or password");
+      }
+
     })
     .catch(error => {
       notification("error", error.message);

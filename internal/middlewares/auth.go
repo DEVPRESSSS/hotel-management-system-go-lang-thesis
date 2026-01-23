@@ -51,9 +51,8 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var tokenStr string
 
-		acceptsHTML := strings.Contains(c.GetHeader("Accept"), "text/html")
+		var tokenStr string
 
 		authHeader := c.GetHeader("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
@@ -61,7 +60,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		} else {
 			cookie, err := c.Cookie("token")
 			if err != nil {
-				handleUnauthorized(c, acceptsHTML)
+				c.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
 			tokenStr = cookie
@@ -72,30 +71,15 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			handleUnauthorized(c, acceptsHTML)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			handleUnauthorized(c, acceptsHTML)
-			return
-		}
+		claims := token.Claims.(jwt.MapClaims)
 
-		// 5️⃣ Store values in context
 		c.Set("user_id", claims["userid"])
 		c.Set("access", claims["access"])
 
 		c.Next()
 	}
-}
-func handleUnauthorized(c *gin.Context, html bool) {
-	if html {
-		c.Redirect(http.StatusFound, "/login")
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
-		})
-	}
-	c.Abort()
 }
