@@ -81,7 +81,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Room details",
 			})
 		})
-		
+
 		authorize.POST("/api/booking/calculate", server.CalculateBookingPrice)
 		authorize.GET("/booking/summary", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "confirm_booking.html", gin.H{

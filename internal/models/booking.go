@@ -2,10 +2,10 @@ package models
 
 import "time"
 
-type Booking struct {
+type Book struct {
 	BookId string `gorm:"column:book_id;type:varchar(36);primaryKey" json:"bookid"`
 	UserId string `gorm:"column:user_id;type:varchar(36);not null" json:"userid"`
-	User   User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	User   User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	// Room Information
 	RoomId     string `gorm:"column:room_id;type:varchar(36);not null" json:"roomid"`
@@ -17,9 +17,7 @@ type Booking struct {
 	CheckOutDate time.Time `gorm:"column:check_out_date;not null" json:"check_out_date"`
 
 	// Guest Information
-	NumGuests   int `gorm:"column:num_guests;default:1" json:"num_guests"`
-	NumAdults   int `gorm:"column:num_adults;default:1" json:"num_adults"`
-	NumChildren int `gorm:"column:num_children;default:0" json:"num_children"`
+	NumGuests int `gorm:"column:num_guests;default:1" json:"num_guests"`
 
 	// Pricing
 	TotalPrice    float64 `gorm:"column:total_price;type:decimal(10,2)" json:"total_price"`

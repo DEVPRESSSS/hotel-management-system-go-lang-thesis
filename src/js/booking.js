@@ -93,7 +93,7 @@ bookNowBtn.addEventListener("click", function (e) {
       room_type:roomType.textContent,
       check_in: checkIn,
       check_out: checkOut,
-      guests: numberOfGuest
+      guest: Number(numberOfGuest)
     })
   );
 

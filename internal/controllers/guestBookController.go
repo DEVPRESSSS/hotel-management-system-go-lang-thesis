@@ -63,12 +63,12 @@ func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 	nights := int(checkOut.Sub(checkIn).Hours() / 24)
 
 	nightsDecimal := decimal.NewFromInt(int64(nights))
-	total := nightsDecimal.Mul(room.Price)
-	fmt.Print("Result", total)
-
+	numberGuest := decimal.NewFromInt(int64(req.Guest))
+	total := nightsDecimal.Mul(room.Price).Mul(numberGuest)
+	fmt.Print(total)
 	ctx.JSON(http.StatusOK, gin.H{
 		"price_per_night": room.Price,
 		"nights":          nights,
-		"total":     total,
+		"total":           total,
 	})
 }

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const bookingInfo = sessionStorage.getItem("bookingDraft");
     //Parse the booking info
     const bookingSummary = JSON.parse(bookingInfo);
-    console.log(bookingSummary.checkOut);
+    console.log(bookingSummary);
 
     //Populate the value
     const roomId = bookingSummary.room_id;
@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
             room_id: roomId,
             check_in: bookingSummary.check_in,
-            check_out: bookingSummary.check_out
+            check_out: bookingSummary.check_out,
+            guest: Number(bookingSummary.guests)
         })
         })
         .then(response => {
@@ -34,6 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("price").textContent = data.price_per_night;
             document.getElementById("total").textContent = data.total;
         })
-        .catch(error => console.error(error));
+        .catch(error => console.log(error));
 
 });

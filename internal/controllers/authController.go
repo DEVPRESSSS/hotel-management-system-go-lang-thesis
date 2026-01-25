@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"HMS-GO/internal/models"
+	"HMS-GO/internal/models/dto"
 	"HMS-GO/internal/utils"
 	"fmt"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 )
 
 func (s *Server) Login(ctx *gin.Context) {
-	var user models.LoginInput
+	var user dto.LoginInput
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

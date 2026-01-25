@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="px-4 py-3">${user.userid}</td>
           <td class="px-4 py-3">${user.fullname || user.username}</td>
           <td class="px-4 py-3">${user.email}</td>
+          <td class="px-4 py-3">${user.username}</td>
           <td class="px-4 py-3">${user.Role ? user.Role.rolename : 'N/A'}</td>
           <td class="px-4 py-3">
             ${user.locked === false 

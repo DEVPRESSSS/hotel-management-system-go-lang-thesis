@@ -42,6 +42,8 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.Room{},
 		&models.Amenity{},
 		&models.RoomAmenity{},
+		&models.Test{},
+		&models.Book{},
 	)
 
 	if err != nil {
