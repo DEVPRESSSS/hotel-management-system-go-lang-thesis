@@ -2,13 +2,14 @@ package models
 
 import "time"
 
+// Book - Main booking record
 type Book struct {
-	BookId string `gorm:"column:book_id;type:varchar(36);primaryKey" json:"bookid"`
-	UserId string `gorm:"column:user_id;type:varchar(36);not null" json:"userid"`
+	BookId string `gorm:"column:book_id;type:varchar(36);primaryKey" json:"book_id"`
+	UserId string `gorm:"column:user_id;type:varchar(36);not null" json:"user_id"`
 	User   User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	// Room Information
-	RoomId     string `gorm:"column:room_id;type:varchar(36);not null" json:"roomid"`
+	RoomId     string `gorm:"column:room_id;type:varchar(36);not null" json:"room_id"`
 	RoomNumber string `gorm:"column:room_number;type:varchar(50)" json:"room_number"`
 	RoomType   string `gorm:"column:room_type;type:varchar(50)" json:"room_type"`
 
@@ -17,7 +18,8 @@ type Book struct {
 	CheckOutDate time.Time `gorm:"column:check_out_date;not null" json:"check_out_date"`
 
 	// Guest Information
-	NumGuests int `gorm:"column:num_guests;default:1" json:"num_guests"`
+	NumGuests int            `gorm:"column:num_guests;default:1" json:"num_guests"`
+	Guests    []BookingGuest `gorm:"foreignKey:BookId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"guests,omitempty"`
 
 	// Pricing
 	TotalPrice    float64 `gorm:"column:total_price;type:decimal(10,2)" json:"total_price"`

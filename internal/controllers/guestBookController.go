@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 func (s *Server) RoomSelected(ctx *gin.Context) {
@@ -27,6 +28,7 @@ func (s *Server) RoomSelected(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"room": room})
 }
 
+// Calculate boooking price (pre-booking)
 func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 
 	var req dto.PriceRequest
@@ -71,4 +73,73 @@ func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 		"nights":          nights,
 		"total":           total,
 	})
+}
+
+// Submit booking
+func (s *Server) ConfirmBooking(ctx *gin.Context) {
+
+	userId, exist := ctx.Get("user_id")
+	if !exist {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	var book models.Book
+
+	if err := ctx.ShouldBindJSON(&book); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Generate booking ID
+	bookingID, err := GenerateBookingID(s.Db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate booking ID"})
+		return
+	}
+
+	// Assign server-controlled values
+	book.BookId = bookingID
+	book.UserId = userId.(string)
+
+	fmt.Print("This is the data of the guest data:", book.Guests)
+	// Assign BookId to each guest
+	for i := range book.Guests {
+		book.Guests[i].Id = fmt.Sprintf("BKGUEST-%03d", i+1)
+		book.Guests[i].BookId = bookingID
+		book.Guests[i].GuestNumber = i + 1
+	}
+
+	// // Save booking + guests (GORM handles cascade)
+	if err := s.Db.Create(&book).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"success": true, "booking": book})
+}
+
+// Generate auto IncrementId
+func GenerateBookingID(db *gorm.DB) (string, error) {
+	var lastID string
+
+	err := db.
+		Model(&models.Book{}).
+		Select("book_id").
+		Order("book_id DESC").
+		Limit(1).
+		Scan(&lastID).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	nextNumber := 1
+
+	if lastID != "" {
+		fmt.Sscanf(lastID, "BOOKING-%d", &nextNumber)
+		nextNumber++
+	}
+
+	return fmt.Sprintf("BOOKING-%03d", nextNumber), nil
 }

@@ -4,77 +4,8 @@
   <div class="max-w-6xl mx-auto mt-4">
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- Guest Information Section -->
-            <div class="flex-1 bg-white rounded-lg shadow-md p-8">
-                <h1 class="text-3xl font-semibold text-gray-900 mb-2">Guest Information</h1>
-                <p class="text-gray-600 mb-8">Please provide your details to complete the booking</p>
-                
-                <form>
-                    <!-- Name Fields -->
-                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                First Name <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                Last Name <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
-                        </div>
-                    </div>
-
-                    <!-- Email and Phone Fields -->
-                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                Email Address <span class="text-red-600">*</span>
-                            </label>
-                            <input type="email" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                Phone Number <span class="text-red-600">*</span>
-                            </label>
-                            <input type="tel" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
-                        </div>
-                    </div>
-
-                    <!-- Special Requests -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-900 mb-2">
-                            Special Requests (Optional)
-                        </label>
-                        <textarea rows="5" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500 resize-none" placeholder="Any special requests or requirements..."></textarea>
-                    </div>
-
-                    <!-- Terms Checkbox -->
-                    <div class="mb-6">
-                        <label class="flex items-start">
-                            <input type="checkbox" class="mt-1 mr-3" required>
-                            <span class="text-sm text-gray-900">
-                                I agree to the terms and conditions and the cancellation policy <span class="text-red-600">*</span>
-                            </span>
-                        </label>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button type="button" class="flex-1 px-6 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                            Back
-                        </button>
-                        <button type="submit" class="flex-1 px-6 py-3 bg-gray-900 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                            Confirm
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
+            <div id="guest-container" class=" flex-1 bg-white rounded-lg shadow-md p-8">
+               
             </div>
 
             <!-- Booking Summary Section -->

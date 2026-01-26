@@ -90,6 +90,7 @@ bookNowBtn.addEventListener("click", function (e) {
     "bookingDraft",
     JSON.stringify({
       room_id:roomId,
+      room_number:roomNumber.textContent,
       room_type:roomType.textContent,
       check_in: checkIn,
       check_out: checkOut,

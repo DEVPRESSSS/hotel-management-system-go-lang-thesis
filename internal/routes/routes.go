@@ -35,6 +35,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+
 		//Login post method handler
 		defaultRoute.POST("/api/auth", server.Login)
 
@@ -46,7 +47,6 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		defaultRoute.POST("/createaccount", server.RegisterGuest)
-
 		//Register page
 		defaultRoute.GET("/register", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "register.html", gin.H{
@@ -74,15 +74,17 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// Get rooms
 		authorize.GET("/avail/rooms", server.GetRooms)
 		//Get the selected room
-		authorize.GET("/api/roomselected/:roomid", server.RoomSelected)
+		authorize.GET("/api/roomselected/:roomid", rbac.RBACMiddleware("booking"), server.RoomSelected)
 		//Populate the details of the room
 		authorize.GET("/roomdetails", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "booking.html", gin.H{
 				"title": "Room details",
 			})
 		})
-
-		authorize.POST("/api/booking/calculate", server.CalculateBookingPrice)
+		//Calculate the booking price per guest
+		authorize.POST("/api/booking/calculate", rbac.RBACMiddleware("booking"), server.CalculateBookingPrice)
+		authorize.POST("/api/booking/confirmbooking",rbac.RBACMiddleware("booking"), server.ConfirmBooking)
+		//Render confirm booking html
 		authorize.GET("/booking/summary", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "confirm_booking.html", gin.H{
 				"title": "Room details",

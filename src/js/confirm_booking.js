@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     //Get the booking info from session storage since it is draft
     const bookingInfo = sessionStorage.getItem("bookingDraft");
     //Parse the booking info
@@ -8,10 +7,242 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //Populate the value
     const roomId = bookingSummary.room_id;
+    let price = document.getElementById("price");
+    let total = document.getElementById("total");
+    
     document.getElementById("room-type").textContent= bookingSummary.room_type;
     document.getElementById("check-in").textContent= bookingSummary.check_in;
     document.getElementById("check-out").textContent= bookingSummary.check_out;
-    document.getElementById("guest").textContent= bookingSummary.guests;
+    document.getElementById("guest").textContent= bookingSummary.guest;
+
+    const guestNumber = Number(bookingSummary.guest);
+    const container = document.getElementById('guest-container');
+
+    // Store all guest data
+    let guestData = [];
+    let currentGuestIndex = 0;
+
+    // Function to generate guest-specific fields
+    function getGuestFields(guestNum) {
+        return `
+            <!-- Name Fields -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                        First Name <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="firstName" id="firstName-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                        Last Name <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="lastName" id="lastName-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+            </div>
+
+            <!-- Contact Fields -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                        Phone Number <span class="text-red-600">*</span>
+                    </label>
+                    <input type="tel" name="phone" id="phone-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+            </div>
+        `;
+    }
+
+    // Common fields (shown on last guest or single guest)
+    function getCommonFields() {
+        return `
+            <!-- Special Requests -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-900 mb-2">
+                    Special Requests (Optional)
+                </label>
+                <textarea rows="5" name="specialRequests" id="specialRequests" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500 resize-none" placeholder="Any special requests or requirements..."></textarea>
+            </div>
+
+            <!-- Terms Checkbox -->
+            <div class="mb-6">
+                <label class="flex items-start">
+                    <input type="checkbox" name="terms" id="terms" class="mt-1 mr-3" required>
+                    <span class="text-sm text-gray-900">
+                        I agree to the terms and conditions and the cancellation policy <span class="text-red-600">*</span>
+                    </span>
+                </label>
+            </div>
+        `;
+    }
+
+    // Function to render form for current guest
+    function renderGuestForm() {
+        const isLastGuest = currentGuestIndex === guestNumber - 1;
+        const isFirstGuest = currentGuestIndex === 0;
+        
+        container.innerHTML = `
+            <h1 class="text-3xl font-semibold text-gray-900 mb-2">
+                ${guestNumber > 1 ? `Guest Information for Guest No. ${currentGuestIndex + 1}` : 'Complete Your Booking'}
+            </h1>
+            <p class="text-gray-600 mb-8">
+                ${guestNumber > 1 ? `Please provide details for guest ${currentGuestIndex + 1} of ${guestNumber}` : 'Almost there! Just a few final details'}
+            </p>
+            
+            ${guestNumber > 1 ? `
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-600">Progress</span>
+                        <span class="text-sm font-medium text-gray-900">${currentGuestIndex + 1} / ${guestNumber}</span>
+                    </div>
+                    <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gray-900 h-2 rounded-full transition-all duration-300" style="width: ${((currentGuestIndex + 1) / guestNumber) * 100}%"></div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <form id="guest-form">
+                ${guestNumber > 1 ? getGuestFields(currentGuestIndex + 1) : ''}
+                ${isLastGuest || guestNumber === 1 ? getCommonFields() : ''}
+                
+                <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="button" id="back-btn" class="flex-1 px-6 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 flex items-center justify-center ${isFirstGuest ? 'opacity-50 cursor-not-allowed' : ''}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <button type="submit" id="next-btn" class="flex-1 px-6 py-3 bg-gray-900 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
+                        ${isLastGuest ? 'Confirm Booking' : 'Next Guest'}
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        `;
+        
+        attachEventListeners();
+    }
+
+    // Function to collect current form data
+    function collectFormData() {
+        const form = document.getElementById('guest-form');
+        const formData = {};
+        
+        if (guestNumber > 1) {
+            formData.firstName = document.getElementById(`firstName-${currentGuestIndex + 1}`).value;
+            formData.lastName = document.getElementById(`lastName-${currentGuestIndex + 1}`).value;
+            formData.phoneNumber = document.getElementById(`phone-${currentGuestIndex + 1}`).value;
+        }
+        
+        // Collect common fields if on last guest
+        if (currentGuestIndex === guestNumber - 1 || guestNumber === 1) {
+            formData.specialRequests = document.getElementById('specialRequests').value;
+            formData.terms = document.getElementById('terms').checked;
+        }
+        
+        return formData;
+    }
+
+    // Function to populate form with saved data
+    function populateFormData() {
+        if (guestData[currentGuestIndex]) {
+            const data = guestData[currentGuestIndex];
+            
+            if (guestNumber > 1) {
+                if (data.firstName) document.getElementById(`firstName-${currentGuestIndex + 1}`).value = data.firstName;
+                if (data.lastName) document.getElementById(`lastName-${currentGuestIndex + 1}`).value = data.lastName;
+                if (data.phone) document.getElementById(`phone-${currentGuestIndex + 1}`).value = data.phone;
+            }
+            
+            if (currentGuestIndex === guestNumber - 1 || guestNumber === 1) {
+                if (data.specialRequests) document.getElementById('specialRequests').value = data.specialRequests;
+                if (data.terms) document.getElementById('terms').checked = data.terms;
+            }
+        }
+    }
+
+    // Attach event listeners
+    function attachEventListeners() {
+        const form = document.getElementById('guest-form');
+        const backBtn = document.getElementById('back-btn');
+        
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Save current guest data
+            guestData[currentGuestIndex] = collectFormData();
+            
+
+            // If last guest, submit all data
+            if (currentGuestIndex === guestNumber - 1) {
+                console.log('All guest data:', guestData);
+                alert('Booking confirmed! Check console for all guest data.');
+                //Perform booking without payment
+                fetch('/api/booking/confirmbooking',{
+                        method: 'POST',
+                        headers: {
+                        "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            room_id: roomId,
+                            room_number: bookingSummary.room_number,
+                            room_type: bookingSummary.room_type,
+                            check_in_date: new Date(bookingSummary.check_in).toISOString(),
+                            check_out_date: new Date(bookingSummary.check_out).toISOString(),
+                            num_guests: bookingSummary.guest,
+                            total_price: Number(total.textContent),
+                            price_per_night: Number(price.textContent),
+                            special_requests: "test lang",
+                            guests: guestData
+                        })
+                    })
+                    .then(response =>{
+                        if(!response.ok){
+                            throw new Error("Booking error");
+                        }
+                        return response.json();
+                    })
+                    .then(data=>{
+
+
+                    })
+                    .catch(error =>{
+                        console.log(error);
+                    });
+
+            } else {
+                // Move to next guest
+                currentGuestIndex++;
+                renderGuestForm();
+                populateFormData();
+            }
+        });
+        
+        // Back button
+        backBtn.addEventListener('click', () => {
+            if (currentGuestIndex > 0) {
+                // Save current data before going back
+                guestData[currentGuestIndex] = collectFormData();
+                currentGuestIndex--;
+                renderGuestForm();
+                populateFormData();
+            }
+        });
+    }
+
+    // Initialize form
+    renderGuestForm();
+    populateFormData();
+
+
+
 
     fetch("/api/booking/calculate", {
         method: "POST",
@@ -22,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
             room_id: roomId,
             check_in: bookingSummary.check_in,
             check_out: bookingSummary.check_out,
-            guest: Number(bookingSummary.guests)
+            guest: Number(bookingSummary.guest)
         })
         })
         .then(response => {
@@ -32,8 +263,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return response.json();
         })
         .then(data => {
-            document.getElementById("price").textContent = data.price_per_night;
-            document.getElementById("total").textContent = data.total;
+            price.textContent= data.price_per_night;
+            total.textContent= data.total;
         })
         .catch(error => console.log(error));
 

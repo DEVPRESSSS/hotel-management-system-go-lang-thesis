@@ -34,9 +34,8 @@ document.getElementById('loginform').addEventListener('submit', function (event)
     .then(data => {
 
       if (data.token) {
-          localStorage.setItem("token", data.token);
+      
           notification("success", "Login successful");
-
           const routes = {
               Admin: "/api/dashboard",
               Guest: "/guest/dashboard",
