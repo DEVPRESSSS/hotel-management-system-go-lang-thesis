@@ -116,7 +116,7 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": true, "booking": book})
+	ctx.JSON(http.StatusOK, gin.H{"success": "Booking confirmation has been sent to your email!"})
 }
 
 // Generate auto IncrementId

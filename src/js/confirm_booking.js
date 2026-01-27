@@ -183,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // If last guest, submit all data
             if (currentGuestIndex === guestNumber - 1) {
                 console.log('All guest data:', guestData);
-                alert('Booking confirmed! Check console for all guest data.');
                 //Perform booking without payment
                 fetch('/api/booking/confirmbooking',{
                         method: 'POST',
@@ -210,8 +209,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         return response.json();
                     })
                     .then(data=>{
+                        notification("success", data.success);
+                        //window.location.href = "/guest/dashboard";
 
-
+                        setTimeout(() => {
+                            window.location.href = "/guest/dashboard";
+                        },2000);
                     })
                     .catch(error =>{
                         console.log(error);
