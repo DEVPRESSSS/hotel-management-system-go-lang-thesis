@@ -83,6 +83,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 		//Calculate the booking price per guest
 		authorize.POST("/api/booking/calculate", rbac.RBACMiddleware("booking"), server.CalculateBookingPrice)
+		authorize.POST("/api/create-checkout-session", rbac.RBACMiddleware("booking"), server.CreateCheckoutSession)
 		authorize.POST("/api/booking/confirmbooking", rbac.RBACMiddleware("booking"), server.ConfirmBooking)
 		//Render confirm booking html
 		authorize.GET("/booking/summary", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {

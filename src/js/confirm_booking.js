@@ -116,12 +116,23 @@ document.addEventListener("DOMContentLoaded", () => {
                         </svg>
                         Back
                     </button>
-                    <button type="submit" id="next-btn" class="flex-1 px-6 py-3 bg-gray-900 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                        ${isLastGuest ? 'Confirm Booking' : 'Next Guest'}
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
+             
+                      ${isLastGuest ? `
+                           <button type="submit" class="flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center ">             
+                                Pay
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                           </button>
+                        ` : `
+                            <button type="submit" id="next-btn" class="flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center ">             
+                                Next Guest
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                           </button>`}
+                      
+                       
                 </div>
             </form>
         `;
@@ -173,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const backBtn = document.getElementById('back-btn');
         
         // Form submission
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async(e) => {
             e.preventDefault();
             
             // Save current guest data
@@ -182,43 +193,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // If last guest, submit all data
             if (currentGuestIndex === guestNumber - 1) {
-                console.log('All guest data:', guestData);
-                //Perform booking without payment
-                fetch('/api/booking/confirmbooking',{
-                        method: 'POST',
-                        headers: {
-                        "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            room_id: roomId,
-                            room_number: bookingSummary.room_number,
-                            room_type: bookingSummary.room_type,
-                            check_in_date: new Date(bookingSummary.check_in).toISOString(),
-                            check_out_date: new Date(bookingSummary.check_out).toISOString(),
-                            num_guests: bookingSummary.guest,
-                            total_price: Number(total.textContent),
-                            price_per_night: Number(price.textContent),
-                            special_requests: "test lang",
-                            guests: guestData
-                        })
-                    })
-                    .then(response =>{
-                        if(!response.ok){
-                            throw new Error("Booking error");
-                        }
-                        return response.json();
-                    })
-                    .then(data=>{
-                        notification("success", data.success);
-                        //window.location.href = "/guest/dashboard";
+                //This fetch should be call after successful payment
+                // fetch('/api/booking/confirmbooking',{
+                //         method: 'POST',
+                //         headers: {
+                //         "Content-Type": "application/json"
+                //         },
+                //         body: JSON.stringify({
+                //             room_id: roomId,
+                //             room_number: bookingSummary.room_number,
+                //             room_type: bookingSummary.room_type,
+                //             check_in_date: new Date(bookingSummary.check_in).toISOString(),
+                //             check_out_date: new Date(bookingSummary.check_out).toISOString(),
+                //             num_guests: bookingSummary.guest,
+                //             total_price: Number(total.textContent),
+                //             price_per_night: Number(price.textContent),
+                //             special_requests: "test lang",
+                //             guests: guestData
+                //         })
+                //     })
+                //     .then(response =>{
+                //         if(!response.ok){
+                //             throw new Error("Booking error");
+                //         }
+                //         return response.json();
+                //     })
+                //     .then(data=>{
+                //         notification("success", data.success);
+                //         //window.location.href = "/guest/dashboard";
 
-                        setTimeout(() => {
-                            window.location.href = "/guest/dashboard";
-                        },2000);
-                    })
-                    .catch(error =>{
-                        console.log(error);
-                    });
+                //         setTimeout(() => {
+                //             window.location.href = "/guest/dashboard";
+                //         },2000);
+                //     })
+                //     .catch(error =>{
+                //         console.log(error);
+                //     });
+
+                 // Store guest data in sessionStorage for after payment
+                    sessionStorage.setItem('guestData', JSON.stringify(guestData));
+                    
+                    try {
+                        const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
+                        console.log(bookingSummary);
+                        const response = await fetch('/api/create-checkout-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                room_id: bookingSummary.room_id,
+                                check_in: bookingSummary.check_in,  // Changed from check_in_date
+                                check_out: bookingSummary.check_out, // Changed from check_out_date
+                                guest: bookingSummary.guest
+                            })
+                        });
+              
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to create payment session');
+                        }
+                        
+                        const data = await response.json();
+                        const { url } = data;
+                        
+                        console.log('Redirecting to Stripe:', url);
+                        
+                        // Redirect to Stripe Checkout
+                        window.location.href = url;
+                        
+                    } catch (error) {
+                        alert(`Payment Error: ${error.message}`);
+                    }
+                   
+                    
 
             } else {
                 // Move to next guest
