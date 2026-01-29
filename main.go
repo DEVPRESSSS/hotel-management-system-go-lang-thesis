@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-	//router := gin.Default()
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")

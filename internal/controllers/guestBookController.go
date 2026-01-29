@@ -73,7 +73,6 @@ func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 	nightsDecimal := decimal.NewFromInt(int64(nights))
 	numberGuest := decimal.NewFromInt(int64(req.Guest))
 	total := nightsDecimal.Mul(room.Price).Mul(numberGuest)
-	fmt.Print(total)
 	ctx.JSON(http.StatusOK, gin.H{
 		"price_per_night": room.Price,
 		"nights":          nights,
@@ -93,6 +92,7 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 	var book models.Book
 
 	if err := ctx.ShouldBindJSON(&book); err != nil {
+		log.Print("This is the bad request", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -104,10 +104,35 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 		return
 	}
 
+	//Recalculate the total
+	var room models.Room
+	if err := s.Db.Where("room_id = ?", book.RoomId).First(&room).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "room not found"})
+		return
+	}
+
+	checkIn := book.CheckInDate
+	checkOut := book.CheckOutDate
+
+	if checkIn.IsZero() || checkOut.IsZero() {
+		log.Print("This is the bad request")
+
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "dates are required"})
+		return
+	}
+
+	// Calculate actual price
+	nights := int(checkOut.Sub(checkIn).Hours() / 24)
+	nightsDecimal := decimal.NewFromInt(int64(nights))
+	numberGuest := decimal.NewFromInt(int64(book.NumGuests))
+	total := nightsDecimal.Mul(room.Price).Mul(numberGuest)
+
 	// Assign server-controlled values
 	book.BookId = bookingID
 	book.UserId = userId.(string)
-
+	book.PricePerNight = room.Price.InexactFloat64()
+	book.TotalPrice = total.InexactFloat64()
+	book.PaymentStatus = "Paid"
 	// Assign BookId to each guest
 	for i := range book.Guests {
 		book.Guests[i].Id = fmt.Sprintf("BKGUEST-%03d", i+1)
@@ -115,13 +140,18 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 		book.Guests[i].GuestNumber = i + 1
 	}
 
-	// // Save booking + guests (GORM handles cascade)
+	// Save booking
 	if err := s.Db.Create(&book).Error; err != nil {
+		log.Print("This is the bad request")
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Booking confirmation has been sent to your email!"})
+	ctx.JSON(http.StatusOK, gin.H{
+		"success":     "Booking confirmation has been sent to your email!",
+		"room_price":  room.Price,
+		"total_price": total,
+	})
 }
 
 // Generate auto IncrementId
@@ -157,10 +187,6 @@ func GetPublishApiKey(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"publishableky": os.Getenv("STRIPE_PUBLISHABLE_KEY")})
-}
-
-func (s *Server) CreateCheckOutSession(ctx *gin.Context) {
-
 }
 
 func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
@@ -215,7 +241,7 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 	// Get base URL
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:8080"
+		baseURL = "http://localhost:8085"
 	}
 
 	// Get room type name (with fallback)
@@ -237,6 +263,7 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 					},
 					UnitAmount: stripe.Int64(amountInCents),
 				},
+				Quantity: stripe.Int64(1),
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),

@@ -72,7 +72,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 
 		// Get rooms
-		authorize.GET("/avail/rooms", server.GetRooms)
+		authorize.GET("/avail/rooms", rbac.RBACMiddleware("booking"), server.GetRooms)
 		//Get the selected room
 		authorize.GET("/api/roomselected/:roomid", rbac.RBACMiddleware("booking"), server.RoomSelected)
 		//Populate the details of the room
@@ -85,6 +85,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.POST("/api/booking/calculate", rbac.RBACMiddleware("booking"), server.CalculateBookingPrice)
 		authorize.POST("/api/create-checkout-session", rbac.RBACMiddleware("booking"), server.CreateCheckoutSession)
 		authorize.POST("/api/booking/confirmbooking", rbac.RBACMiddleware("booking"), server.ConfirmBooking)
+		authorize.GET("/booking/success", server.BookingSuccess)
 		//Render confirm booking html
 		authorize.GET("/booking/summary", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "confirm_booking.html", gin.H{
@@ -92,24 +93,26 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
-		//ADMIN ROUTES
-		// ==============================================
-		// GUEST  MANAGEMENT
-		// ==============================================
-
-		// Guest page
-		authorize.GET("guest", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "guest.html", gin.H{
-				"title": "Hotel Management System",
-			})
-		})
 		// ==============================================
 		// RESERVATION  MANAGEMENT
 		// ==============================================
 
-		// Room Types page
+		//Api for getting all the reservations
+		authorize.GET("/api/reservations", rbac.RBACMiddleware("read"), server.GetAllReservations)
+		//Render the reservation page
 		authorize.GET("/reservations", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "reservation.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		// ==============================================
+		// GUEST  MANAGEMENT
+		// ==============================================
+
+		// Render guest page
+		authorize.GET("guest", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "guest.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
@@ -118,19 +121,21 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ROOM TYPES MANAGEMENT (CRUD)
 		// ==============================================
 
+		//Create room type route
 		authorize.POST("/api/createroomtype", rbac.RBACMiddleware("create"), server.CreateRoomType)
+		//Update room type route
 		authorize.PUT("/api/updateroomtype/:roomtypeid", rbac.RBACMiddleware("update"), server.UpdateRoomType)
+		//Delete room type route
 		authorize.DELETE("/api/deleteroomtype/:roomtypeid", rbac.RBACMiddleware("delete"), server.DeleteRoomType)
-
 		// Room Types page
 		authorize.GET("/roomtype", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "roomtype.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
-
 		//Room type APIs
 		authorize.GET("/api/roomtypes", rbac.RBACMiddleware("read"), server.GetRoomtype)
+		//fetch one room type
 		authorize.GET("/api/roomtype/:roomtypeid", rbac.RBACMiddleware("read"), server.GetRoomTypeRecord)
 
 		// ==============================================

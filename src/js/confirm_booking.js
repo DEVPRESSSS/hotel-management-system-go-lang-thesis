@@ -193,49 +193,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // If last guest, submit all data
             if (currentGuestIndex === guestNumber - 1) {
-                //This fetch should be call after successful payment
-                // fetch('/api/booking/confirmbooking',{
-                //         method: 'POST',
-                //         headers: {
-                //         "Content-Type": "application/json"
-                //         },
-                //         body: JSON.stringify({
-                //             room_id: roomId,
-                //             room_number: bookingSummary.room_number,
-                //             room_type: bookingSummary.room_type,
-                //             check_in_date: new Date(bookingSummary.check_in).toISOString(),
-                //             check_out_date: new Date(bookingSummary.check_out).toISOString(),
-                //             num_guests: bookingSummary.guest,
-                //             total_price: Number(total.textContent),
-                //             price_per_night: Number(price.textContent),
-                //             special_requests: "test lang",
-                //             guests: guestData
-                //         })
-                //     })
-                //     .then(response =>{
-                //         if(!response.ok){
-                //             throw new Error("Booking error");
-                //         }
-                //         return response.json();
-                //     })
-                //     .then(data=>{
-                //         notification("success", data.success);
-                //         //window.location.href = "/guest/dashboard";
-
-                //         setTimeout(() => {
-                //             window.location.href = "/guest/dashboard";
-                //         },2000);
-                //     })
-                //     .catch(error =>{
-                //         console.log(error);
-                //     });
+               
 
                  // Store guest data in sessionStorage for after payment
                     sessionStorage.setItem('guestData', JSON.stringify(guestData));
                     
                     try {
                         const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
-                        console.log(bookingSummary);
                         const response = await fetch('/api/create-checkout-session', {
                             method: 'POST',
                             headers: {
@@ -243,8 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             },
                             body: JSON.stringify({
                                 room_id: bookingSummary.room_id,
-                                check_in: bookingSummary.check_in,  // Changed from check_in_date
-                                check_out: bookingSummary.check_out, // Changed from check_out_date
+                                check_in: bookingSummary.check_in,  
+                                check_out: bookingSummary.check_out, 
                                 guest: bookingSummary.guest
                             })
                         });
@@ -258,9 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const { url } = data;
                         
                         console.log('Redirecting to Stripe:', url);
-                        
-                        // Redirect to Stripe Checkout
-                        window.location.href = url;
+                         window.location.href = url;
                         
                     } catch (error) {
                         alert(`Payment Error: ${error.message}`);
@@ -294,8 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-
-    fetch("/api/booking/calculate", {
+//Calculate the price in the backend
+fetch("/api/booking/calculate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
