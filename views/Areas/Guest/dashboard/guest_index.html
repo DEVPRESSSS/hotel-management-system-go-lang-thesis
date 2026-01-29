@@ -1,51 +1,7 @@
 {{ define "guest_index.html" }}
 {{ template "guest_header.html" . }}
 
-<div class="container mx-auto px-4 py-16">
-        <!-- Featured Hotel -->
-        <div class="mb-16 fade-in-up">
-            <div class="relative overflow-hidden rounded-3xl shadow-2xl">
-                <!-- Background Image Placeholder -->
-                <div class="h-96 bg-gradient-to-br from-purple-400 via-violet-500 to-purple-600"></div>
-                
-                <!-- Overlay Content -->
-                <div class="absolute inset-0 gradient-overlay flex items-end">
-                    <div class="p-10 w-full">
-                        <div class="max-w-3xl">
-                            <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-white mb-4">
-                                ✨ Featured Property
-                            </div>
-                            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Grand Palace Hotel</h2>
-                            
-                            <div class="flex flex-wrap items-center gap-4 mb-4">
-                                <div class="flex items-center">
-                                    <span class="text-yellow-300 text-xl">★★★★★</span>
-                                    <span class="ml-2 text-white font-medium">(245 reviews)</span>
-                                </div>
-                                <div class="h-4 w-px bg-white/30"></div>
-                                <span class="text-white">📍 New York City</span>
-                                <div class="h-4 w-px bg-white/30"></div>
-                                <span class="text-white">🛏️ 5-Star Luxury</span>
-                            </div>
-                            
-                            <p class="text-white/90 text-lg mb-6 max-w-2xl">
-                                Experience unparalleled luxury with world-class amenities, stunning city views, and exceptional service in the heart of Manhattan.
-                            </p>
-                            
-                            <div class="flex flex-wrap gap-3">
-                                <button class="bg-white text-purple-600 hover:bg-gray-50 px-8 py-3 rounded-full font-semibold transition-colors shadow-lg">
-                                    View Rooms
-                                </button>
-                                <button class="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 px-8 py-3 rounded-full font-semibold transition-colors border border-white/30">
-                                    Virtual Tour
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+<div class="container mx-auto px-4 py-16 bg-white shadow-sm mt-4">
         <!-- Section Header -->
         <div class="mb-10">
             <h3 class="text-3xl font-bold text-gray-900 mb-2">Available Rooms</h3>

@@ -2,15 +2,15 @@
 {{ template "guest_header.html" . }}
   
   <div class="max-w-6xl mx-auto mt-4">
-        <div class="flex flex-col lg:flex-row gap-6">
+        <div class="flex flex-col lg:flex-row gap-6 shadow-md  bg-white">
             <!-- Guest Information Section -->
-            <div id="guest-container" class=" flex-1 bg-white rounded-lg shadow-md p-8">
+            <div id="guest-container" class=" flex-1 rounded-lg p-8">
                
             </div>
 
             <!-- Booking Summary Section -->
             <div class="w-full lg:w-80">
-                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <div class="bg-white rounded-lg  p-6 sticky top-4">
                     <h2 class="text-xl font-semibold text-gray-900 mb-6">Booking Summary</h2>
                     
                     <!-- Room Type -->
@@ -41,12 +41,9 @@
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Room rate</span>
-                            <span id="price" class="text-gray-900">0</span>
+                            <span id="price" class="text-gray-900"> ₱</span>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Taxes & fees</span>
-                            <span class="text-gray-900">0.00</span>
-                        </div>
+                     
                     </div>
                     
 

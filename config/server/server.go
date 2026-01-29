@@ -56,6 +56,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Admin/roomtype/roomtype.html",
 		"views/Areas/Admin/guests/guest.html",
 		"views/Areas/Admin/reservation/reservation.html",
+		"views/Areas/Admin/calendar/calendar.html",
 	}
 	router.LoadHTMLFiles(files...)
 

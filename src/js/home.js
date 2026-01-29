@@ -24,26 +24,23 @@ function renderRooms(rooms) {
         card.className =
             "bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 gap-8";
 
-        card.innerHTML = `
+   card.innerHTML = `
             <div class="relative overflow-hidden h-64 bg-gray-300">
                 <img 
                     src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop"
                     alt="Room Image"
                     class="w-full h-full object-cover hover:scale-105 transition duration-300"
                 >
-                <span class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    ${room.price}/night
-                </span>
             </div>
 
             <div class="p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-2">
-                    ${room.RoomType.roomtypename} Room
-                </h3>
-
-                <div class="flex items-center mb-3">
-                    <span class="text-yellow-400">★★★★★</span>
-                    <span class="text-gray-600 text-sm ml-2">(89 reviews)</span>
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        ${room.RoomType.roomtypename} Room
+                    </h3>
+                    <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        ${room.price}/night
+                    </span>
                 </div>
 
                 <p class="text-gray-600 text-sm mb-4">
@@ -56,13 +53,17 @@ function renderRooms(rooms) {
                 </div>
 
                 <a id="book-btn" data-room_id = "${room.roomid}"
-                    class="booknow-btn w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold p-2"
+                    class="booknow-btn w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold p-2"
                     ${room.status !== "available" ? "disabled class='opacity-50 cursor-not-allowed'" : ""}
                 >
                     ${room.status === "available" ? "Book Now" : "Unavailable"}
                 </a>
             </div>
         `;
+        //   <div class="flex items-center mb-3">
+        //             <span class="text-yellow-400">★★★★★</span>
+        //             <span class="text-gray-600 text-sm ml-2">(89 reviews)</span>
+        //     </div>
 
         grid.appendChild(card);
     });

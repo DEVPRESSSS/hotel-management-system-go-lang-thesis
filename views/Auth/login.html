@@ -29,10 +29,11 @@
               </h1>
               <form id="loginform">
            <label class="block text-sm">
-                <span class="text-gray-700 dark:text-gray-400">Email</span>
+                <span class="text-gray-700 dark:text-gray-400">Username</span>
                 <input
                   class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
                   placeholder="@username"
+                  maxlength="30"
                   id="username"
                 />
               </label>
@@ -40,9 +41,10 @@
                 <span class="text-gray-700 dark:text-gray-400">Password</span>
                 <input
                   class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                  placeholder=""
-                  type="password"
+                  placeholder="Enter your password"
+                  type="password"             
                   id="password"
+                  maxlength="20"
                 />
               </label>
 
@@ -58,7 +60,7 @@
 
               <hr class="my-8" />
 
-              <button
+              <!-- <button
                 class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5  text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 active:bg-transparent hover:border-gray-500 focus:border-gray-500 active:text-gray-500 focus:outline-none focus:shadow-outline-gray"
               >
                 <svg
@@ -87,7 +89,7 @@
                   />
                 </svg>
                 Twitter
-              </button>
+              </button> -->
 
               <p class="mt-4">
                 <a

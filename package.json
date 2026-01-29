@@ -2,6 +2,9 @@
   "name": "hms-go",
   "private": true,
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
     "simple-datatables": "^10.2.0",
     "sweetalert2": "^11.26.17"
   },
@@ -11,6 +14,13 @@
     "color": "^3.1.2",
     "postcss": "^7.0.39",
     "tailwindcss": "^1.4.6",
-    "tailwindcss-multi-theme": "^1.0.3"
+    "tailwindcss-multi-theme": "^1.0.3",
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "build": "vite build"
   }
 }
+
+  
+

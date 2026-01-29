@@ -105,6 +105,12 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+		authorize.GET("/api/reservations/events", rbac.RBACMiddleware("read"), server.GetAllEventsReservations)
+		authorize.GET("/reservation-calendar", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "calendar.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
 
 		// ==============================================
 		// GUEST  MANAGEMENT
