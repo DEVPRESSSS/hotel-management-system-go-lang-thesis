@@ -46,7 +46,14 @@
     />
      <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
+     <style>
+        .flatpickr-day.booked-date,
+        .flatpickr-day.booked-date.flatpickr-disabled {
+          background-color: #ff4444 !important;
+          color: white !important;
+          border-color: #ff4444 !important;
+        }
+     </style>
   </head>
   <body>
     <div class="flex h-screen bg-gray-50 dark:bg-gray-900">

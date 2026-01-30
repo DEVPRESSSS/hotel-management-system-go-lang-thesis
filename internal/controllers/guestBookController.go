@@ -34,7 +34,6 @@ func (s *Server) FetchCalendar(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Print("This is the result:::", books)
 	ctx.JSON(http.StatusOK, gin.H{
 		"books": books,
 	})

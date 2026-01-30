@@ -112,9 +112,9 @@ bookNowBtn.addEventListener("click", function (e) {
 //#endregion
 
 
-  //#region--Display dates status in datetime picker
-  const currentDate = new Date();
-  const nextMonth = new Date(currentDate);
+ //#region--Display dates status in datetime picker
+const currentDate = new Date();
+const nextMonth = new Date(currentDate);
 
 fetch(`/api/calendar/${roomId}`)
   .then(response => {
@@ -123,46 +123,56 @@ fetch(`/api/calendar/${roomId}`)
   })
   .then(data => {
     const booked = data.books;
-    let startDate = null;
-    let endDate = null;
+    
+    // Create an array to store all booked date ranges
+    const bookedRanges = [];
     
     if (booked.length > 0) {
-      startDate = booked[0].check_in_date.split("T")[0];
-      endDate = booked[0].check_out_date.split("T")[0];
+      booked.forEach(booking => {
+        bookedRanges.push({
+          from: booking.check_in_date.split("T")[0],
+          to: booking.check_out_date.split("T")[0]
+        });
+      });
     }
 
-    console.log(`Start date: ${startDate} ******* End date ${endDate}`);
- 
+    console.log("Booked ranges:", bookedRanges);
+
     flatpickr("#date-picker", {
       enableTime: true,
       time_24hr: false,
       dateFormat: "Y-m-d h:i K",
       minDate: currentDate,
       maxDate: nextMonth.setMonth(currentDate.getMonth() + 1),
-      disable: startDate && endDate ? [
-        {
-          from: startDate,
-          to: endDate
-        }
-      ] : [],
-      onDayCreate: function(dObj, dStr, fp, dayElem) {
+      
+      // Disable all booked ranges
+      disable: bookedRanges,
+
+     onDayCreate: function(dObj, dStr, fp, dayElem) {
         const date = dayElem.dateObj;
         const dateStr = date.toISOString().split("T")[0];
-        // Check if date is within booked range
-        if (startDate && endDate && dateStr >= startDate && dateStr < endDate) {
-          dayElem.style.backgroundColor = "#ff4444";
-          dayElem.style.color = "white";
+        
+        // Check if date is within ANY booked range (inclusive of checkout)
+        let isBooked = false;
+        bookedRanges.forEach(range => {
+          if (dateStr >= range.from && dateStr <= range.to) {
+            isBooked = true;
+          }
+        });
+        
+        // Red for booked dates OR past dates
+        if (isBooked || date < currentDate) {
+          dayElem.setAttribute('style', 'background-color: #ff4444 !important; color: white !important;');
+          dayElem.classList.add('red-date');
         } 
-        // Check if date is available (future date, not past)
+        // Green for available future dates
         else if (date >= currentDate) {
-           dayElem.style.backgroundColor = "#44ff44";
-          //dayElem.style.backgroundColor = "#630d25";
+          dayElem.style.backgroundColor = "#44ff44";
           dayElem.style.color = "white";
         }
       }
     });
   })
   .catch(error => console.log(error));
-
 //#endregion
 });
