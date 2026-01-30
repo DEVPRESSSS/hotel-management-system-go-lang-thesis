@@ -5,6 +5,7 @@ import (
 	"HMS-GO/internal/models/dto"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 
@@ -17,6 +18,27 @@ import (
 	checkoutsession "github.com/stripe/stripe-go/v76/checkout/session"
 	"gorm.io/gorm"
 )
+
+func (s *Server) FetchCalendar(ctx *gin.Context) {
+	var books []models.Book
+
+	roomId := ctx.Param("room_id")
+
+	// Only fetch future/active bookings for calendar display
+	if err := s.Db.
+		Where("check_out_date >= ? AND room_id = ?", time.Now(), roomId).
+		Order("check_in_date ASC").
+		Find(&books).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to fetch bookings",
+		})
+		return
+	}
+	fmt.Print("This is the result:::", books)
+	ctx.JSON(http.StatusOK, gin.H{
+		"books": books,
+	})
+}
 
 func (s *Server) RoomSelected(ctx *gin.Context) {
 	roomId := ctx.Param("roomid")
@@ -51,13 +73,26 @@ func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 	}
 
 	// Parse dates
-	checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	// checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
+	// 	return
+	// }
+
+	// checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
+	// 	return
+	// }
+	layout := "2006-01-02 3:04 PM"
+
+	checkIn, err := time.Parse(layout, req.CheckIn)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
 		return
 	}
 
-	checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	checkOut, err := time.Parse(layout, req.CheckOut)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
 		return
@@ -67,8 +102,8 @@ func (s *Server) CalculateBookingPrice(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "checkout must be after checkin"})
 		return
 	}
-
-	nights := int(checkOut.Sub(checkIn).Hours() / 24)
+	duration := checkOut.Sub(checkIn)
+	nights := int(math.Ceil(duration.Hours() / 24))
 
 	nightsDecimal := decimal.NewFromInt(int64(nights))
 	numberGuest := decimal.NewFromInt(int64(req.Guest))
@@ -212,13 +247,26 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 	}
 
 	// Parse and validate dates
-	checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	// checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
+	// 	return
+	// }
+
+	// checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
+	// 	return
+	// }
+	layout := "2006-01-02 3:04 PM"
+
+	checkIn, err := time.Parse(layout, req.CheckIn)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
 		return
 	}
 
-	checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	checkOut, err := time.Parse(layout, req.CheckOut)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
 		return
@@ -229,8 +277,15 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 		return
 	}
 
+	if !checkOut.After(checkIn) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "checkout must be after checkin"})
+		return
+	}
+
 	// Calculate total (same logic as CalculateBookingPrice)
-	nights := int(checkOut.Sub(checkIn).Hours() / 24)
+
+	duration := checkOut.Sub(checkIn)
+	nights := int(math.Ceil(duration.Hours() / 24))
 	nightsDecimal := decimal.NewFromInt(int64(nights))
 	numberGuest := decimal.NewFromInt(int64(req.Guest))
 	total := nightsDecimal.Mul(room.Price).Mul(numberGuest)

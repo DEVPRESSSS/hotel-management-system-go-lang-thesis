@@ -1,4 +1,6 @@
+document.addEventListener('DOMContentLoaded', function(){
 
+//#region--Display room details 
 // Get the room data from sessionStorage
 const id = sessionStorage.getItem("selectedRoomId");
 
@@ -26,7 +28,7 @@ fetch(`/api/roomselected/${roomId}`)
         .then(data => {
 
           const room = data.room;
-          console.log(room);
+       
           //Populate the room title
           roomType.textContent = room.RoomType.roomtypename;
 
@@ -72,9 +74,14 @@ const bookNowBtn = document.getElementById("book-now");
 bookNowBtn.addEventListener("click", function (e) {
   e.preventDefault(); 
 
-  const checkIn = document.getElementById("check-in").value;
-  const checkOut = document.getElementById("check-out").value;
+  // const checkIn = document.getElementById("checkin").value;
+  // const checkOut = document.getElementById("check-out").value;
+  const checkIn = document.querySelector(".checkin").value
+  const checkOut = document.querySelector(".checkout").value;
   const numberOfGuest = document.getElementById("guest").value;
+
+  console.log(checkIn);
+  console.log(checkOut);
 
   if (!checkIn || !checkOut) {
     alert("Please select check-in and check-out dates");
@@ -101,4 +108,61 @@ bookNowBtn.addEventListener("click", function (e) {
 
   // redirect to next page
   window.location.href = "/booking/summary";
+});
+//#endregion
+
+
+  //#region--Display dates status in datetime picker
+  const currentDate = new Date();
+  const nextMonth = new Date(currentDate);
+
+fetch(`/api/calendar/${roomId}`)
+  .then(response => {
+    if (!response.ok) throw new Error("Failed to load");
+    return response.json();
+  })
+  .then(data => {
+    const booked = data.books;
+    let startDate = null;
+    let endDate = null;
+    
+    if (booked.length > 0) {
+      startDate = booked[0].check_in_date.split("T")[0];
+      endDate = booked[0].check_out_date.split("T")[0];
+    }
+
+    console.log(`Start date: ${startDate} ******* End date ${endDate}`);
+ 
+    flatpickr("#date-picker", {
+      enableTime: true,
+      time_24hr: false,
+      dateFormat: "Y-m-d h:i K",
+      minDate: currentDate,
+      maxDate: nextMonth.setMonth(currentDate.getMonth() + 1),
+      disable: startDate && endDate ? [
+        {
+          from: startDate,
+          to: endDate
+        }
+      ] : [],
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+        const date = dayElem.dateObj;
+        const dateStr = date.toISOString().split("T")[0];
+        // Check if date is within booked range
+        if (startDate && endDate && dateStr >= startDate && dateStr < endDate) {
+          dayElem.style.backgroundColor = "#ff4444";
+          dayElem.style.color = "white";
+        } 
+        // Check if date is available (future date, not past)
+        else if (date >= currentDate) {
+           dayElem.style.backgroundColor = "#44ff44";
+          //dayElem.style.backgroundColor = "#630d25";
+          dayElem.style.color = "white";
+        }
+      }
+    });
+  })
+  .catch(error => console.log(error));
+
+//#endregion
 });

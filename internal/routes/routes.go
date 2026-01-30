@@ -73,6 +73,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		// Get rooms
 		authorize.GET("/avail/rooms", rbac.RBACMiddleware("booking"), server.GetRooms)
+		//Api for getting all the reservations in calendar
+		authorize.GET("/api/calendar/:room_id", rbac.RBACMiddleware("booking"), server.FetchCalendar)
 		//Get the selected room
 		authorize.GET("/api/roomselected/:roomid", rbac.RBACMiddleware("booking"), server.RoomSelected)
 		//Populate the details of the room
@@ -99,6 +101,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Api for getting all the reservations
 		authorize.GET("/api/reservations", rbac.RBACMiddleware("read"), server.GetAllReservations)
+
 		//Render the reservation page
 		authorize.GET("/reservations", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "reservation.html", gin.H{
