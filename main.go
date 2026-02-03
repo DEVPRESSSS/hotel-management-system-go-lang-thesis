@@ -8,7 +8,7 @@ import (
 	"HMS-GO/config/server"
 	"HMS-GO/internal/models"
 
-	"github.com/joho/godotenv"
+	"github.com/joho/godotenv" 
 )
 
 func main() {

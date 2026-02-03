@@ -34,6 +34,7 @@ func (s *Server) FetchCalendar(ctx *gin.Context) {
 		})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"books": books,
 	})

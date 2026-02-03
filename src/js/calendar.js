@@ -15,8 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      right: 'dayGridMonth,timeGridWeek,timeGridDay',
+      
     },
+   
     validRange: {
       start: today,
       end: nextMonth.setMonth(today.getMonth() + 1)

@@ -38,11 +38,12 @@ document.getElementById('loginform').addEventListener('submit', function (event)
           notification("success", "Login successful");
           const routes = {
               Admin: "/api/dashboard",
+              FrontDesk: "/api/dashboard",
               Guest: "/guest/dashboard",
           };
 
           setTimeout(() => {
-              window.location.href = routes[data.role] || "/unauthorized";
+              window.location.href = routes[data.role] ;
           }, 100);
       } else {
           notification("error", "Incorrect username or password");

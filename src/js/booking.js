@@ -112,8 +112,9 @@ bookNowBtn.addEventListener("click", function (e) {
 //#endregion
 
 
- //#region--Display dates status in datetime picker
+//#region--Display dates status in datetime picker
 const currentDate = new Date();
+console.log(currentDate);
 const nextMonth = new Date(currentDate);
 
 fetch(`/api/calendar/${roomId}`)
@@ -148,28 +149,30 @@ fetch(`/api/calendar/${roomId}`)
       // Disable all booked ranges
       disable: bookedRanges,
 
-     onDayCreate: function(dObj, dStr, fp, dayElem) {
-        const date = dayElem.dateObj;
-        const dateStr = date.toISOString().split("T")[0];
-        
-        // Check if date is within ANY booked range (inclusive of checkout)
-        let isBooked = false;
-        bookedRanges.forEach(range => {
-          if (dateStr >= range.from && dateStr <= range.to) {
-            isBooked = true;
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+          const date = dayElem.dateObj;
+          
+          // Use local date string instead of UTC to avoid timezone issues
+          const dateStr = date.getFullYear() + '-' + 
+                          String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                          String(date.getDate()).padStart(2, '0');
+          
+          // Check if date is within ANY booked range
+          let isBooked = false;
+          bookedRanges.forEach(range => {
+              if (dateStr >= range.from && dateStr <= range.to) {
+                  isBooked = true;
+              }
+          });
+          
+          // Apply styling based on booking status
+          if (isBooked) {
+              dayElem.setAttribute('style', 'background-color: #ff4444 !important; color: white !important;');
+              dayElem.classList.add('red-date');
+          } else if (date >= currentDate) {
+              dayElem.style.backgroundColor = "#44ff44";
+              dayElem.style.color = "white";
           }
-        });
-        
-        // Red for booked dates OR past dates
-        if (isBooked || date < currentDate) {
-          dayElem.setAttribute('style', 'background-color: #ff4444 !important; color: white !important;');
-          dayElem.classList.add('red-date');
-        } 
-        // Green for available future dates
-        else if (date >= currentDate) {
-          dayElem.style.backgroundColor = "#44ff44";
-          dayElem.style.color = "white";
-        }
       }
     });
   })
