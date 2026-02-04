@@ -53,6 +53,14 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+
+		defaultRoute.POST("/verifyemail", server.RegisterGuest)
+		//Register page
+		defaultRoute.GET("/forgotpassword", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "forgot_password.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
 	}
 
 	// --------------------------------------------------
@@ -348,7 +356,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
-		// OR if you want to keep both:
+		//Logout
 		authorize.POST("/logout", server.Logout)
 		authorize.GET("/logout", server.Logout)
 

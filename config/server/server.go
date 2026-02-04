@@ -29,6 +29,7 @@ func SetupServer(host string, db *gorm.DB) {
 
 		"views/Auth/login.html",
 		"views/Auth/register.html",
+		"views/Auth/forgot_password.html",
 
 		//Guest layout
 		"views/Areas/Guest/guest_header.html",
