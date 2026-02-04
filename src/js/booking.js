@@ -80,18 +80,21 @@ bookNowBtn.addEventListener("click", function (e) {
   const checkOut = document.querySelector(".checkout").value;
   const numberOfGuest = document.getElementById("guest").value;
 
-  console.log(checkIn);
-  console.log(checkOut);
+  if(numberOfGuest > roomCapacity.textContent){
+    notification("error", "Capacity for this room does not match please select another one!!")
+    return;
+  }
 
   if (!checkIn || !checkOut) {
-    alert("Please select check-in and check-out dates");
+    notification("error", "Please select check-in and check-out dates")
     return;
   }
 
   if(checkIn == checkOut){
-    alert("Same day checkout is not supported");
+    notification("error", "Same day checkout is not supported")
     return;
   }
+
   // store draft booking
   sessionStorage.setItem(
     "bookingDraft",

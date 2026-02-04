@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const bookingInfo = sessionStorage.getItem("bookingDraft");
     //Parse the booking info
     const bookingSummary = JSON.parse(bookingInfo);
-    console.log(bookingSummary);
 
     //Populate the value
     const roomId = bookingSummary.room_id;
@@ -21,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Store all guest data
     let guestData = [];
     let currentGuestIndex = 0;
+
+    const shouldSkipFirstGuest = guestNumber >= 2;
+    const totalFormsToShow = shouldSkipFirstGuest ? guestNumber - 1 : 1;
 
     // Function to generate guest-specific fields
     function getGuestFields(guestNum) {
@@ -81,15 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Function to render form for current guest
     function renderGuestForm() {
-        const isLastGuest = currentGuestIndex === guestNumber - 1;
-        const isFirstGuest = currentGuestIndex === 0;
+       const isLastGuest = currentGuestIndex === totalFormsToShow - 1;
+       const isFirstGuest = currentGuestIndex === 0;
         
+       const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
+
         container.innerHTML = `
             <h1 class="text-3xl font-semibold text-gray-900 mb-2">
-                ${guestNumber > 1 ? `Guest Information for Guest No. ${currentGuestIndex + 1}` : 'Complete Your Booking'}
+                ${guestNumber > 1 ? `Guest Information for Guest No. ${actualGuestNum}` : 'Complete Your Booking'}
             </h1>
             <p class="text-gray-600 mb-8">
-                ${guestNumber > 1 ? `Please provide details for guest ${currentGuestIndex + 1} of ${guestNumber}` : 'Almost there! Just a few final details'}
+                ${guestNumber > 1 ? `Please provide details for guest ${actualGuestNum} of ${guestNumber}` : 'Almost there! Just a few final details'}
             </p>
             
             ${guestNumber > 1 ? `
@@ -103,6 +107,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
             ` : ''}
+
+             ${totalFormsToShow > 1 ? `
+                <div class="progress">
+                    Progress ${currentGuestIndex + 1} / ${totalFormsToShow}
+                </div>
+              ` : ''}
+
             
             <form id="guest-form">
                 ${guestNumber > 1 ? getGuestFields(currentGuestIndex + 1) : ''}
@@ -144,17 +155,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Function to collect current form data
     function collectFormData() {
-        const form = document.getElementById('guest-form');
         const formData = {};
+        const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
         
-        if (guestNumber > 1) {
-            formData.firstName = document.getElementById(`firstName-${currentGuestIndex + 1}`).value;
-            formData.lastName = document.getElementById(`lastName-${currentGuestIndex + 1}`).value;
-            formData.phoneNumber = document.getElementById(`phone-${currentGuestIndex + 1}`).value;
+        if (totalFormsToShow > 1) {
+            formData.firstName = document.getElementById(`firstName-${actualGuestNum}`).value;
+            formData.lastName = document.getElementById(`lastName-${actualGuestNum}`).value;
+            formData.phoneNumber = document.getElementById(`phone-${actualGuestNum}`).value;
         }
         
         // Collect common fields if on last guest
-        if (currentGuestIndex === guestNumber - 1 || guestNumber === 1) {
+        if (currentGuestIndex === totalFormsToShow - 1 || guestNumber === 1) {
             formData.specialRequests = document.getElementById('specialRequests').value;
             formData.terms = document.getElementById('terms').checked;
         }
@@ -166,14 +177,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function populateFormData() {
         if (guestData[currentGuestIndex]) {
             const data = guestData[currentGuestIndex];
+            const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
             
-            if (guestNumber > 1) {
-                if (data.firstName) document.getElementById(`firstName-${currentGuestIndex + 1}`).value = data.firstName;
-                if (data.lastName) document.getElementById(`lastName-${currentGuestIndex + 1}`).value = data.lastName;
-                if (data.phone) document.getElementById(`phone-${currentGuestIndex + 1}`).value = data.phone;
+            if (totalFormsToShow > 1) {
+                if (data.firstName) document.getElementById(`firstName-${actualGuestNum}`).value = data.firstName;
+                if (data.lastName) document.getElementById(`lastName-${actualGuestNum}`).value = data.lastName;
+                if (data.phoneNumber) document.getElementById(`phone-${actualGuestNum}`).value = data.phoneNumber;
             }
             
-            if (currentGuestIndex === guestNumber - 1 || guestNumber === 1) {
+            if (currentGuestIndex === totalFormsToShow - 1 || guestNumber === 1) {
                 if (data.specialRequests) document.getElementById('specialRequests').value = data.specialRequests;
                 if (data.terms) document.getElementById('terms').checked = data.terms;
             }
@@ -186,52 +198,45 @@ document.addEventListener("DOMContentLoaded", () => {
         const backBtn = document.getElementById('back-btn');
         
         // Form submission
-        form.addEventListener('submit', async(e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             // Save current guest data
             guestData[currentGuestIndex] = collectFormData();
             
-
             // If last guest, submit all data
-            if (currentGuestIndex === guestNumber - 1) {
-               
-
-                 // Store guest data in sessionStorage for after payment
-                    sessionStorage.setItem('guestData', JSON.stringify(guestData));
+            if (currentGuestIndex === totalFormsToShow - 1) {
+                // Store guest data in sessionStorage for after payment
+                sessionStorage.setItem('guestData', JSON.stringify(guestData));
+                
+                try {
+                    const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            room_id: bookingSummary.room_id,
+                            check_in: bookingSummary.check_in,
+                            check_out: bookingSummary.check_out,
+                            guest: bookingSummary.guest
+                        })
+                    });
                     
-                    try {
-                        const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
-                        const response = await fetch('/api/create-checkout-session', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                room_id: bookingSummary.room_id,
-                                check_in: bookingSummary.check_in,  
-                                check_out: bookingSummary.check_out, 
-                                guest: bookingSummary.guest
-                            })
-                        });
-              
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || 'Failed to create payment session');
-                        }
-                        
-                        const data = await response.json();
-                        const { url } = data;
-                        
-                        console.log('Redirecting to Stripe:', url);
-                         window.location.href = url;
-                        
-                    } catch (error) {
-                        alert(`Payment Error: ${error.message}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to create payment session');
                     }
-                   
                     
-
+                    const data = await response.json();
+                    const { url } = data;
+                    console.log('Redirecting to Stripe:', url);
+                    window.location.href = url;
+                    
+                } catch (error) {
+                    alert(`Payment Error: ${error.message}`);
+                }
             } else {
                 // Move to next guest
                 currentGuestIndex++;
