@@ -3,7 +3,10 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"HMS-GO/internal/models/dto"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"net/http"
@@ -232,11 +235,6 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 		return
 	}
 
-	// Load Stripe key
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Warning: .env file not found")
-	}
 	stripe.Key = os.Getenv("SECRET_STRIPE_KEY")
 
 	// Get room details
@@ -338,5 +336,150 @@ func (s *Server) BookingSuccess(ctx *gin.Context) {
 
 	ctx.HTML(http.StatusOK, "booking_success.html", gin.H{
 		"session_id": sessionID,
+	})
+}
+
+// Create intent
+func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
+
+	// Get secret key
+	secretKey := os.Getenv("PAYMONGO_SECRET_KEY")
+	if secretKey == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Secret key is invalid"})
+		return
+	}
+
+	// Parse request body to get booking details
+	var req dto.PriceRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	stripe.Key = os.Getenv("SECRET_STRIPE_KEY")
+
+	// Get room details
+	var room models.Room
+	if err := s.Db.Preload("RoomType").Where("room_id = ?", req.RoomID).First(&room).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "room not found"})
+		return
+	}
+
+	layout := "2006-01-02 3:04 PM"
+
+	checkIn, err := time.Parse(layout, req.CheckIn)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
+		return
+	}
+
+	checkOut, err := time.Parse(layout, req.CheckOut)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
+		return
+	}
+
+	if !checkOut.After(checkIn) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "checkout must be after checkin"})
+		return
+	}
+
+	if !checkOut.After(checkIn) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "checkout must be after checkin"})
+		return
+	}
+
+	duration := checkOut.Sub(checkIn)
+	nights := int(math.Ceil(duration.Hours() / 24))
+	nightsDecimal := decimal.NewFromInt(int64(nights))
+	numberGuest := decimal.NewFromInt(int64(req.Guest))
+	total := nightsDecimal.Mul(room.Price).Mul(numberGuest)
+
+	// Convert to cents (Stripe uses smallest currency unit)
+	amountInCents := total.Mul(decimal.NewFromInt(100)).IntPart()
+	// Create checkout session
+	checkoutURL := "https://api.paymongo.com/v1/checkout_sessions"
+
+	checkoutBody := map[string]interface{}{
+		"data": map[string]interface{}{
+			"attributes": map[string]interface{}{
+				"line_items": []map[string]interface{}{
+					{
+						"amount":   amountInCents,
+						"currency": "PHP",
+						"name":     "Booking/Reservation",
+						"quantity": 1,
+					},
+				},
+				"payment_method_types": []string{"gcash", "paymaya", "card"},
+				"success_url":          "http://localhost:8085/booking/success?session_id={CHECKOUT_SESSION_ID}",
+				"cancel_url":           "http://localhost:3000/payment/cancel",
+				"description":          fmt.Sprintf("%s from %s to %s", req.RoomID, req.CheckIn, req.CheckOut),
+				"metadata": map[string]interface{}{
+					"room_id":   req.RoomID,
+					"check_in":  req.CheckIn,
+					"check_out": req.CheckOut,
+					"guest":     req.Guest,
+				},
+			},
+		},
+	}
+
+	// Marshal request body
+	body, err := json.Marshal(checkoutBody)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create request body"})
+		return
+	}
+
+	// Create HTTP request
+	request, err := http.NewRequest("POST", checkoutURL, bytes.NewBuffer(body))
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to create request: " + err.Error()})
+		return
+	}
+
+	// Set headers and authentication
+	request.Header.Set("Content-Type", "application/json")
+	request.SetBasicAuth(secretKey, "")
+
+	// Execute request
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to call PayMongo: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read response
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to read response: " + err.Error()})
+		return
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &result); err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to parse response: " + err.Error()})
+		return
+	}
+
+	// Check for errors
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		fmt.Printf("PayMongo Error Response: %s\n", string(bodyBytes))
+		ctx.JSON(resp.StatusCode, result)
+		return
+	}
+
+	// Extract checkout URL
+	data := result["data"].(map[string]interface{})
+	attributes := data["attributes"].(map[string]interface{})
+	checkoutURLResponse := attributes["checkout_url"].(string)
+	sessionID := data["id"].(string)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"checkout_url": checkoutURLResponse,
+		"session_id":   sessionID,
 	})
 }

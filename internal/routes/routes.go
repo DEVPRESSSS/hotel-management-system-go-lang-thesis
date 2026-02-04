@@ -88,6 +88,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.POST("/api/create-checkout-session", rbac.RBACMiddleware("booking"), server.CreateCheckoutSession)
 		authorize.POST("/api/booking/confirmbooking", rbac.RBACMiddleware("booking"), server.ConfirmBooking)
 		authorize.GET("/booking/success", server.BookingSuccess)
+		authorize.POST("/paymongo/create/payment-intent", server.CreatePaymentIntent)
 		//Render confirm booking html
 		authorize.GET("/booking/summary", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "confirm_booking.html", gin.H{
@@ -105,6 +106,24 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		//Render the reservation page
 		authorize.GET("/reservations", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "reservation.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+		//Walkin booking
+		authorize.GET("/api/walkin-booking", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "walkin_booking.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+		//Walkin booking room details
+		authorize.GET("/api/walkin/room-details", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "walkin_room_details.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+		//Walkin booking room details
+		authorize.GET("/api/walkin/confirm-booking", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "walkin_confirm_booking.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
@@ -290,7 +309,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ADMIN DASHBOARD (RBAC Protected)
 		// ==============================================
 
-		authorize.GET("/api/dashboard", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+		authorize.GET("/api/dashboard", rbac.RBACMiddleware("create"), rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{
 				"title": "Admin Dashboard",
 			})

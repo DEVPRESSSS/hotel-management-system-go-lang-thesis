@@ -1,5 +1,5 @@
-{{ define "confirm_booking.html" }}
-{{ template "guest_header.html" . }}
+{{ define "walkin_confirm_booking.html" }}
+{{ template "dashboard_header.html" . }}
   
   <div class="max-w-6xl mx-auto mt-4">
         <div class="flex flex-col lg:flex-row gap-6 shadow-md  bg-white">
@@ -59,9 +59,7 @@
         </div>
     </div>
 
-<!--Payment Modal Area-->
-
-<script src="/src/js/confirm_booking.js"></script>
-<script src="/src/js/notification/notification.js"></script>
-{{ template "guest_footer.html" . }}
+  
+<script src="/src/js/walkin_confirm_booking.js"></script>
+{{ template "dashboard_footer.html" . }}
 {{ end }}

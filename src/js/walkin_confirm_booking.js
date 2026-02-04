@@ -129,21 +129,33 @@ document.addEventListener("DOMContentLoaded", () => {
                     </button>
              
                       ${isLastGuest ? `
-                       <button type="submit"
-                            class="stripe flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                            Pay
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="2"/>
-                                <line x1="2" y1="10" x2="22" y2="10" stroke-width="2"/>
+                      <!-- Stripe/Credit Card Icon -->
+                        <button type="submit" data-gateway="stripe"
+                            class="stripe flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-purple-700 flex items-center justify-center">
+                            Credit Card
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
                             </svg>
                         </button>
 
-                        <button type="submit" 
-                            class="gcash flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                            Gcash
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="2"/>
-                                <line x1="2" y1="10" x2="22" y2="10" stroke-width="2"/>
+                        <!-- GCash/Mobile Wallet Icon -->
+                        <button type="submit" data-gateway="paymongo"
+                            class="gcash flex-1 px-6 py-3 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 flex items-center justify-center">
+                            GCash
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                        </button>
+
+                        <!-- Cash/Money Icon -->
+                        <button type="button" id="cash-btn" 
+                            class="cash flex-1 px-6 py-3 bg-green-600 text-white rounded font-medium hover:bg-green-700 flex items-center justify-center">
+                            Cash
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                             </svg>
                         </button>
                         ` : `
@@ -253,8 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
                      //Paymongo payment
                     document.querySelector('.gcash').addEventListener('click', async (event) => {
                         event.preventDefault();
-
-                       
+                     
                         const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));         
                         const response = await fetch('/paymongo/create/payment-intent', {
                             method: 'POST',
@@ -280,7 +291,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         window.location.href = data.checkout_url;
                     
-                    });                                  
+                    });
+                  
                 } catch (error) {
                     alert(`Payment Error: ${error.message}`);
                 }

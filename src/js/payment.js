@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 const bookingSummary = JSON.parse(sessionStorage.getItem("bookingDraft"));
 const guestData = JSON.parse(sessionStorage.getItem("guestData"));
-alert(`${JSON.parse(sessionStorage.getItem("guestData"))}`)
 
 //Call immmediately the API after successfull payment
     fetch('/api/booking/confirmbooking',{
