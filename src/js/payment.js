@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
 const bookingSummary = JSON.parse(sessionStorage.getItem("bookingDraft"));
 const guestData = JSON.parse(sessionStorage.getItem("guestData"));
-console.log(guestData);
+alert(`${JSON.parse(sessionStorage.getItem("guestData"))}`)
+
 //Call immmediately the API after successfull payment
     fetch('/api/booking/confirmbooking',{
             method: 'POST',
@@ -15,7 +16,7 @@ console.log(guestData);
                 check_in_date: new Date(bookingSummary.check_in).toISOString(),
                 check_out_date: new Date(bookingSummary.check_out).toISOString(),
                 num_guests: Number(bookingSummary.guest),           
-                special_requests: "test lang",
+                special_requests: guestData[0]?.specialRequests || '',
                 guests: guestData
             })
         })
@@ -29,6 +30,7 @@ console.log(guestData);
             setTimeout(() => {
                 window.location.href = "/guest/dashboard";
             },2000);
+            
         })
         .catch(error =>{
             console.log(error);

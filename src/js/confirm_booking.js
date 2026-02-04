@@ -203,12 +203,13 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Save current guest data
             guestData[currentGuestIndex] = collectFormData();
+         
             
             // If last guest, submit all data
             if (currentGuestIndex === totalFormsToShow - 1) {
                 // Store guest data in sessionStorage for after payment
                 sessionStorage.setItem('guestData', JSON.stringify(guestData));
-                
+                alert(`${sessionStorage.getItem('guestData', JSON.stringify(guestData))}`)
                 try {
                     const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
                     const response = await fetch('/api/create-checkout-session', {
@@ -231,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     const data = await response.json();
                     const { url } = data;
-                    console.log('Redirecting to Stripe:', url);
                     window.location.href = url;
                     
                 } catch (error) {

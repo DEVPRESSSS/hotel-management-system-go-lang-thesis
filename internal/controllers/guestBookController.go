@@ -246,18 +246,6 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 		return
 	}
 
-	// Parse and validate dates
-	// checkIn, err := time.Parse("2006-01-02", req.CheckIn)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-in date"})
-	// 	return
-	// }
-
-	// checkOut, err := time.Parse("2006-01-02", req.CheckOut)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid check-out date"})
-	// 	return
-	// }
 	layout := "2006-01-02 3:04 PM"
 
 	checkIn, err := time.Parse(layout, req.CheckIn)
