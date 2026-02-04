@@ -71,3 +71,5 @@ func (s *Server) AuthenticateUser(username, password string) (string, string, er
 
 	return token, user.Role.RoleName, nil
 }
+
+

@@ -59,7 +59,6 @@ func RBACMiddleware(permission string) gin.HandlerFunc {
 				return
 			}
 		}
-		fmt.Print("This is the forbideen riggered")
 		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 	}
 }

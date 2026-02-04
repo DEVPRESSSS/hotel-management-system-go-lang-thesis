@@ -348,5 +348,9 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		// OR if you want to keep both:
+		authorize.POST("/logout", server.Logout)
+		authorize.GET("/logout", server.Logout)
+
 	}
 }

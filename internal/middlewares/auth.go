@@ -20,7 +20,9 @@ func AuthMiddleware() gin.HandlerFunc {
 		} else {
 			cookie, err := c.Cookie("token")
 			if err != nil {
-				c.AbortWithStatus(http.StatusUnauthorized)
+				c.SetCookie("token", "", -1, "/", "", false, true)
+				c.Redirect(http.StatusFound, "/login")
+				c.Abort()
 				return
 			}
 			tokenStr = cookie
@@ -31,7 +33,10 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			// Clear invalid cookie and redirect
+			c.SetCookie("token", "", -1, "/", "", false, true)
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
 			return
 		}
 
