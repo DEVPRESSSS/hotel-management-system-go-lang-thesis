@@ -5,7 +5,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
   const email = document.getElementById('email').value;
   const error = document.getElementById('validation-email');
   if(!email){
-    //notification("error","Email is required")
+
     error.textContent = "Email is required";
     return;
   }
@@ -13,7 +13,6 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
     email: email
   };
 
-  // Show loading state (optional)
   const submitButton = this.querySelector('button[type="submit"]');
   const originalText = submitButton.textContent;
   submitButton.textContent = 'Sending...';

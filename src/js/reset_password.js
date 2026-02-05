@@ -1,5 +1,4 @@
 
-
 document.getElementById('reset-password-form').addEventListener('submit', async function (event) {
     event.preventDefault();
 

@@ -1,12 +1,40 @@
 document.getElementById('loginform').addEventListener('submit', function (event) {
   event.preventDefault();
 
+  //Get the value of the inputs
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  const usernameError = document.getElementById('validation-username');
+  const passwordError = document.getElementById('validation-password');
+
+  let hasError = false;
+
+  // Reset previous errors
+  usernameError.textContent = "";
+  passwordError.textContent = "";
+
+  // Username validation
+  if (!username) {
+    usernameError.textContent = "Username is required";
+    hasError = true;
+  }
+
+  // Password validation
+  if (!password) {
+    passwordError.textContent = "Password is required";
+    hasError = true;
+  }
+
+  // Stop if any validation failed
+  if (hasError) return;
+
   const formData = {
-    username: document.getElementById('username').value,
-    password: document.getElementById('password').value
+    username,
+    password
   };
 
-   const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
   fetch('/api/auth', {
     method: 'POST',
     credentials: 'include', 
