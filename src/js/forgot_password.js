@@ -1,8 +1,16 @@
 document.getElementById('forgot-password-form').addEventListener('submit', function (event) {
   event.preventDefault();
   
+
+  const email = document.getElementById('email').value;
+  const error = document.getElementById('validation-email');
+  if(!email){
+    //notification("error","Email is required")
+    error.textContent = "Email is required";
+    return;
+  }
   const formData = {
-    email: document.getElementById('email').value,
+    email: email
   };
 
   // Show loading state (optional)
@@ -30,19 +38,12 @@ document.getElementById('forgot-password-form').addEventListener('submit', funct
       }
       return data;
     })
-    .then(data => {
-      // Success - show success message
-      showNotification("success", data.message || "Password reset link has been sent to your email!");
+    .then(data => { 
       
-      // Optional: Clear the form
-      document.getElementById('forgot-form').reset();
+        notification("success", "Password reset link has been sent to your email");
+        document.getElementById('forgot-password-form').reset();
     })
     .catch(error => {
-      // Reset button state
-    //   submitButton.textContent = originalText;
-    //   submitButton.disabled = false;
-      
-      // Error - show error message
-      showNotification("error", error.message || "Failed to send reset email. Please try again.");
+        notification("error", `${error.message}`);
     });
 });
