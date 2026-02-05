@@ -61,6 +61,15 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+		// router.GET("/verifyemail/:verificationCode", server)
+		router.POST("/forgotpassword", server.ForgotPassword)
+		router.PATCH("/api/resetpassword/:resetToken", server.ResetPassword)
+		router.GET("/resetpassword/:resetToken", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "resetPassword.html", nil)
+		})
+		router.GET("/resetpassword-form/:resetToken", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "reset_password_form.html", nil)
+		})
 	}
 
 	// --------------------------------------------------
