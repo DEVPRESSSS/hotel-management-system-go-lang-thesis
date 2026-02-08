@@ -356,7 +356,7 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 		return
 	}
 
-	stripe.Key = os.Getenv("SECRET_STRIPE_KEY")
+	// stripe.Key = os.Getenv("SECRET_STRIPE_KEY")
 
 	// Get room details
 	var room models.Room
@@ -411,7 +411,8 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 						"quantity": 1,
 					},
 				},
-				"payment_method_types": []string{"gcash", "paymaya", "card"},
+				//"payment_method_types": []string{"gcash", "paymaya", "card"},
+				"payment_method_types": []string{"qrph", "gcash"},
 				"success_url":          "http://localhost:8085/booking/success?session_id={CHECKOUT_SESSION_ID}",
 				"cancel_url":           "http://localhost:3000/payment/cancel",
 				"description":          fmt.Sprintf("%s from %s to %s", req.RoomID, req.CheckIn, req.CheckOut),
