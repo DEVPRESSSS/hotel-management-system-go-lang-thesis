@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* =====================
-     DOM ELEMENTS
+ /* =====================
+     FETCH ROOMS & INIT TABLE
   ====================== */
   const headerTitle = document.getElementById('header-action');
   const btnSubmit = document.getElementById('btn-submit');
@@ -84,8 +84,74 @@ document.addEventListener("DOMContentLoaded", () => {
           sortable: true,
         });
       }
+
+      // =============================================
+      // ATTACH EVENT LISTENER AFTER DATATABLE INIT
+      // =============================================
+      attachTableEventListeners();
     })
     .catch(console.error);
+
+  /* =====================
+     TABLE CLICK HANDLER - NOW A SEPARATE FUNCTION
+  ====================== */
+  function attachTableEventListeners() {
+    // Use delegation on tableElement instead of tbody
+    tableElement.addEventListener('click', e => {
+
+      // Handle Update Button
+      if (e.target.classList.contains('update-btn')) {
+        id = e.target.dataset.id;
+        
+        fetch(`/api/room/${id}`)
+          .then(res => res.json())
+          .then(data => {
+            const room = data.success;
+            document.getElementById('roomnumber').value = room.roomnumber;
+            document.getElementById('roomtypeid').value = room.roomtypeid;
+            document.getElementById('floorid').value = room.floorid;
+            document.getElementById('capacity').value = room.capacity;
+            document.getElementById('price').value = room.price;
+            
+            headerTitle.innerText = "Update Room";
+            btnText.innerText = "Update";
+            openModal();
+          })
+          .catch(err => notification("error", err.message));
+      }
+
+      // Handle Delete Button
+      if (e.target.classList.contains('delete-btn')) {
+        const roomid = e.target.dataset.id;
+
+        
+        Swal.fire({
+          title: "Are you sure?",
+          text: "This action cannot be undone!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!"
+        }).then(result => {
+          if (result.isConfirmed) {
+            fetch(`/api/deleteroom/${roomid}`, { method: 'DELETE' })
+              .then(res => {
+                if (!res.ok) {
+                  throw new Error('Delete failed');
+                }
+                return;
+              })
+              .then(() => {
+                Swal.fire("Deleted!", "Room has been deleted.", "success");
+                setTimeout(() => location.reload(), 500);
+              })
+              .catch(err => notification("error", err.message));
+          }
+        });
+      }
+    });
+  }
 
   /* =====================
      FORM SUBMIT
@@ -117,9 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(res => {
       return res.json().then(data => {
-        // Check if request was successful
         if (!res.ok) {
-          // Throw error with server message
           throw new Error(data.error || 'Request failed');
         }
         return data;
@@ -135,70 +199,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /* =====================
-     TABLE CLICK HANDLER
-  ====================== */
-  tbody.addEventListener('click', e => {
-
-    // Handle Update Button
-    if (e.target.classList.contains('update-btn')) {
-      id = e.target.dataset.id;
-      fetch(`/api/room/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          const room = data.success;
-          document.getElementById('roomnumber').value = room.roomnumber;
-          document.getElementById('roomtypeid').value = room.roomtypeid;
-          document.getElementById('floorid').value = room.floorid;
-          document.getElementById('capacity').value = room.capacity;
-          document.getElementById('price').value = room.price;
-          
-          headerTitle.innerText = "Update Room";
-          btnText.innerText = "Update";
-          openModal();
-        })
-        .catch(err => notification("error", err.message));
-    }
-
-    // Handle Delete Button
-    if (e.target.classList.contains('delete-btn')) {
-      const roomid = e.target.dataset.id;
-      
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!"
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/api/deleteroom/${roomid}`, { method: 'DELETE' })
-            .then(res => {
-              if (!res.ok) {
-                throw new Error('Delete failed');
-              }
-              return;
-            })
-            .then(() => {
-              Swal.fire("Deleted!", "Room has been deleted.", "success");
-              setTimeout(() => location.reload(), 500);
-            })
-            .catch(err => notification("error", err.message));
-        }
-      });
-    }
-  });
-
 });
-
-/* =====================
-   UUID GENERATOR (if needed)
-====================== */
-// function uuidv4() {
-//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-//     const r = Math.random() * 16 | 0;
-//     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-//   });
-// }

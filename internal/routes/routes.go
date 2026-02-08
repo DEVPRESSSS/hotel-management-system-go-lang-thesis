@@ -126,18 +126,21 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 				"title": "Hotel Management System",
 			})
 		})
+
 		//Walkin booking
 		authorize.GET("/api/walkin-booking", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "walkin_booking.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
+
 		//Walkin booking room details
 		authorize.GET("/api/walkin/room-details", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "walkin_room_details.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
+
 		//Walkin booking room details
 		authorize.GET("/api/walkin/confirm-booking", rbac.RBACMiddleware("create"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "walkin_confirm_booking.html", gin.H{
@@ -158,6 +161,18 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// Render guest page
 		authorize.GET("guest", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "guest.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
+		// ==============================================
+		// ACTIVITY LOGS  MANAGEMENT
+		// ==============================================
+
+		// Render logs page
+		authorize.GET("/api/getlogs/", rbac.RBACMiddleware("read"), server.GetLogs)
+		authorize.GET("/logs", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "logs.html", gin.H{
 				"title": "Hotel Management System",
 			})
 		})
