@@ -171,6 +171,7 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 	book.PricePerNight = room.Price.InexactFloat64()
 	book.TotalPrice = total.InexactFloat64()
 	book.PaymentStatus = "Paid"
+
 	// Assign BookId to each guest
 	for i := range book.Guests {
 		book.Guests[i].Id = fmt.Sprintf("BKGUEST-%03d", i+1)

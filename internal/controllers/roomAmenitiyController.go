@@ -35,6 +35,13 @@ func (s *Server) CreateRoomAminity(ctx *gin.Context) {
 		})
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Amenity", roomAminity.RoomId, "Create", "Created a room amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"success": "Room aminity created successfully"})
 
 }
@@ -53,6 +60,13 @@ func (s *Server) UpdateRoomAminity(ctx *gin.Context) {
 		Where("room_id = ?", roomAminityId).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Amenity", roomAminityId, "Updated", "Updated a room amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -77,6 +91,12 @@ func (s *Server) DeleteRoomAminity(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Amenity", roomAminityId, "Delete", "Deleted a room amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	ctx.Status(204)
 }
 

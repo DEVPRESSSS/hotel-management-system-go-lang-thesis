@@ -28,16 +28,16 @@ func (s *Server) GetRoomtype(ctx *gin.Context) {
 // Create room type
 func (s *Server) CreateRoomType(ctx *gin.Context) {
 
-	var role models.RoomType
+	var roomType models.RoomType
 	//Validate first if
-	if err := ctx.ShouldBind(&role); err != nil {
+	if err := ctx.ShouldBind(&roomType); err != nil {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	//Create Role error handling
-	if err := s.Db.Create(&role).Error; err != nil {
+	if err := s.Db.Create(&roomType).Error; err != nil {
 
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
@@ -51,6 +51,13 @@ func (s *Server) CreateRoomType(ctx *gin.Context) {
 			"error": "Failed to create user",
 		})
 
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Type", roomType.RoomTypeId, "Create", "Created a room type", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Role created successfully"})
@@ -74,15 +81,22 @@ func (s *Server) UpdateRoomType(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Type", roomTypeId, "Update", "Updated a room type", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"success": "Room type updated successfully"})
 }
 
 // Delete room type
 func (s *Server) DeleteRoomType(ctx *gin.Context) {
-	roleid := ctx.Param("roomtypeid")
+	roomTypeId := ctx.Param("roomtypeid")
 
 	result := s.Db.
-		Where("room_typeid = ?", roleid).
+		Where("room_typeid = ?", roomTypeId).
 		Delete(&models.RoomType{})
 
 	if result.Error != nil {
@@ -105,6 +119,13 @@ func (s *Server) DeleteRoomType(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Role not found"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room Type", roomTypeId, "Update", "Updated a room type", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

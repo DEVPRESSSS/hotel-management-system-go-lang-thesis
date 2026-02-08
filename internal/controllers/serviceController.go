@@ -56,6 +56,13 @@ func (s *Server) CreateService(ctx *gin.Context) {
 		})
 	}
 
+	userId := s.GetUserId(ctx)
+	err = s.CreateLogs("Service", service.ServiceId, "Create", "Created a service", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"success": "Service created successfully"})
 
 }
@@ -77,6 +84,13 @@ func (s *Server) UpdateService(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Service", serviceId, "Update", "Updated a service", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"success": "Facility updated successfully"})
 }
 
@@ -95,6 +109,13 @@ func (s *Server) DeleteService(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Service not found"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Service", serviceId, "Delete", "Delete a service", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -57,6 +57,13 @@ func (s *Server) CreateFacility(ctx *gin.Context) {
 		})
 	}
 
+	userId := s.GetUserId(ctx)
+	err = s.CreateLogs("FACILITY", facility.FacilityId, "Create", "Create a facility", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"success": "Facility created successfully"})
 
 }
@@ -78,6 +85,13 @@ func (s *Server) UpdateFacility(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("FACILITY", facilityId, "Update", "Updated a facility", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"success": "Facility updated successfully"})
 }
 
@@ -96,6 +110,13 @@ func (s *Server) Deletefacility(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Facility not found"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("FACILITY", faciltyId, "Delete", "Deleted a facility", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

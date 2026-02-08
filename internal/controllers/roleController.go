@@ -41,13 +41,20 @@ func (s *Server) CreateRole(ctx *gin.Context) {
 		})
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Role", role.RoleId, "Create", "Created a role", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"success": "Role created successfully"})
 
 }
 
 // Update role
 func (s *Server) UpdateRole(ctx *gin.Context) {
-	userID := ctx.Param("roleid")
+	roleID := ctx.Param("roleid")
 
 	var payload models.Role
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -56,9 +63,16 @@ func (s *Server) UpdateRole(ctx *gin.Context) {
 	}
 
 	if err := s.Db.Model(&models.Role{}).
-		Where("role_id = ?", userID).
+		Where("role_id = ?", roleID).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Role", roleID, "Update", "Updated a role", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -83,6 +97,12 @@ func (s *Server) DeleteRole(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Role", roleid, "Delete", "Deleted a role", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	ctx.Status(204)
 }
 

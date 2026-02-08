@@ -43,6 +43,13 @@ func (s *Server) CreateRoleAccess(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("ROLE ACCESS", roleAccess.AccessID, "Create", "Created a role access", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Success
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": "Role access created successfully",
@@ -66,6 +73,13 @@ func (s *Server) UpdateRoleAcccess(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("ROLE ACCESS", roleAccessID, "Update", "Updated a role access", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"success": "Role access updated successfully"})
 }
 
@@ -84,6 +98,13 @@ func (s *Server) DeleteRoleAccess(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Role access not found"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("ROLE ACCESS", roleid, "Delete", "Deleted a role access", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -49,6 +49,13 @@ func (s *Server) CreateAminity(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err = s.CreateLogs("Amenity", amenity.AmenityId, "Create", "Created a Amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"success":    "Amenity created successfully",
 		"amenity_id": amenity.AmenityId,
@@ -72,6 +79,13 @@ func (s *Server) UpdateAminity(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Amenity", aminityId, "Update", "Updated a Amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"success": "Aminity updated successfully"})
 }
 
@@ -90,6 +104,13 @@ func (s *Server) DeleteAminity(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Amenity already exist"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Amenity", aminityId, "Delete", "Delete a Amenity", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

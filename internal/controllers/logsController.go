@@ -22,3 +22,28 @@ func (s *Server) GetLogs(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, logs)
 
 }
+
+func (s *Server) CreateLogs(EntityType string, EntityID string, Action string, Description string, OldValue string, NewValue string, UserId string) error {
+
+	logId, err := GenerateLogId(s.Db)
+	if err != nil {
+
+		return err
+	}
+	logs := models.HistoryLog{
+		Id:          logId,
+		EntityType:  EntityType,
+		EntityID:    EntityID,
+		Action:      Action,
+		Description: Description,
+		OldValue:    OldValue,
+		NewValue:    NewValue,
+		PerformedBy: UserId,
+	}
+	if err := s.Db.Create(&logs).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}

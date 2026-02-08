@@ -60,6 +60,13 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		})
 		return
 	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("App user", create.UserId, "Create", "Created a user", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	//Return 200  if the input succeed
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "User created successfully",
@@ -84,6 +91,13 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("App user", userid, "Delete", "Deleted a user", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.Status(204)
 }
 
@@ -100,6 +114,13 @@ func (s *Server) UpdateUser(ctx *gin.Context) {
 		Where("user_id = ?", userID).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
+		return
+	}
+
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("App user", userID, "Update", "Updated a user", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -158,4 +179,3 @@ func (s *Server) GetAllGuest(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, users)
 }
-

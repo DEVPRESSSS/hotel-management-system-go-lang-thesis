@@ -47,6 +47,7 @@ func (s *Server) CreateRoom(ctx *gin.Context) {
 
 	//Asign the room id here
 	room.RoomId = roomID
+
 	//Perform insert
 	if err := s.Db.Create(&room).Error; err != nil {
 
@@ -133,7 +134,6 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 	)
 	if err != nil {
 		fmt.Println("Failed to create log:", err)
-		// Don't fail the update if logging fails
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -157,6 +157,14 @@ func (s *Server) DeleteRoom(ctx *gin.Context) {
 
 	if result.RowsAffected == 0 {
 		ctx.JSON(404, gin.H{"error": "Room not found"})
+		return
+	}
+
+	//Perfrom insert logs
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room", roomId, "Delete", "Deleted a room", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -244,29 +252,4 @@ func GenerateLogId(db *gorm.DB) (string, error) {
 	}
 
 	return fmt.Sprintf("LOG-%03d", nextNumber), nil
-}
-
-func (s *Server) CreateLogs(EntityType string, EntityID string, Action string, Description string, OldValue string, NewValue string, UserId string) error {
-
-	logId, err := GenerateLogId(s.Db)
-	if err != nil {
-
-		return err
-	}
-	logs := models.HistoryLog{
-		Id:          logId,
-		EntityType:  EntityType,
-		EntityID:    EntityID,
-		Action:      Action,
-		Description: Description,
-		OldValue:    OldValue,
-		NewValue:    NewValue,
-		PerformedBy: UserId,
-	}
-	if err := s.Db.Create(&logs).Error; err != nil {
-
-		return err
-	}
-
-	return nil
 }
