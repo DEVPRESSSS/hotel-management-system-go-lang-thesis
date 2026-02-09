@@ -23,8 +23,6 @@ fetch('/api/getlogs/')
           <td class="px-4 py-3">${log.EntityID}</td>
           <td class="px-4 py-3">${log.Action}</td>
           <td class="px-4 py-3">${log.Description}</td>
-          <td class="px-4 py-3">${log.OldValue}</td>
-          <td class="px-4 py-3">${log.NewValue}</td>
           <td class="px-4 py-3">${log.PerformedBy}</td>
           <td class="px-4 py-3">${new Date(log.CreatedAt).toLocaleDateString()}</td>
      

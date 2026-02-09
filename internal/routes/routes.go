@@ -79,6 +79,24 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	authorize.Use(middlewares.AuthMiddleware())
 	{
 
+		// ==============================================
+		// MAINTENANCE  MANAGEMENT
+		// ==============================================
+
+		//Api for getting all the maintenance
+		authorize.GET("/api/maintenances", rbac.RBACMiddleware("read"), server.GetAllMaintenances)
+		authorize.GET("/api/maintenances/:id", rbac.RBACMiddleware("read"), server.GetMaintenance)
+		authorize.POST("/api/maintenances", rbac.RBACMiddleware("create"), server.CreateMaintenance)
+		authorize.PUT("/api/maintenances/:id", rbac.RBACMiddleware("update"), server.UpdateMaintenance)
+		authorize.DELETE("/api/maintenances/:id", rbac.RBACMiddleware("delete"), server.DeleteMaintenance)
+
+		//Render the maintenane
+		authorize.GET("/maintenance", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "maintenance.html", gin.H{
+				"title": "Hotel Management System",
+			})
+		})
+
 		//GUEST ROUTES
 		//===============================================
 		// Guest dashboard
