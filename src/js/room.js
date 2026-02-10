@@ -61,11 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="px-4 py-3">${room.Floor.floorname}</td>
           <td class="px-4 py-3">${room.capacity}</td>
           <td class="px-4 py-3">${room.price}</td>
-          <td class="px-4 py-3">
-              <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                    ${room.status}
-              </span>
-          </td>
           <td class="px-4 py-3">${new Date(room.created_at).toLocaleDateString()}</td>
           <td class="px-4 py-3">
             <button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${room.roomid}">Edit</button>

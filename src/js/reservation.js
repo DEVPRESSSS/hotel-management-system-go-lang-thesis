@@ -89,13 +89,30 @@ document.addEventListener("DOMContentLoaded", () => {
                          ${r.room_type}
                       </td>
                       <td class="px-4 py-3 text-sm">
-                        
-                         ${new Date(r.check_in_date).toLocaleDateString()}
+                        <span class="px-2 py-1 font-semibold leading-tight text-yellow-800 bg-yellow-100 rounded-full">                              
+                          ${new Date(r.check_in_date).toLocaleString('en-CA', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          }).replace(',', '')}
+                        </span>
                       </td>
                       <td class="px-4 py-3 text-sm">
-                        ${new Date(r.check_out_date).toLocaleDateString()}
-
+                        <span class="px-2 py-1 font-semibold leading-tight text-red-800 bg-red-100 rounded-full">
+                          ${new Date(r.check_out_date).toLocaleString('en-CA', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          }).replace(',', '')}
+                        </span>
                       </td>
+                      
                       <td class="px-4 py-3 text-sm">
                          ${r.num_guests}
                       </td>
@@ -123,14 +140,45 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         </td>
 
+                    
                       <td class="px-4 py-3 text-sm">
-                         ${r.special_requests}
+                         ${r.status}
                       </td>
                        <td class="px-4 py-3 text-sm">
                          ${new Date(r.created_at).toLocaleDateString()}
                       </td>
                      <td class="px-4 py-3 text-sm">
-                       
+                        ${r.status === "check-out" ? 
+
+                        `<button class="update-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2" >Clean</button> `
+                        : ''                       
+                        }
+
+                        ${(() => {
+                          const today = new Date();
+                          const checkIn = new Date(r.check_in_date);
+                          
+                          const isSameDay = today.toDateString() === checkIn.toDateString();
+                          const timeHasPassed = today.getTime() >= checkIn.getTime();
+                          
+                          return (isSameDay && timeHasPassed) ? 
+                            `<button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2">Checkin</button>` 
+                            : '';
+                        })()}
+
+                        ${(() => {
+                        const now = new Date();
+                        const checkOut = new Date(r.check_out_date);
+                        
+                        const isSameDay = now.toDateString() === checkOut.toDateString();
+                        
+                        const twoHoursBefore = 2 * 60 * 60 * 1000; 
+                        const withinTimeWindow = now.getTime() >= (checkOut.getTime() - twoHoursBefore);
+                        
+                        return (isSameDay && withinTimeWindow && r.status === "check-in") ? 
+                          `<button class="update-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mr-2">Checkout</button>` 
+                          : '';
+                      })()}
                      </td>
         </tr>
       `).join("");
