@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
           const attendant = data.success;
-          document.getElementById('attendantname').value = attendant.Name;
+          document.getElementById('attendantname').value = attendant.name;
           
           headerTitle.innerText = "Update Attendant";
           btnText.innerText = "Update";

@@ -38,7 +38,7 @@ func (s *Server) Login(ctx *gin.Context) {
 		true,
 	)
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Account found", "token": token, "role": role})
+	ctx.JSON(http.StatusOK, gin.H{"success": "Account found", "role": role})
 
 }
 
