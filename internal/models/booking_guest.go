@@ -6,7 +6,6 @@ type BookingGuest struct {
 	Id     string `gorm:"column:id;type:varchar(36);primaryKey" json:"id"`
 	BookId string `gorm:"column:book_id;type:varchar(36);not null;index" json:"book_id"`
 
-	// Guest Order (2, 3, 4, etc. - Guest 1 is the account owner)
 	GuestNumber int `gorm:"column:guest_number;not null" json:"guest_number"`
 
 	// Personal Information

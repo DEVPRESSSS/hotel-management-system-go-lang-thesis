@@ -84,11 +84,11 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ==============================================
 
 		//Api for getting all the maintenance
-		authorize.GET("/api/maintenances", rbac.RBACMiddleware("read"), server.GetAllMaintenances)
-		authorize.GET("/api/maintenances/:id", rbac.RBACMiddleware("read"), server.GetMaintenance)
-		authorize.POST("/api/maintenances", rbac.RBACMiddleware("create"), server.CreateMaintenance)
-		authorize.PUT("/api/maintenances/:id", rbac.RBACMiddleware("update"), server.UpdateMaintenance)
-		authorize.DELETE("/api/maintenances/:id", rbac.RBACMiddleware("delete"), server.DeleteMaintenance)
+		authorize.GET("/api/maintenances", rbac.RBACMiddleware("read"), server.GetAllCleaners)
+		authorize.GET("/api/maintenances/:id", rbac.RBACMiddleware("read"), server.GetCleaner)
+		authorize.POST("/api/maintenances", rbac.RBACMiddleware("create"), server.CreateCleaner)
+		authorize.PUT("/api/maintenances/:id", rbac.RBACMiddleware("update"), server.UpdateCleaner)
+		authorize.DELETE("/api/maintenances/:id", rbac.RBACMiddleware("delete"), server.DeleteCleaner)
 
 		//Render the maintenane
 		authorize.GET("/maintenance", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
@@ -137,6 +137,9 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		//Api for getting all the reservations
 		authorize.GET("/api/reservations", rbac.RBACMiddleware("read"), server.GetAllReservations)
+		//Assign maintenance
+		authorize.GET("/api/reservations/clean/:id", rbac.RBACMiddleware("read"), server.GetAllReservations)
+		authorize.POST("/api/reservations/checkin/:id", rbac.RBACMiddleware("create"), server.CheckinStatus)
 
 		//Render the reservation page
 		authorize.GET("/reservations", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {

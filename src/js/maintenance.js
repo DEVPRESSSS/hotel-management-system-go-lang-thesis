@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = maintenance.map(m => `
         <tr>
           <td class="px-4 py-3">${m.id}</td>
-          <td class="px-4 py-3">${m.Name}</td>
-          <td class="px-4 py-3">${new Date(m.created_at).toLocaleDateString()}</td>
+          <td class="px-4 py-3">${m.name}</td>
+          <td class="px-4 py-3 text-sm">${new Date(m.created_at).toLocaleDateString()}</td>
           <td class="px-4 py-3 text-center">
             <button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${m.id}">Edit</button>
             <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${m.id}">Delete</button>

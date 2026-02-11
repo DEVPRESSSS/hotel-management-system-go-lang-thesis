@@ -12,11 +12,11 @@ import (
 )
 
 // Create maintenance
-func (s *Server) CreateMaintenance(ctx *gin.Context) {
+func (s *Server) CreateCleaner(ctx *gin.Context) {
 
-	var mainte models.Maintenance
+	var cleaner models.Cleaner
 	//Validate first if
-	if err := ctx.ShouldBind(&mainte); err != nil {
+	if err := ctx.ShouldBind(&cleaner); err != nil {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -30,9 +30,9 @@ func (s *Server) CreateMaintenance(ctx *gin.Context) {
 		return
 	}
 
-	mainte.Id = id
+	cleaner.Id = id
 	//Create Role error handling
-	if err := s.Db.Create(&mainte).Error; err != nil {
+	if err := s.Db.Create(&cleaner).Error; err != nil {
 
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
@@ -48,50 +48,50 @@ func (s *Server) CreateMaintenance(ctx *gin.Context) {
 	}
 
 	userId := s.GetUserId(ctx)
-	err = s.CreateLogs("Maintenance", mainte.Id, "Create", "Created a maintenance", "", "", userId)
+	err = s.CreateLogs("Cleaner", cleaner.Id, "Create", "Created a cleaner", "", "", userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": "Maintenace created successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"success": "Cleaner created successfully"})
 
 }
 
 // Update maintenance
-func (s *Server) UpdateMaintenance(ctx *gin.Context) {
-	maintenanceId := ctx.Param("id")
+func (s *Server) UpdateCleaner(ctx *gin.Context) {
+	cleanerId := ctx.Param("id")
 
-	var payload models.Maintenance
+	var payload models.Cleaner
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid payload"})
 		return
 	}
 
-	if err := s.Db.Model(&models.Maintenance{}).
-		Where("id = ?", maintenanceId).
+	if err := s.Db.Model(&models.Cleaner{}).
+		Where("id = ?", cleanerId).
 		Updates(payload).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Update failed"})
 		return
 	}
 
 	userId := s.GetUserId(ctx)
-	err := s.CreateLogs("Maintenance", maintenanceId, "Update", "Updated a maintenance", "", "", userId)
+	err := s.CreateLogs("Cleaner", cleanerId, "Update", "Updated a cleaner", "", "", userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(200, gin.H{"success": "Maintenance updated successfully"})
+	ctx.JSON(200, gin.H{"success": "Cleaner updated successfully"})
 }
 
 // Delete maintenance
-func (s *Server) DeleteMaintenance(ctx *gin.Context) {
-	maintenanceId := ctx.Param("id")
+func (s *Server) DeleteCleaner(ctx *gin.Context) {
+	cleanerId := ctx.Param("id")
 
 	result := s.Db.
-		Where("id = ?", maintenanceId).
-		Delete(&models.Maintenance{})
+		Where("id = ?", cleanerId).
+		Delete(&models.Cleaner{})
 
 	if result.Error != nil {
 		ctx.JSON(500, gin.H{"error": result.Error.Error()})
@@ -99,12 +99,12 @@ func (s *Server) DeleteMaintenance(ctx *gin.Context) {
 	}
 
 	if result.RowsAffected == 0 {
-		ctx.JSON(404, gin.H{"error": "Maintenance name not found"})
+		ctx.JSON(404, gin.H{"error": "Cleaner name not found"})
 		return
 	}
 
 	userId := s.GetUserId(ctx)
-	err := s.CreateLogs("Maintenance", maintenanceId, "Delete", "Deleted a maintenance", "", "", userId)
+	err := s.CreateLogs("Cleaner", cleanerId, "Delete", "Deleted a cleaner", "", "", userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -113,27 +113,27 @@ func (s *Server) DeleteMaintenance(ctx *gin.Context) {
 }
 
 // Get all the maintenance from db
-func (s *Server) GetAllMaintenances(ctx *gin.Context) {
+func (s *Server) GetAllCleaners(ctx *gin.Context) {
 
-	var maintenance []models.Maintenance
+	var cleaners []models.Cleaner
 
-	if err := s.Db.Find(&maintenance).Error; err != nil {
+	if err := s.Db.Find(&cleaners).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, maintenance)
+	ctx.JSON(http.StatusOK, cleaners)
 
 }
 
 // Fetch the information of the selected record in maintenance
-func (s *Server) GetMaintenance(ctx *gin.Context) {
+func (s *Server) GetCleaner(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 
-	var attendant models.Maintenance
+	var attendant models.Cleaner
 	if err := s.Db.
 		Where("id = ?", id).First(&attendant).Error; err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
@@ -146,7 +146,7 @@ func GenerateId(db *gorm.DB) (string, error) {
 	var lastID string
 
 	err := db.
-		Model(&models.Maintenance{}).
+		Model(&models.Cleaner{}).
 		Select("id").
 		Order("id DESC").
 		Limit(1).

@@ -45,7 +45,8 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.Book{},
 		&models.BookingGuest{},
 		&models.HistoryLog{},
-		&models.Maintenance{},
+		&models.Cleaner{},
+		&models.CleaningTask{},
 	)
 
 	if err != nil {
