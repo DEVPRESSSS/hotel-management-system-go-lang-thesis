@@ -147,6 +147,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.GET("/api/reservations", rbac.RBACMiddleware("read"), server.GetAllReservations)
 		authorize.GET("/api/reservations/clean/:id", rbac.RBACMiddleware("read"), server.GetAllReservations)
 		authorize.POST("/api/reservations/checkin/:id", rbac.RBACMiddleware("create"), server.CheckinStatus)
+		authorize.POST("/api/reservations/checkout/:id", rbac.RBACMiddleware("create"), server.CheckOut)
+		authorize.POST("/api/reservations/completed/:id", rbac.RBACMiddleware("create"), server.Completed)
 		authorize.GET("/api/reservations/events", rbac.RBACMiddleware("read"), server.GetAllEventsReservations)
 		authorize.POST("/api/reservations/assigncleaner/:id", rbac.RBACMiddleware("read"), server.AssignCleaner)
 

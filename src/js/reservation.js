@@ -132,6 +132,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="clean">Clean</button>` 
               : ''
             }
+            ${r.status === "cleaning" ? 
+              `<button class="action-btn px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 mr-2" 
+                data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="done">Done?</button>` 
+              : ''
+            }
             ${(() => {
               const today = new Date();
               const checkIn = new Date(r.check_in_date);
@@ -215,7 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
      bookingId = btn.dataset.id;
      roomId = btn.dataset.roomId;
-     console.log(roomId);
 
     handleAction(action, reservation, btn);
   }
@@ -234,6 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
       case 'checkout':
         handleCheckout(reservation, buttonElement);
+        break;
+      case 'done':
+        handleCompleted(reservation, buttonElement);
         break;
       default:
         console.warn(`Unknown action: ${action}`);
@@ -277,24 +284,69 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleCheckout(reservation, btn) {
-    console.log(`Checking out reservation ${reservation.id}`);
     
-    // fetch(`/api/reservations/${reservation.id}/checkout`, { 
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' }
-    // })
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     alert(`Guest ${reservation.User.fullname} checked out successfully!`);
-    //     location.reload();
-    //   })
-    //   .catch(err => {
-    //     console.error('Checkout failed:', err);
-    //     alert('Failed to check out guest');
-    //     btn.disabled = false;
-    //   });
+    Swal.fire({
+        title: "Are you sure the guest want to checkout?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, mark as checkout"
+      }).then(result => {
+        if (result.isConfirmed) {
+
+            fetch(`/api/reservations/checkout/${reservation.book_id}`, { 
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            })
+              .then(res => res.json())
+              .then(data => {
+                alert(`Guest checkout in successfully!`);
+              })
+              .catch(err => {
+                alert('Failed to check in guest');
+                btn.disabled = false;
+              });
+              }
+      });
   }
 
+
+  function handleCompleted(reservation, btn) {
+      
+      const formData = {
+        room_id : roomId
+      };
+
+      console.log(formData);
+      Swal.fire({
+          title: "Are you sure the guest room is cleaned?",
+          text: "This action cannot be undone!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, mark as clean"
+        }).then(result => {
+          if (result.isConfirmed) {
+
+              fetch(`/api/reservations/completed/${reservation.book_id}`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+              })
+                .then(res => res.json())
+                .then(data => {
+                  alert(`Room cleaned successfully`);
+                })
+                .catch(err => {
+                  alert('Failed to check in guest');
+                  btn.disabled = false;
+                });
+                }
+        });
+  }
   /* =====================
     FETCH ATTENDANTS FOR MODAL
   ====================== */
@@ -325,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById('attendant-checkboxes');
     if (!container) return;
     
-    container.innerHTML = ''; // Clear existing
+    container.innerHTML = ''; 
     
     if (maintenanceList.length === 0) {
       container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No attendants available</p>';
@@ -392,8 +444,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================
-    FORM SUBMISSION
-  ====================== */
+      FORM SUBMISSION
+    ====================== */
   document.getElementById('upsertform').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -408,33 +460,35 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('Selected IDs:', selectedAttendants.map(a => a.id));
     
     const formData = {
-      cleaner_id :selectedAttendants.map(a => a.id),
+      cleaner_id: selectedAttendants.map(a => a.id), 
       room_id: roomId
     };
-    fetch(`/api/reservations/assigncleaner/${bookingId}`,{
-        method:'POST',
-        credentials:'include',
-        body: formData
-
-
-    }).then(response =>{
-
-       return response.json().then(data => {
-        // Check if request was successful
+    
+    
+    fetch(`/api/reservations/assigncleaner/${bookingId}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(formData) 
+    })
+    .then(response => {
+      return response.json().then(data => {
         if (!response.ok) {
-          // Throw error with server message
           throw new Error(data.error || 'Request failed');
         }
         return data;
-      })
-    }).then(data =>{
+      });
+    })
+    .then(data => {
+      alert('Successfully assigned cleaner(s)!');
+      closeModal(); 
 
-        alert(`Successfully assign a cleaner!!!!!`);
-    }).catch(error =>{
-
-        alert(`Failed to create!`);
-
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert(`Failed to assign cleaner: ${error.message}`);
     });
-        
   });
 });
