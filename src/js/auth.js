@@ -61,6 +61,7 @@ document.getElementById('loginform').addEventListener('submit', function (event)
           Guest: "/guest/dashboard",
         };
 
+        localStorage.setItem("role", data.role)
         setTimeout(() => {
           window.location.href = routes[data.role];
         }, 100);
