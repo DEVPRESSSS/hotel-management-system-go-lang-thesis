@@ -2,6 +2,50 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================
      DOM ELEMENTS
   ====================== */
+
+  /* =====================
+     DOM ELEMENTS
+  ====================== */
+  const headerTitle = document.getElementById('header-action');
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnText = document.getElementById('btn-text');
+  const form = document.getElementById('upsertform');
+  const userModal = document.getElementById('cleanerModal');
+
+  if ( !form || !headerTitle || !btnSubmit ) {
+    console.warn("Facility page elements not found. JS skipped.");
+    return;
+  }
+
+
+  /* =====================
+     MODAL FUNCTIONS
+  ====================== */
+  function openModal() {
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
+
+    fetchAttendants();
+  }
+
+  function closeModal() {
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
+
+    document.getElementById('upsertform').reset();
+    updateSelectedCount();
+  }
+
+  window.closeModal = closeModal;
+
+  window.createModal = function () {
+    id = "";
+    headerTitle.innerText = "Create Facility";
+    btnText.innerText = "Create";
+    form.reset();
+    openModal();
+  };
+
   const tbody = document.getElementById('reservation');
   const tableElement = document.querySelector("#default-table");
 
@@ -84,7 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="px-4 py-3 text-sm">${new Date(r.created_at).toLocaleDateString()}</td>
           <td class="px-4 py-3 text-sm">
             ${r.status === "check-out" ? 
-              `<button class="action-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2" data-action="clean">Clean</button>` 
+              `<button class="action-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2" 
+                data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="clean">Clean</button>` 
               : ''
             }
             ${(() => {
@@ -134,6 +179,9 @@ document.addEventListener("DOMContentLoaded", () => {
     tableElement.addEventListener("click", handleButtonClick, true);
   }
 
+
+  let bookingId = "";
+  let roomId = "";
   function handleButtonClick(e) {
     const btn = e.target;
     
@@ -165,6 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+     bookingId = btn.dataset.id;
+     roomId = btn.dataset.roomId;
+     console.log(roomId);
+
     handleAction(action, reservation, btn);
   }
 
@@ -172,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Disable button to prevent double-clicks
     buttonElement.disabled = true;
     
-    console.log(`Action: ${action}, Reservation ID: ${reservation.id}, Book ID: ${reservation.book_id}`);
 
     switch(action) {
       case 'clean':
@@ -191,21 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleClean(reservation, btn) {
-    console.log(`Marking reservation ${reservation.id} (Book: ${reservation.book_id}) as clean`);
-    
-   // // TODO: Make actual API call
-    // fetch(`/api/reservations/clean/${reservation.id}`, { 
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' }
-    // })
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     alert(`Room ${reservation.room_number} marked as clean!`);
-    //   })
-    //   .catch(err => {
-    //     alert('Failed to mark room as clean');
-    //     btn.disabled = false;
-    //   });
+      openModal();
   }
 
   function handleCheckin(reservation, btn) {
@@ -257,4 +294,147 @@ document.addEventListener("DOMContentLoaded", () => {
     //     btn.disabled = false;
     //   });
   }
+
+  /* =====================
+    FETCH ATTENDANTS FOR MODAL
+  ====================== */
+  function fetchAttendants() {
+    const container = document.getElementById('attendant-checkboxes');
+    
+    // Show loading state
+    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Loading attendants...</p>';
+    
+    fetch('/api/maintenances')
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch attendants");
+        return res.json();
+      })
+      .then(maintenance => {
+        populateAttendantCheckboxes(maintenance);
+      })
+      .catch(error => {
+        console.error(error);
+        container.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Error loading attendants</p>';
+      });
+  }
+
+  /* =====================
+    POPULATE CHECKBOXES
+  ====================== */
+  function populateAttendantCheckboxes(maintenanceList) {
+    const container = document.getElementById('attendant-checkboxes');
+    if (!container) return;
+    
+    container.innerHTML = ''; // Clear existing
+    
+    if (maintenanceList.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No attendants available</p>';
+      return;
+    }
+    
+    maintenanceList.forEach((attendant) => {
+      const label = document.createElement('label');
+      label.className = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
+      
+      // REMOVED onchange attribute
+      label.innerHTML = `
+        <input type="checkbox" 
+              name="attendants[]" 
+              value="${attendant.id}" 
+              data-name="${attendant.name}"
+              id="attendant-${attendant.id}"
+              class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
+        <span class="text-sm text-gray-700">${attendant.name}</span>
+      `;
+      
+      container.appendChild(label);
+    });
+    
+    // Initialize count to 0
+    updateSelectedCount();
+  }
+
+  /* =====================
+    EVENT DELEGATION FOR CHECKBOXES
+  ====================== */
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('attendant-checkboxes');
+    
+    if (container) {
+      container.addEventListener('change', function(e) {
+        if (e.target.name === 'attendants[]') {
+          updateSelectedCount();
+        }
+      });
+    }
+  });
+
+  /* =====================
+    UPDATE SELECTED COUNT
+  ====================== */
+  function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('input[name="attendants[]"]:checked');
+    const countElement = document.getElementById('selected-count');
+    if (countElement) {
+      countElement.textContent = checkboxes.length;
+    }
+  }
+
+  /* =====================
+    GET SELECTED ATTENDANTS
+  ====================== */
+  function getSelectedAttendants() {
+    const checkboxes = document.querySelectorAll('input[name="attendants[]"]:checked');
+    return Array.from(checkboxes).map(cb => ({
+      id: cb.value,
+      name: cb.dataset.name
+    }));
+  }
+
+  /* =====================
+    FORM SUBMISSION
+  ====================== */
+  document.getElementById('upsertform').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const selectedAttendants = getSelectedAttendants();
+    
+    if (selectedAttendants.length === 0) {
+      alert('Please select at least one attendant');
+      return;
+    }
+    
+    console.log('Selected attendants:', selectedAttendants);
+    console.log('Selected IDs:', selectedAttendants.map(a => a.id));
+    
+    const formData = {
+      cleaner_id :selectedAttendants.map(a => a.id),
+      room_id: roomId
+    };
+    fetch(`/api/reservations/assigncleaner/${bookingId}`,{
+        method:'POST',
+        credentials:'include',
+        body: formData
+
+
+    }).then(response =>{
+
+       return response.json().then(data => {
+        // Check if request was successful
+        if (!response.ok) {
+          // Throw error with server message
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      })
+    }).then(data =>{
+
+        alert(`Successfully assign a cleaner!!!!!`);
+    }).catch(error =>{
+
+        alert(`Failed to create!`);
+
+    });
+        
+  });
 });

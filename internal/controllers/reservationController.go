@@ -3,6 +3,7 @@ package controllers
 import (
 	"HMS-GO/internal/models"
 	"HMS-GO/internal/models/dto"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -62,6 +63,7 @@ func (s *Server) AssignCleaner(ctx *gin.Context) {
 	}
 
 	if err := s.Db.Create(&cleaningTask).Error; err != nil {
+		fmt.Print(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request!!"})
 		return
 	}

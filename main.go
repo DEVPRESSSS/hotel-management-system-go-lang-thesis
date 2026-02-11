@@ -37,7 +37,7 @@ func main() {
 	}
 
 	_ = db
-	
+
 	server.SetupServer(host, db)
 
 }

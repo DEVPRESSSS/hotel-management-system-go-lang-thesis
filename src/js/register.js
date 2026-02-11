@@ -50,7 +50,7 @@
       body: JSON.stringify(payload)
     })
     .then(res => {
-      return res.json().then(data => {
+        return res.json().then(data => {
         // Check if request was successful
         if (!res.ok) {
           // Throw error with server message

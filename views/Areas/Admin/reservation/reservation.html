@@ -76,11 +76,11 @@
 </div>
 
 <!--Modal for booking-->
-<div id="bookingModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div id="cleanerModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all overflow-hidden">
         <!-- Modal Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white rounded-t-2xl">
-            <h3 class="text-xl font-semibold text-gray-900" id="header-action">Walk in Booking</h3>
+            <h3 class="text-xl font-semibold text-gray-900" id="header-action">Assign maintenance</h3>
             <button 
                 type="button" 
                 class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -96,17 +96,26 @@
             <input id="input-id" type="hidden"/>
             
             <div class="space-y-2">
-                <label  class="block text-sm font-medium text-gray-700">
-                    Guest Name <span class="text-red-500">*</span>
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    Select attendants <span class="text-red-500">*</span>
                 </label>
-                <!--Search guest name or not-->
-                <input 
-                    type="text" 
-                    id="guestname"
-                    name="guestname"
-                    placeholder="Search for an existing guest or enter a new name"
-                    class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-lg"
-                    required>
+                
+                <!-- Checkbox container with max height and scroll -->
+                <div id="attendant-checkboxes" class="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                    <!-- Checkboxes will be populated dynamically -->
+                    <!-- Example structure:
+                    <label class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                        <input type="checkbox" name="attendants[]" value="John Doe" 
+                               class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
+                        <span class="text-sm text-gray-700">John Doe</span>
+                    </label>
+                    -->
+                </div>
+                
+                <!-- Selected count -->
+                <p class="text-xs text-gray-500 mt-2">
+                    <span id="selected-count">0</span> attendant(s) selected
+                </p>
             </div>
         </form>
         
