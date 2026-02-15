@@ -340,7 +340,7 @@ func (s *Server) BookingSuccess(ctx *gin.Context) {
 	})
 }
 
-// Create intent
+// Create intent in paymongo
 func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 
 	// Get secret key
@@ -349,7 +349,11 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Secret key is invalid"})
 		return
 	}
-
+	//Get the base URL
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:8085"
+	}
 	// Parse request body to get booking details
 	var req dto.PriceRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -415,7 +419,7 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 				//"payment_method_types": []string{"gcash", "paymaya", "card"},
 				"payment_method_types": []string{"qrph", "gcash"},
 				"success_url":          "http://localhost:8085/booking/success?session_id={CHECKOUT_SESSION_ID}",
-				"cancel_url":           "http://localhost:3000/payment/cancel",
+				"cancel_url":           fmt.Sprintf("%s/booking/summary", baseURL),
 				"description":          fmt.Sprintf("%s from %s to %s", req.RoomID, req.CheckIn, req.CheckOut),
 				"metadata": map[string]interface{}{
 					"room_id":   req.RoomID,
