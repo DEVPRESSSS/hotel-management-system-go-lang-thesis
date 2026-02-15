@@ -148,6 +148,9 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 	var users []models.User
 
 	if err := s.Db.
+		Model(&models.User{}).
+		Joins("Role").
+		Where("Role.role_name <> ?", "Admin").
 		Preload("Role").
 		Find(&users).Error; err != nil {
 
