@@ -40,6 +40,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Guest/booking/booking.html",
 		"views/Areas/Guest/booking/confirm_booking.html",
 		"views/Areas/Guest/booking/booking_success.html",
+		"views/Areas/Guest/booking/booking_history.html",
 
 		// Admin layouts
 		"views/Areas/Admin/Layout.html",
