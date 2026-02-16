@@ -13,7 +13,7 @@
     <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Current Stay</p>
 
     <!-- Active card -->
-    <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
+    <div id="booking-container" class="max-w-full w-full flex flex-col gap-4 mb-6 shadow-md rounded-lg overflow-hidden">
       <!-- Room image -->
       <div
         class="h-48 lg:h-auto lg:w-48 flex-none bg-cover bg-center text-center"
@@ -75,7 +75,7 @@
     </div>
 
     <!-- ── UPCOMING ── -->
-    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 mt-8">Upcoming</p>
+    <!-- <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 mt-8">Upcoming</p>
 
     <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
       <div
@@ -122,11 +122,11 @@
       </div>
     </div>
 
-    <!-- ── PREVIOUS STAYS ── -->
+     ── PREVIOUS STAYS ──
     <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 mt-8">Previous Stays</p>
 
-    <!-- Completed -->
-    <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
+    Completed -->
+    <!-- <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
       <div
         class="h-48 lg:h-auto lg:w-48 flex-none bg-cover bg-center"
         style="background-image: url('https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&q=80')"
@@ -169,10 +169,10 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Cancelled -->
-    <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
+    <!-- <div class="max-w-full w-full lg:flex mb-6 shadow-md rounded-lg overflow-hidden">
       <div
         class="h-48 lg:h-auto lg:w-48 flex-none bg-cover bg-center"
         style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&q=80')"
@@ -211,10 +211,11 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->  -->
 
   </div><!-- /max-w-3xl -->
 
-
+<!--Link the booking history-->
+<script src="/src/js/booking_history.js" defer></script>
 {{ template "guest_footer.html" . }}
 {{ end }}
