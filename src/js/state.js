@@ -5,4 +5,5 @@ window.AppState  = {
     access:[],
     aminities:[],
     rooms:[],
+    food_category:[],
 }

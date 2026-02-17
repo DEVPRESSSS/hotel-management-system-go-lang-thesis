@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) GetFloor(ctx *gin.Context) {
+func (s *Server) GetFoodCategory(ctx *gin.Context) {
 
-	var floors []models.Floor
+	var foodCategory []models.FoodCategory
 
-	if err := s.Db.Find(&floors).Error; err != nil {
+	if err := s.Db.Find(&foodCategory).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, floors)
+	ctx.JSON(http.StatusOK, foodCategory)
 
 }

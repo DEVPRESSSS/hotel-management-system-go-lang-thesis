@@ -13,7 +13,7 @@ func SetupServer(host string, db *gorm.DB) {
 	router.SetTrustedProxies([]string{"localhost"})
 
 	router.Static("/src", "./src")
-
+	router.Static("/food_images", "./src/food_images")
 	files := []string{
 		// Default layout
 		"views/Layout/header.html",
@@ -53,6 +53,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Admin/roles/role.html",
 		"views/Areas/Admin/facilities/facility.html",
 		"views/Areas/Admin/services/service.html",
+		"views/Areas/Admin/services/food_service.html",
 		"views/Areas/Admin/rooms/room.html",
 		"views/Areas/Admin/rbac/rbac.html",
 		"views/Areas/Admin/aminity/aminity.html",

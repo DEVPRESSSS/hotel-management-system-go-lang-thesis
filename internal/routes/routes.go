@@ -76,6 +76,24 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 	authorize := router.Group("/")
 	authorize.Use(middlewares.AuthMiddleware())
 	{
+		// ==============================================================================================================
+		// FOOD SERVICE REQUEST MANAGEMENT
+		// ==============================================================================================================
+		authorize.GET("/api/foodservices", rbac.RBACMiddleware("read"), server.GetFoodServices)
+		authorize.GET("/api/foodservice/:id", rbac.RBACMiddleware("read"), server.GetFoodService)
+		authorize.POST("/api/create/foodservice", rbac.RBACMiddleware("create"), server.CreateFoodService)
+		authorize.PUT("/api/update/foodservice/:id", rbac.RBACMiddleware("update"), server.UpdateFoodService)
+		authorize.DELETE("/api/delete/foodservice/:id", rbac.RBACMiddleware("delete"), server.DeleteFoodService)
+		authorize.GET("/food/services", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			utils.RenderWithRole(ctx, "food_service.html", gin.H{
+				"title": "Dashboard",
+			})
+		})
+
+		// ==============================================================================================================
+		// FOOD CATEGORY MANAGEMENT
+		// ==============================================================================================================
+		authorize.GET("/api/food/category", rbac.RBACMiddleware("read"), server.GetFoodCategory)
 
 		// ==============================================================================================================
 		// ADMIN DASHBOARD

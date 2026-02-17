@@ -15,5 +15,5 @@ type Food struct {
 	FoodCategory   FoodCategory    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Price          decimal.Decimal `json:"price" gorm:"type:decimal(10,2)"`
 	Status         string          `json:"status" gorm:"size:20;default:available"`
-	CreatedAt      time.Time       `json:"created_at"`
+	CreatedAt      time.Time       `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 }
