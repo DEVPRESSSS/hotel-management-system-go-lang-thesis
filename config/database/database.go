@@ -47,6 +47,8 @@ func InitDatabase(cfg models.DatabaseConfig) (*gorm.DB, error) {
 		&models.HistoryLog{},
 		&models.Cleaner{},
 		&models.CleaningTask{},
+		&models.FoodCategory{},
+		&models.Food{},
 	)
 
 	if err != nil {
