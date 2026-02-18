@@ -16,7 +16,7 @@ type Room struct {
 	Capacity   string          `json:"capacity"`
 	Price      decimal.Decimal `json:"price" gorm:"type:decimal(10,2)"`
 	Status     string          `json:"status" gorm:"size:20;default:available"`
-	CreatedAt  time.Time       `json:"created_at"`
-
-	Amenities []Amenity `json:"amenities" gorm:"many2many:room_amenities;foreignKey:RoomId;joinForeignKey:RoomId;References:AmenityId;joinReferences:AmenityId"`
+	CreatedAt  time.Time       `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	Amenities  []Amenity       `json:"amenities" gorm:"many2many:room_amenities;foreignKey:RoomId;joinForeignKey:RoomId;References:AmenityId;joinReferences:AmenityId"`
+	RoomImages []RoomImages    `gorm:"foreignKey:RoomId;references:RoomId" json:"room_images"`
 }

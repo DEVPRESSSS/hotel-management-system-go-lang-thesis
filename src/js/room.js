@@ -1,5 +1,87 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* =====================
+    VALIDATIONS
+  ====================== */
+
+  document.getElementById("roomnumber").addEventListener("input", function () {
+    this.value = this.value.replace(/[^A-Za-z0-9-]/g, '');
+  });
+
+  document.getElementById("price").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9.]/g, "");
+  });
+
+  document.getElementById("capacity").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 4);
+  });
+
+  /* =====================
+    LIST OF IMAGES HANDLER
+  ====================== */
+  document.getElementById("roomImages").addEventListener("change", previewImages);
+
+  function previewImages(event) {
+      const files      = Array.from(event.target.files);
+      const grid       = document.getElementById("previewGrid");
+      const emptyState = document.getElementById("previewEmpty");
+      const countLabel = document.getElementById("imageCount");
+
+      grid.innerHTML = "";
+
+      if (!files.length) {
+          grid.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+          countLabel.textContent = "";
+          return;
+      }
+
+      emptyState.classList.add("hidden");
+      grid.classList.remove("hidden");
+      countLabel.textContent = `(${files.length})`;
+
+      files.forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+              const wrapper = document.createElement("div");
+              wrapper.className = "flex items-center gap-3 p-2 rounded-lg border border-gray-100 bg-gray-50 shadow-sm";
+
+              wrapper.innerHTML = `
+                  <!-- Thumbnail -->
+                  <div class="shrink-0 w-40 h-40 rounded-md overflow-hidden border border-gray-200">
+                      <img src="${e.target.result}" alt="${file.name}"
+                          class="w-full h-full object-cover">
+                  </div>
+
+                
+                  <!-- Remove button — always visible, no hover needed -->
+                  <button type="button"
+                      class="remove-img-btn shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-600 text-red-500 hover:text-white transition-colors"
+                      title="Remove">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                  </button>
+              `;
+
+              wrapper.querySelector(".remove-img-btn").addEventListener("click", () => removeImage(index));
+              grid.appendChild(wrapper);
+          };
+          reader.readAsDataURL(file);
+      });
+  }
+
+  function removeImage(index) {
+      const input = document.getElementById("roomImages");
+      const dt    = new DataTransfer();
+      Array.from(input.files).forEach((file, i) => {
+          if (i !== index) dt.items.add(file);
+      });
+      input.files = dt.files;
+      previewImages({ target: input });
+  }
+
+
  /* =====================
      FETCH ROOMS & INIT TABLE
   ====================== */
@@ -165,16 +247,16 @@ document.addEventListener("DOMContentLoaded", () => {
       roomtypeid: roomType,
       floorid: floor,
       capacity: capacity,
-      price: price
+      price: Number(price)
     };
 
     const url = id ? `/api/updateroom/${id}` : '/api/createroom';
     const method = id ? 'PUT' : 'POST';
+    const formData = new FormData(document.getElementById('upsertform'));
 
     fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: formData
     })
     .then(res => {
       return res.json().then(data => {

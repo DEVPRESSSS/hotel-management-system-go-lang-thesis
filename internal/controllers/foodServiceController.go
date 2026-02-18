@@ -17,7 +17,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// models/food.go — separate request struct for form binding
 type FoodRequest struct {
 	Name           string                `form:"name" binding:"required"`
 	Description    string                `form:"description" binding:"required"`

@@ -101,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const category = document.getElementById('food-category-id').value;
     const price = document.getElementById('price').value;
     const status = document.getElementById('status').value;
-    console.log("This is the status value:" ,status);
     const payload = {
       name: name,
       description: description,

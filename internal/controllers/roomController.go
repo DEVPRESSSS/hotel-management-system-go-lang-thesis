@@ -5,74 +5,116 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
-type Room struct {
-	RoomId     string          `json:"roomid"`
-	RoomNumber string          `json:"roomnumber"`
-	RoomTypeId string          `json:"roomtypeid"`
-	FloorId    string          `json:"floorid"`
-	Capacity   string          `json:"capacity"`
-	Price      decimal.Decimal `json:"price"`
-	Status     string          `json:"status"`
-	CreatedAt  time.Time       `json:"created_at"`
+type RoomDto struct {
+	RoomId     string                  `form:"roomid"`
+	RoomNumber string                  `form:"roomnumber"`
+	RoomTypeId string                  `form:"roomtypeid"`
+	FloorId    string                  `form:"floorid"`
+	Capacity   string                  `form:"capacity"`
+	Price      decimal.Decimal         `form:"price"`
+	Image      []*multipart.FileHeader `form:"roomImages" binding:"required"`
+	Status     string                  `form:"status"`
+	CreatedAt  time.Time               `form:"created_at"`
 }
 
 // Create Room
 func (s *Server) CreateRoom(ctx *gin.Context) {
 
-	var room models.Room
-	//Validate first
-	if err := ctx.ShouldBind(&room); err != nil {
+	var dto RoomDto
+
+	// Validate form fields
+	if err := ctx.ShouldBind(&dto); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get uploaded files manually (ShouldBind may not catch multipart slice)
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form"})
+		return
+	}
+
+	files := form.File["roomImages"]
+	if len(files) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "At least one image is required"})
 		return
 	}
 
 	roomID, err := GenerateRoomID(s.Db)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to generate Amenity ID",
-		})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate Room ID"})
 		return
 	}
 
 	userId := s.GetUserId(ctx)
 
-	//Asign the room id here
-	room.RoomId = roomID
+	// Build room model (without images first)
+	room := models.Room{
+		RoomId:     roomID,
+		RoomNumber: dto.RoomNumber,
+		RoomTypeId: dto.RoomTypeId,
+		FloorId:    dto.FloorId,
+		Capacity:   dto.Capacity,
+		Price:      dto.Price,
+		Status:     dto.Status,
+	}
 
-	//Perform insert
+	// Save room to DB
 	if err := s.Db.Create(&room).Error; err != nil {
-
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-			ctx.JSON(http.StatusConflict, gin.H{
-				"error": "Room number already exists",
-			})
+			ctx.JSON(http.StatusConflict, gin.H{"error": "Room number already exists"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, file := range files {
+		// Sanitize filename
+		ext := filepath.Ext(file.Filename)
+		nameWithoutExt := strings.TrimSuffix(file.Filename, ext)
+		filename := fmt.Sprintf("%s_%s%s", nameWithoutExt, roomID, ext)
+		savePath := filepath.Join("src", "room_images", filename)
+
+		if err := ctx.SaveUploadedFile(file, savePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image: " + filename})
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
+		// Save image record to DB
+		roomImage := models.RoomImages{
+			ImageId: uuid.New().String(),
+			RoomId:  roomID,
+			Image:   filename,
+		}
+		if err := s.Db.Create(&roomImage).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image record"})
+			return
+		}
 	}
 
-	//Perfrom insert logs
-	err = s.CreateLogs("Room", room.RoomId, "Create", "Created a room", "", "", userId)
-	if err != nil {
+	// Log
+	if err := s.CreateLogs("Room", room.RoomId, "Create", "Created a room", "", "", userId); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"success": "Room created successfully"})
 
+	ctx.JSON(http.StatusOK, gin.H{"success": "Room created successfully"})
 }
 
 // Update room
@@ -197,6 +239,7 @@ func (s *Server) GetRoom(ctx *gin.Context) {
 
 	var room models.Room
 	if err := s.Db.
+		Preload("RoomImages").
 		Where("room_id = ?", roomId).First(&room).Error; err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Error fetching data!!!"})
 		return
