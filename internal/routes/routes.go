@@ -79,13 +79,21 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// ==============================================================================================================
 		// FOOD SERVICE REQUEST MANAGEMENT
 		// ==============================================================================================================
-		authorize.GET("/api/foodservices", rbac.RBACMiddleware("read"), server.GetFoodServices)
+		authorize.GET("/api/foodservices", rbac.RBACMiddleware("booking"), server.GetFoodServices)
 		authorize.GET("/api/foodservice/:id", rbac.RBACMiddleware("read"), server.GetFoodService)
 		authorize.POST("/api/create/foodservice", rbac.RBACMiddleware("create"), server.CreateFoodService)
 		authorize.PUT("/api/update/foodservice/:id", rbac.RBACMiddleware("update"), server.UpdateFoodService)
 		authorize.DELETE("/api/delete/foodservice/:id", rbac.RBACMiddleware("delete"), server.DeleteFoodService)
+		authorize.POST("/paymongo/food/checkout", rbac.RBACMiddleware("booking"), server.CreateFoodPayment)
+		authorize.GET("/food/payment/success", server.FoodPaymentSuccess)
+		authorize.POST("/paymongo/food/insert-order", server.InsertOrder)
 		authorize.GET("/food/services", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			utils.RenderWithRole(ctx, "food_service.html", gin.H{
+				"title": "Dashboard",
+			})
+		})
+		authorize.GET("/guest/food/services", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
+			utils.RenderWithRole(ctx, "food_request.html", gin.H{
 				"title": "Dashboard",
 			})
 		})

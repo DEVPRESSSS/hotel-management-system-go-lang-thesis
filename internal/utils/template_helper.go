@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RenderWithRole renders HTML template with role automatically injected
 func RenderWithRole(ctx *gin.Context, templateName string, data gin.H) {
 	roleInterface, _ := ctx.Get("role")
 	role := ""

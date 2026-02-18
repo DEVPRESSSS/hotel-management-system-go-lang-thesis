@@ -1,0 +1,226 @@
+{{ define "food_request.html" }}
+{{ template "guest_header.html" . }}
+
+<!-- ═══════════════════════════════════════════════════════
+     CART SIDEBAR + MODAL STYLES  (no changes to your grid)
+════════════════════════════════════════════════════════ -->
+<style>
+  /* ── Cart sidebar slide-in ── */
+  #cartSidebar {
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+  }
+  #cartSidebar.cart-hidden {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ── Cart item appear ── */
+  @keyframes cartItemIn {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .cart-item { animation: cartItemIn 0.2s ease forwards; }
+
+  /* ── Modal backdrop + panel ── */
+  #foodModal {
+    transition: opacity 0.25s ease;
+  }
+  #foodModal.modal-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #modalPanel {
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+  }
+  #foodModal.modal-hidden #modalPanel {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  /* ── Cart badge pulse ── */
+  @keyframes badgePulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,.45); }
+    50%      { box-shadow: 0 0 0 6px rgba(124,58,237,0); }
+  }
+  .badge-pulse { animation: badgePulse 2s infinite; }
+
+  /* ── Thin scrollbar for cart & modal ── */
+  .thin-scroll::-webkit-scrollbar { width: 4px; }
+  .thin-scroll::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:4px; }
+</style>
+
+<!-- ═══════════════════════════════════════════════════════
+     YOUR ORIGINAL LAYOUT  (untouched)
+════════════════════════════════════════════════════════ -->
+<div class="container mx-auto px-4 py-16 bg-white shadow-sm mt-4">
+  <!-- Section Header -->
+  <div class="mb-10 flex items-center justify-between">
+    <h3 class="text-3xl font-bold text-gray-900 mb-2">Available Foods</h3>
+
+    <!-- Cart toggle button -->
+    <button id="cartToggleBtn"
+      class="relative flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold p-3 rounded-lg transition duration-200 shadow-sm">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3h2l.4 2M7 13h10l4-9H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      My Order
+      <span id="cartBadge"
+        class="badge-pulse hidden absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+        0
+      </span>
+    </button>
+  </div>
+
+  <!-- Rooms Grid — YOUR ORIGINAL, untouched -->
+  <div id="foodGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CART SIDEBAR  (fixed, slides in from right)
+════════════════════════════════════════════════════════ -->
+<!-- Backdrop -->
+<div id="cartBackdrop"
+  class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm hidden"
+  onclick="closeCart()">
+</div>
+
+<!-- Sidebar panel -->
+<div id="cartSidebar"
+  class="cart-hidden fixed top-0 right-0 h-full w-[340px] z-50 bg-white shadow-2xl flex flex-col">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+    <div class="flex items-center gap-2">
+      <h2 class="text-lg font-bold text-gray-900">My Order</h2>
+      <span id="sidebarCount"
+        class="bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[1.4rem] text-center hidden">
+        0
+      </span>
+    </div>
+    <button onclick="closeCart()" class="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Items -->
+  <div id="cartItemsContainer" class="flex-1 overflow-y-auto thin-scroll px-5 py-4 space-y-3">
+    <!-- Empty state -->
+    <div id="cartEmpty" class="flex flex-col items-center justify-center h-full py-16 text-center">
+      <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+        <svg class="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-9H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <p class="text-sm font-semibold text-gray-300">No items yet</p>
+      <p class="text-xs text-gray-200 mt-1">Add something from the menu</p>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div id="cartSummary" class="hidden border-t border-gray-100 px-5 py-4 bg-gray-50">
+    <div class="flex items-center justify-between mb-1">
+      <span class="text-xs text-gray-400">Subtotal</span>
+      <span id="cartSubtotal" class="text-xs text-gray-500 font-medium">₱0.00</span>
+    </div>
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-sm font-bold text-gray-800">Total</span>
+      <span id="cartTotal" class="text-base font-bold text-purple-600">₱0.00</span>
+    </div>
+    <button onclick="handleCheckout()"
+      class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm py-3 rounded-lg transition duration-200">
+      Proceed to Checkout →
+    </button>
+    <button onclick="clearCart()"
+      class="w-full mt-2 text-xs text-white bg-red-600 hover:text-red-400 transition py-3 rounded-lg">
+      Clear all items
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOD DETAIL MODAL
+════════════════════════════════════════════════════════ -->
+<div id="foodModal"
+  class="modal-hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+
+  <div id="modalPanel"
+    class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+    <!-- Image -->
+    <div class="relative h-56 bg-gray-100 shrink-0">
+      <img id="modalImg" src="" alt=""
+        class="w-full h-full object-cover">
+      <!-- Category badge -->
+      <span id="modalCategory"
+        class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm">
+      </span>
+      <!-- Close -->
+      <!-- <button onclick="closeModal()"
+        class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-end text-gray-500 hover:text-gray-800 shadow-sm transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button> -->
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 flex flex-col gap-3 overflow-y-auto thin-scroll">
+      <!-- Name & Price -->
+      <div class="flex items-start justify-between gap-3">
+        <h3 id="modalName" class="text-xl font-bold text-gray-900 leading-snug"></h3>
+        <span id="modalPrice"
+          class="shrink-0 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+        </span>
+      </div>
+
+      <!-- Description -->
+      <p id="modalDesc" class="text-gray-500 text-sm leading-relaxed"></p>
+
+      <!-- Divider -->
+      <hr class="border-gray-100">
+
+      <!-- Qty selector -->
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold text-gray-700">Quantity</span>
+        <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-2 py-1">
+          <button id="modalMinus"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-200 hover:text-red-500 font-bold text-xl transition"
+            onclick="changeModalQty(-1)">−</button>
+          <span id="modalQty" class="w-6 text-center text-sm font-bold text-gray-800">1</span>
+          <button id="modalPlus"
+            class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-600 text-white hover:bg-purple-700 font-bold text-xl transition"
+            onclick="changeModalQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Line total -->
+      <div class="flex items-center justify-between bg-purple-50 rounded-xl px-4 py-3">
+        <span class="text-sm text-purple-700 font-medium">Item total</span>
+        <span id="modalLineTotal" class="text-sm font-bold text-purple-700">₱0.00</span>
+      </div>
+
+      <!-- Add to cart btn -->
+      <button id="modalAddBtn"
+        onclick="confirmAddToCart()"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl text-sm transition duration-200 mt-1">
+        Add to Order
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script src="/src/js/food_request.js"></script>
+
+{{ template "guest_footer.html" . }}
+{{ end }}

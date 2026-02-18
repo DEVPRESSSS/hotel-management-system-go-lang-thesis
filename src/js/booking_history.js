@@ -34,11 +34,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ── Action buttons per status ────────────────────────────────────
     function getActionButtons(status, bookId) {
+        sessionStorage.setItem("bookId", bookId);
         switch (status) {
             case "check-in":
                 return `
                     <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Receipt</button>
-                    <button class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-600 transition">Request Service</button>`;
+                    <a href="/guest/food/services" class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-600 transition">Request Service</a>`;
             case "pending":
                 return `
                     <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Modify</button>
