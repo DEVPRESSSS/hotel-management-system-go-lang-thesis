@@ -121,7 +121,6 @@ func (s *Server) CreateRoom(ctx *gin.Context) {
 func (s *Server) UpdateRoom(ctx *gin.Context) {
 	roomid := ctx.Param("roomid")
 
-	// Get user ID first
 	userId := s.GetUserId(ctx)
 	if userId == "" {
 		return
@@ -129,7 +128,9 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 
 	// Get old room data before update
 	var oldRoom models.Room
-	if err := s.Db.Where("room_id = ?", roomid).First(&oldRoom).Error; err != nil {
+	if err := s.Db.
+		Preload("RoomImages").
+		Where("room_id = ?", roomid).First(&oldRoom).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 			return
@@ -138,11 +139,21 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 		return
 	}
 
-	// Bind new data
-	var payload models.Room
-	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
+	// ✅ Use ShouldBind (form) instead of ShouldBindJSON since request is multipart
+	var dto RoomDto
+	if err := ctx.ShouldBind(&dto); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Build updated room payload from DTO
+	payload := models.Room{
+		RoomNumber: dto.RoomNumber,
+		RoomTypeId: dto.RoomTypeId,
+		FloorId:    dto.FloorId,
+		Capacity:   dto.Capacity,
+		Price:      dto.Price,
+		Status:     dto.Status,
 	}
 
 	// Perform update
@@ -153,19 +164,50 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 		return
 	}
 
-	// Get updated room data
+	form, err := ctx.MultipartForm()
+	if err == nil {
+		files := form.File["roomImages"]
+
+		for _, file := range files {
+			ext := filepath.Ext(file.Filename)
+			nameWithoutExt := strings.TrimSuffix(file.Filename, ext)
+			filename := fmt.Sprintf("%s_%s%s", nameWithoutExt, roomid, ext)
+			savePath := filepath.Join("src", "room_images", filename)
+
+			var existingImage models.RoomImages
+			if err := s.Db.Where("room_id = ? AND image = ?", roomid, filename).First(&existingImage).Error; err == nil {
+				continue
+			}
+
+			if err := ctx.SaveUploadedFile(file, savePath); err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image: " + filename})
+				return
+			}
+
+			roomImage := models.RoomImages{
+				ImageId: uuid.New().String(),
+				RoomId:  roomid,
+				Image:   filename,
+			}
+			if err := s.Db.Create(&roomImage).Error; err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image record"})
+				return
+			}
+		}
+	}
+
+	// Get updated room data for logging
 	var newRoom models.Room
 	if err := s.Db.Where("room_id = ?", roomid).First(&newRoom).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch updated room"})
 		return
 	}
 
-	// Convert to JSON strings for logging
+	// Log old and new values
 	oldValueJSON, _ := json.Marshal(oldRoom)
 	newValueJSON, _ := json.Marshal(newRoom)
 
-	// Create log with old and new values
-	err := s.CreateLogs(
+	if err := s.CreateLogs(
 		"Room",
 		roomid,
 		"UPDATE",
@@ -173,8 +215,7 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 		string(oldValueJSON),
 		string(newValueJSON),
 		userId,
-	)
-	if err != nil {
+	); err != nil {
 		fmt.Println("Failed to create log:", err)
 	}
 
@@ -295,4 +336,34 @@ func GenerateLogId(db *gorm.DB) (string, error) {
 	}
 
 	return fmt.Sprintf("LOG-%03d", nextNumber), nil
+}
+
+// Delete role
+func (s *Server) DeleteRoomImage(ctx *gin.Context) {
+	filename := ctx.Param("filename")
+
+	fmt.Println(filename)
+	result := s.Db.
+		Where("image = ?", filename).
+		Delete(&models.RoomImages{})
+
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		ctx.JSON(404, gin.H{"error": "Room not found"})
+		return
+	}
+
+	//Perfrom insert logs
+	userId := s.GetUserId(ctx)
+	err := s.CreateLogs("Room", filename, "Delete", "Deleted a room image", "", "", userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Status(204)
 }

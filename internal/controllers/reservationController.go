@@ -112,34 +112,56 @@ func (s *Server) AssignCleaner(ctx *gin.Context) {
 
 // Assign cleaner
 func (s *Server) CheckinStatus(ctx *gin.Context) {
-
 	bookingId := ctx.Param("id")
 
-	if err := s.Db.Model(&models.Book{}).Where("book_id = ?", bookingId).
-		Update("status", "check-in").Error; err != nil {
+	// First get the booking to retrieve room_id
+	var book models.Book
+	if err := s.Db.Where("book_id = ?", bookingId).First(&book).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Booking not found"})
+		return
+	}
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request!!"})
+	// Update booking status to check-in
+	if err := s.Db.Model(&book).Update("status", "check-in").Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to update booking status"})
+		return
+	}
+
+	// Update room status to occupied
+	if err := s.Db.Model(&models.Room{}).Where("room_id = ?", book.RoomId).
+		Update("status", "occupied").Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to update room status"})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Checking in...."})
-
 }
 
 // Assign cleaner
 func (s *Server) CheckOut(ctx *gin.Context) {
-
 	bookingId := ctx.Param("id")
 
-	if err := s.Db.Model(&models.Book{}).Where("book_id = ?", bookingId).
-		Update("status", "check-out").Error; err != nil {
+	// First get the booking to retrieve room_id
+	var book models.Book
+	if err := s.Db.Where("book_id = ?", bookingId).First(&book).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Booking not found"})
+		return
+	}
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request!!"})
+	// Update booking status to check-out
+	if err := s.Db.Model(&book).Update("status", "check-out").Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to update booking status"})
+		return
+	}
+
+	// Update room status to avail
+	if err := s.Db.Model(&models.Room{}).Where("room_id = ?", book.RoomId).
+		Update("status", "available").Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to update room status"})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"success": "Checking in...."})
-
 }
 
 // Assign cleaner

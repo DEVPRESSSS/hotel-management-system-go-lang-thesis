@@ -7,7 +7,6 @@ import (
 	"HMS-GO/config/database"
 	"HMS-GO/config/server"
 	"HMS-GO/internal/models"
-
 	"github.com/joho/godotenv"
 )
 

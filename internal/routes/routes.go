@@ -170,6 +170,20 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		// ==============================================================================================================
+		// DELETE ROOM IMAGES
+		// ==============================================================================================================
+		authorize.DELETE("/api/delete/image/:filename", rbac.RBACMiddleware("delete"), server.DeleteRoomImage)
+
+		// ==============================================================================================================
+		// 2D MANAGEMENT
+		// ==============================================================================================================
+		authorize.GET("/2d", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			utils.RenderWithRole(ctx, "2d.html", gin.H{
+				"title": "Guest",
+			})
+		})
+
 		// Guest APIs
 		authorize.GET("/api/guest", rbac.RBACMiddleware("read"), server.GetAllGuest)
 

@@ -319,7 +319,6 @@ document.addEventListener("DOMContentLoaded", () => {
         room_id : roomId
       };
 
-      console.log(formData);
       Swal.fire({
           title: "Are you sure the guest room is cleaned?",
           text: "This action cannot be undone!",

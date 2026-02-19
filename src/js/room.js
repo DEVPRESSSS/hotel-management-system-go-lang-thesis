@@ -189,7 +189,72 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('floorid').value = room.floorid;
             document.getElementById('capacity').value = room.capacity;
             document.getElementById('price').value = room.price;
-            
+            const grid = document.getElementById("previewGrid");
+            const emptyState = document.getElementById("previewEmpty");
+            const countLabel = document.getElementById("imageCount");
+
+            grid.innerHTML = "";
+
+            if (room.room_images && room.room_images.length > 0) {
+                emptyState.classList.add("hidden");
+                grid.classList.remove("hidden");
+                countLabel.textContent = `(${room.room_images.length})`;
+
+                room.room_images.forEach((img) => {
+                const imageUrl = `/room_images/${img.image}`;
+                const wrapper = document.createElement("div");
+                wrapper.className = "flex items-center gap-3 p-2 rounded-lg border border-gray-100 bg-gray-50 shadow-sm";
+                wrapper.innerHTML = `
+                    <img src="${imageUrl}" alt="${img.image}" class="w-40 h-40 object-cover rounded-md border border-gray-200" />
+                    <button type="button"
+                        data-filename="${img.image}"
+                        class="remove-img-db-btn shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-600 text-red-500 hover:text-white transition-colors"
+                        title="Remove">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                `;
+
+                grid.appendChild(wrapper);
+
+                wrapper.querySelector('.remove-img-db-btn').addEventListener('click', function () {
+                    const filename = this.dataset.filename;
+
+                    Swal.fire({
+                        title: "Remove Image?",
+                        text: `Are you sure you want to delete "${filename}"?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, delete it!",
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
+
+                        fetch(`/api/delete/image/${encodeURIComponent(filename)}`, { method: 'DELETE' })
+                            .then(res => {
+                                if (!res.ok) throw new Error('Delete failed');
+                                return;
+                            })
+                            .then(() => {
+                                wrapper.remove(); 
+                                const remaining = grid.querySelectorAll('.remove-img-db-btn').length;
+                                countLabel.textContent = remaining > 0 ? `(${remaining})` : "";
+                                if (remaining === 0) {
+                                    grid.classList.add("hidden");
+                                    emptyState.classList.remove("hidden");
+                                }
+                                notification("success", "Image deleted successfully");
+                            })
+                            .catch(err => notification("error", err.message));
+                    });
+                });
+            });
+            } else {
+                grid.classList.add("hidden");
+                emptyState.classList.remove("hidden");
+                countLabel.textContent = "";
+            }
+
             headerTitle.innerText = "Update Room";
             btnText.innerText = "Update";
             openModal();
@@ -276,4 +341,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+ 
 });

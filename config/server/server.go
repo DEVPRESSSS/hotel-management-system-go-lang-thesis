@@ -14,6 +14,7 @@ func SetupServer(host string, db *gorm.DB) {
 
 	router.Static("/src", "./src")
 	router.Static("/food_images", "./src/food_images")
+	router.Static("/room_images", "./src/room_images")
 	files := []string{
 		// Default layout
 		"views/Layout/header.html",
@@ -69,6 +70,7 @@ func SetupServer(host string, db *gorm.DB) {
 		"views/Areas/Admin/calendar/calendar.html",
 		"views/Areas/Admin/settings/logs.html",
 		"views/Areas/Admin/maintenance/maintenance.html",
+		"views/Areas/Admin/2d/2d.html",
 	}
 	router.LoadHTMLFiles(files...)
 
