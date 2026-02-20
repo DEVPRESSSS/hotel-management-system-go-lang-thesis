@@ -6,6 +6,7 @@ import (
 
 	"HMS-GO/config/database"
 	"HMS-GO/config/server"
+	"HMS-GO/internal/models"
 
 	"github.com/joho/godotenv"
 )
@@ -26,15 +27,15 @@ func main() {
 	// 	host = ":8085"
 	// }
 
-	// cfg := models.DatabaseConfig{
-	// 	Host:     os.Getenv("dbHost"),
-	// 	Port:     os.Getenv("dbPort"),
-	// 	User:     os.Getenv("dbUser"),
-	// 	Password: os.Getenv("dbPassword"),
-	// 	DBName:   os.Getenv("dbName"),
-	// }
+	cfg := models.DatabaseConfig{
+		Host:     os.Getenv("dbHost"),
+		Port:     os.Getenv("dbPort"),
+		User:     os.Getenv("dbUser"),
+		Password: os.Getenv("dbPassword"),
+		DBName:   os.Getenv("dbName"),
+	}
 
-	db, err := database.InitDatabase()
+	db, err := database.InitDatabase(cfg)
 	database.SeedRoles(db)
 	database.SeedAccess(db)
 	database.SeedRoleAccess(db)
