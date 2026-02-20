@@ -11,14 +11,20 @@ import (
 )
 
 func main() {
+	godotenv.Load()
 
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 	host := os.Getenv("HOST_ADDR")
 	if host == "" {
 		host = ":8085"
 	}
+
+	// host := os.Getenv("HOST_ADDR")
+	// if host == "" {
+	// 	host = ":8085"
+	// }
 
 	// cfg := models.DatabaseConfig{
 	// 	Host:     os.Getenv("dbHost"),
