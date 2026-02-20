@@ -7,6 +7,7 @@ import (
 	"HMS-GO/config/database"
 	"HMS-GO/config/server"
 	"HMS-GO/internal/models"
+
 	"github.com/joho/godotenv"
 )
 
@@ -29,6 +30,10 @@ func main() {
 	}
 
 	db, err := database.InitDatabase(cfg)
+	database.SeedRoles(db)
+	database.SeedAccess(db)
+	database.SeedRoleAccess(db)
+	database.SeedAdminUser(db)
 
 	if err != nil {
 
