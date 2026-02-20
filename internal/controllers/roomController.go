@@ -139,7 +139,6 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 		return
 	}
 
-	// ✅ Use ShouldBind (form) instead of ShouldBindJSON since request is multipart
 	var dto RoomDto
 	if err := ctx.ShouldBind(&dto); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

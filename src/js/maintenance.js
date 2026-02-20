@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.createModal = function () {
     id = "";
-    headerTitle.innerText = "Create Role";
+    headerTitle.innerText = "Create Attendant";
     btnText.innerText = "Create";
     form.reset();
     openModal();

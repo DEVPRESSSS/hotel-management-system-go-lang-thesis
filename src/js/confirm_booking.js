@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       ${isLastGuest ? `
                        <button type="submit"
                             class="stripe flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                            Pay
+                            Card
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="2"/>
                                 <line x1="2" y1="10" x2="22" y2="10" stroke-width="2"/>
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         <button type="submit" 
                             class="gcash flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
-                            Gcash
+                            EWallet
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="2"/>
                                 <line x1="2" y1="10" x2="22" y2="10" stroke-width="2"/>
