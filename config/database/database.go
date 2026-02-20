@@ -69,7 +69,7 @@ func InitDatabase() (*gorm.DB, error) {
 	host := os.Getenv("dbHost")
 	port := os.Getenv("dbPort")
 	user := os.Getenv("dbUser")
-	password := os.Getenv("dbPassword")
+	password := os.Getenv("dbPass")
 	dbname := os.Getenv("dbName")
 
 	dsn := fmt.Sprintf(
