@@ -32,6 +32,9 @@ func main() {
 	database.SeedAccess(db)
 	database.SeedRoleAccess(db)
 	database.SeedAdminUser(db)
+	database.SeedRoomTypes(db)
+	database.SeedFloors(db)
+	database.SeedFoodCategories(db)
 
 	if err != nil {
 
