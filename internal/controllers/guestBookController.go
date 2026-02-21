@@ -257,8 +257,6 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 		return
 	}
 
-	// Calculate total (same logic as CalculateBookingPrice)
-
 	duration := checkOut.Sub(checkIn)
 	nights := int(math.Ceil(duration.Hours() / 24))
 	nightsDecimal := decimal.NewFromInt(int64(nights))
@@ -406,7 +404,7 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 				},
 				//"payment_method_types": []string{"gcash", "paymaya", "card"},
 				"payment_method_types": []string{"qrph", "gcash"},
-				"success_url":          "http://localhost:8085/booking/success?session_id={CHECKOUT_SESSION_ID}",
+				"success_url":          fmt.Sprintf("%s/booking/success?session_id={CHECKOUT_SESSION_ID}", baseURL),
 				"cancel_url":           fmt.Sprintf("%s/booking/summary", baseURL),
 				"description":          fmt.Sprintf("%s from %s to %s", req.RoomID, req.CheckIn, req.CheckOut),
 				"metadata": map[string]interface{}{
