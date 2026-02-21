@@ -98,9 +98,8 @@ func (s *Server) CreateRoom(ctx *gin.Context) {
 
 		// Save image record to DB
 		roomImage := models.RoomImages{
-			ImageId: uuid.New().String(),
-			RoomId:  roomID,
-			Image:   filename,
+			ImageId: strings.ReplaceAll(uuid.New().String(), "-", "")[:30], RoomId: roomID,
+			Image: filename,
 		}
 		if err := s.Db.Create(&roomImage).Error; err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image record"})
