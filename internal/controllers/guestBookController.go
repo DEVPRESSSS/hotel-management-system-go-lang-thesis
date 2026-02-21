@@ -270,9 +270,9 @@ func (s *Server) CreateCheckoutSession(ctx *gin.Context) {
 
 	// Get base URL
 	baseURL := os.Getenv("BASE_URL")
-	if baseURL == "" {
-		baseURL = "http://localhost:8085"
-	}
+	// if baseURL == "" {
+	// 	baseURL = "http://localhost:8085"
+	// }
 
 	// Get room type name (with fallback)
 	roomTypeName := "Room"
@@ -339,9 +339,9 @@ func (s *Server) CreatePaymentIntent(ctx *gin.Context) {
 	}
 	//Get the base URL
 	baseURL := os.Getenv("BASE_URL")
-	if baseURL == "" {
-		baseURL = "http://localhost:8085"
-	}
+	// if baseURL == "" {
+	// 	baseURL = "http://localhost:8085"
+	// }
 	// Parse request body to get booking details
 	var req dto.PriceRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
