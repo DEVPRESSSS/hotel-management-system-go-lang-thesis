@@ -1,76 +1,116 @@
-document.getElementById('loginform').addEventListener('submit', function (event) {
-  event.preventDefault();
-
-  //Get the value of the inputs
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-
-  const usernameError = document.getElementById('validation-username');
-  const passwordError = document.getElementById('validation-password');
-
-  let hasError = false;
-
-  // Reset previous errors
-  usernameError.textContent = "";
-  passwordError.textContent = "";
-
-  // Username validation
-  if (!username) {
-    usernameError.textContent = "Username is required";
-    hasError = true;
-  }
-
-  // Password validation
-  if (!password) {
-    passwordError.textContent = "Password is required";
-    hasError = true;
-  }
-
-  // Stop if any validation failed
-  if (hasError) return;
-
-  const formData = {
-    username,
-    password
-  };
-
-  fetch('/api/auth', {
-    method: 'POST',
-    credentials: 'include', 
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData)
-  })
-    .then(async response => {
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+  
+  //#region--Validations
+  document.getElementById('username').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z]/g, "");
+  });
+  document.getElementById('password').addEventListener("keydown", function (e) {
+      if (e.key === " ") {
+          e.preventDefault();
       }
+  });
+  //#endregion
 
-      return data;
+  //#region --Authentication
+
+  document.getElementById('loginform').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    //Get the value of the inputs
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    const usernameError = document.getElementById('validation-username');
+    const passwordError = document.getElementById('validation-password');
+
+    let hasError = false;
+
+
+    
+
+    // Reset previous errors
+    usernameError.textContent = "";
+    passwordError.textContent = "";
+
+    // Username validation
+    if (!username) {
+      usernameError.textContent = "Username is required";
+      hasError = true;
+    }
+
+    // Password validation
+    if (!password) {
+      passwordError.textContent = "Password is required";
+      hasError = true;
+    }
+
+    // Stop if any validation failed
+    if (hasError) return;
+
+    const formData = {
+      username,
+      password
+    };
+
+    
+    fetch('/api/auth', {
+      method: 'POST',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
     })
-    .then(data => {
-      if (data.success) {
-        notification("success", "Login successful");
-        
-        const routes = {
-          Admin: "/api/dashboard",
-          FrontDesk: "/api/dashboard",
-          Guest: "/guest/dashboard",
-        };
+      .then(async response => {
+        const data = await response.json();
 
-        localStorage.setItem("role", data.role)
-        setTimeout(() => {
-          window.location.href = routes[data.role];
-        }, 100);
-      }else {
-          notification("error", "Incorrect username or password");
-      }
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
 
-    })
-    .catch(error => {
-      notification("error", error.message);
-    });
-});
+        return data;
+      })
+      .then(data => {
+        if (data.success) {
+          notification("success", "Login successful");
+          
+          const routes = {
+            Admin: "/api/dashboard",
+            FrontDesk: "/api/dashboard",
+            Guest: "/guest/dashboard",
+          };
+
+          localStorage.setItem("role", data.role)
+          setTimeout(() => {
+            window.location.href = routes[data.role];
+          }, 100);
+        }else {
+            notification("error", "Incorrect username or password");
+        }
+
+      })
+      .catch(error => {
+        notification("error", error.message);
+      });
+  });
+//#endregion
+
+//#region--Toogle Password
+
+function togglePassword(){
+
+  const input = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
+  const eyeOffIcon = document.getElementById('eye-off-icon');
+
+  if(input.type === "password"){
+    input.type = "text";
+    eyeIcon.classList.add('hidden');
+    eyeOffIcon.classList.remove('hidden');
+  }else{
+    input.type = "password";
+    eyeOffIcon.classList.add('hidden');
+    eyeIcon.classList.remove('hidden');
+  }
+}
+//#endregion

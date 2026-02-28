@@ -1,3 +1,9 @@
+  document.getElementById('email').addEventListener("keydown", function (e) {
+      if (e.key === " ") {
+          e.preventDefault();
+      }
+  });
+
 document.getElementById('forgot-password-form').addEventListener('submit', function (event) {
   event.preventDefault();
   
