@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Create user
+// Create guest
 func (s *Server) RegisterGuest(ctx *gin.Context) {
 
 	var create models.RegisterInput
@@ -32,7 +32,7 @@ func (s *Server) RegisterGuest(ctx *gin.Context) {
 	guestID, err := GenerateGuestID(s.Db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to generate Amenity ID",
+			"error": "Failed to generate Guest Id",
 		})
 		return
 	}
@@ -58,22 +58,22 @@ func (s *Server) RegisterGuest(ctx *gin.Context) {
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
 
 			ctx.JSON(http.StatusConflict, gin.H{
-				"error": "Username is already taken",
+				"error": "Email or username are already taken!",
 			})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Registration failed",
+			"error": "Registration failed, Please try again!!",
 		})
 		return
 	}
-	//Return 200  if the input succeed
+	//Return 200  if the registration succeed
 	ctx.JSON(http.StatusCreated, gin.H{
-		"message": "Registration succeed",
+		"message": "Registered successfully",
 	})
 }
 
-// Get all the roles from db
+// Get role id of the guest
 func (s *Server) GetGuestRoleID() (string, error) {
 	var role models.Role
 

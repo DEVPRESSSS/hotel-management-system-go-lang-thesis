@@ -13,6 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
       this.value = this.value
           .replace(/[^A-Za-z]/g, "");
   });
+  document.getElementById('password').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^]/g, "");
+  });
   //Email validation
   document.getElementById('email').addEventListener("input", function () {
       this.value = this.value
