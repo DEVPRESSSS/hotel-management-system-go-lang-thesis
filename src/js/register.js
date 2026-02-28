@@ -18,6 +18,33 @@
     return true;
   }
 
+  document.getElementById('fullname').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z., ]/g, "") 
+          .replace(/\s{2,}/g, " ")     
+          .replace(/^\s/, "");         
+  });
+  //Username
+  document.getElementById('username').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z]/g, "");
+  });
+  //Password
+  document.getElementById('password').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^]/g, "");
+  });
+  //Confirm password
+   document.getElementById('confirm-password').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^]/g, "");
+  });
+  //Email validation
+  document.getElementById('email').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z.@]/g, "");
+  });
+
 /* =====================
      FORM SUBMIT
   ====================== */

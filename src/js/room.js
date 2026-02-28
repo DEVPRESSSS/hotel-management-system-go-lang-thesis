@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Populate table body
       tbody.innerHTML = rooms.map(room => `
         <tr>
-          <td class="px-4 py-3">${room.roomid}</td>
+          <td class="px-4 py-3 hidden">${room.roomid}</td>
           <td class="px-4 py-3">${room.roomnumber}</td>
           <td class="px-4 py-3">${room.RoomType.roomtypename}</td>
           <td class="px-4 py-3">${room.Floor.floorname}</td>
