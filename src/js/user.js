@@ -1,5 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  //Validations for input//
+  //Fullname
+  document.getElementById('fullname').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z., ]/g, "") 
+          .replace(/\s{2,}/g, " ")     
+          .replace(/^\s/, "");         
+  });
+  //Username
+  document.getElementById('username').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z]/g, "");
+  });
+  //Email validation
+  document.getElementById('email').addEventListener("input", function () {
+      this.value = this.value
+          .replace(/[^A-Za-z.@]/g, "");
+  });
+
+  
+
+
   /* =====================
      DOM ELEMENTS
   ====================== */
@@ -165,6 +187,18 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             uid = id;      
     }
+    //Check email if it ends with gmail.com
+    if (!email.endsWith("@gmail.com")){
+        notification("error", "Gmail should end with @gmail.com");
+        return;
+    }
+    //Password check
+    const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!regex.test(password)) {
+        notification("error", "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+        return;
+    }
+
     const payload = {
       userid: uid,
       fullname: fullname,

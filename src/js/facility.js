@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+
+  //Validations
+  document.getElementById('facilityname').addEventListener("input", function(){
+
+         this.value = this.value.replace(/[^A-Za-z.]/g, "");
+
+  });
   /* =====================
      DOM ELEMENTS
   ====================== */
