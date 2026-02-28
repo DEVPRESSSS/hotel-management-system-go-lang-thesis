@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  //Validations
+  document.getElementById('aminity').addEventListener("input", function(){
+
+     this.value = this.value.replace(/[^A-Za-z.]/g, "");
+  });
+
+
 
   /* =====================
      DOM ELEMENTS
