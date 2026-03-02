@@ -375,7 +375,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		authorize.GET("/api/user/:userid", rbac.RBACMiddleware("read"), server.GetUser)
 		authorize.POST("/userslist", rbac.RBACMiddleware("create"), server.CreateUser)
 		authorize.PUT("/api/update/:userid", rbac.RBACMiddleware("update"), server.UpdateUser)
-		authorize.DELETE("/api/delete/:userid", rbac.RBACMiddleware("delete"), server.DeleteUser)
+		authorize.PUT("/api/lock/:userid", rbac.RBACMiddleware("delete"), server.ToggleLockUser)
 
 		// Render users page
 		authorize.GET("/users", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {

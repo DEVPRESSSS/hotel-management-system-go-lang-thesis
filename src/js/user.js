@@ -1,3 +1,5 @@
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
   //Validations for input//
@@ -147,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="px-4 py-3">${new Date(user.created_at).toLocaleDateString()}</td>
           <td class="px-4 py-3 text-center">
             <button class="update-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-id="${user.userid}">Edit</button>
-            <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${user.userid}">Lock</button>
+            <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" data-id="${user.userid}"> ${user.locked == 0 ? "Lock" : "Unlock"}</button>
           </td>
         </tr>
       `).join("");
@@ -275,31 +277,66 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle Delete Button
     if (e.target.classList.contains('delete-btn')) {
       const userid = e.target.dataset.id;
+      const btn = document.querySelector('.delete-btn');
+      const action = btn.textContent.trim(); 
+
+      if (!action)
+        return;
+
+      if(action ==="lock"){
+
+        Swal.fire({
+                  title: "Are you sure you want to lock this account?",
+                  text: "This action will restrict the user from accessing the system!",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#d33",
+                  cancelButtonColor: "#3085d6",
+                  confirmButtonText: "Yes, lock it!"
+                }).then(result => {
+                  if (result.isConfirmed) {
+                    fetch(`/api/lock/${userid}`, { method: 'PUT' })
+                      .then(res => {
+                        if (!res.ok) {
+                          throw new Error('Delete failed');
+                        }
+                        return;
+                      })
+                      .then(() => {
+                        Swal.fire("Locked!", "User account has been locked.", "success");
+                        setTimeout(() => location.reload(), 500);
+                      })
+                      .catch(err => notification("error", err.message));
+                  }
+                });
+      }else{
+          Swal.fire({
+          title: "Are you sure you want to unlock this account?",
+          text: "This action will allow the user from accessing the system!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, unlock it!"
+        }).then(result => {
+          if (result.isConfirmed) {
+            fetch(`/api/lock/${userid}`, { method: 'PUT' })
+              .then(res => {
+                if (!res.ok) {
+                  throw new Error('Delete failed');
+                }
+                return;
+              })
+              .then(() => {
+                Swal.fire("Locked!", "User account has been unlocked.", "success");
+                setTimeout(() => location.reload(), 500);
+              })
+              .catch(err => notification("error", err.message));
+          }
+        });
+      }
       
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!"
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/api/delete/${userid}`, { method: 'DELETE' })
-            .then(res => {
-              if (!res.ok) {
-                throw new Error('Delete failed');
-              }
-              return;
-            })
-            .then(() => {
-              Swal.fire("Deleted!", "User has been deleted.", "success");
-              setTimeout(() => location.reload(), 500);
-            })
-            .catch(err => notification("error", err.message));
-        }
-      });
+      
     }
   });
 

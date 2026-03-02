@@ -73,32 +73,44 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 	})
 }
 
-// Delete user
-func (s *Server) DeleteUser(ctx *gin.Context) {
-	userid := ctx.Param("userid")
+func (s *Server) ToggleLockUser(ctx *gin.Context) {
+	userID := ctx.Param("userid")
 
-	result := s.Db.
-		Where("user_id = ?", userid).
-		Delete(&models.User{})
-
-	if result.Error != nil {
-		ctx.JSON(500, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	if result.RowsAffected == 0 {
+	// Get current lock status
+	var user models.User
+	if err := s.Db.Where("user_id = ?", userID).First(&user).Error; err != nil {
 		ctx.JSON(404, gin.H{"error": "User not found"})
 		return
 	}
 
+	// Flip the value
+	newStatus := 1
+	action := "Locked"
+	message := "Locked a user"
+	if user.Locked == true {
+		newStatus = 0
+		action = "Unlocked"
+		message = "Unlocked a user"
+	}
+
+	if err := s.Db.Model(&models.User{}).
+		Where("user_id = ?", userID).
+		Update("locked", newStatus).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "Toggle lock failed"})
+		return
+	}
+
 	userId := s.GetUserId(ctx)
-	err := s.CreateLogs("App user", userid, "Delete", "Deleted a user", "", "", userId)
+	err := s.CreateLogs("App user", userID, action, message, "", "", userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.Status(204)
+	ctx.JSON(200, gin.H{
+		"success": "User account " + action + " successfully",
+		"locked":  newStatus,
+	})
 }
 
 func (s *Server) UpdateUser(ctx *gin.Context) {
