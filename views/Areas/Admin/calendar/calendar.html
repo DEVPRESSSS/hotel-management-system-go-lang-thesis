@@ -9,6 +9,52 @@
 
 </div>
 
+<!-- Modal Overlay -->
+<div id="eventModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-md shadow-sm w-full max-w-lg transform transition-all overflow-hidden">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white rounded-t-2xl">
+            <h3 class="text-xl font-semibold text-gray-900" id="header-action"></h3>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                onclick="closeModal()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="px-6 py-6 space-y-4">
+
+            <!-- Room Number -->
+            <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wide">
+                    Room Number
+                </p>
+                <h4 id="room-number" class="text-xl font-bold text-gray-900 mt-1">
+                    101
+                </h4>
+            </div>
+
+            <!-- Room Type -->
+            <div>
+                <p class="text-sm text-gray-500 uppercase tracking-wide">
+                    Room Type
+                </p>
+                <p id="room-type" class="text-gray-700 mt-1">
+                    Deluxe Suite
+                </p>
+            </div>
+
+        </div>
+        
+       
+        
+    
+    </div>
+</div>
+
 
 
 
