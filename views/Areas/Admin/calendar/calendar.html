@@ -1,10 +1,7 @@
 {{ define "calendar.html" }}
 {{ template "dashboard_header.html" . }}
 
-
-
-
-
+<!--Render the calendar-->
 <div id="calendar" class="shadow-sm w-full">
 
 </div>
@@ -12,12 +9,13 @@
 <!-- Modal Overlay -->
 <div id="eventModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
     <div class="bg-white rounded-md shadow-sm w-full max-w-lg transform transition-all overflow-hidden">
+        
         <!-- Modal Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white rounded-t-2xl">
-            <h3 class="text-xl font-semibold text-gray-900" id="header-action"></h3>
+        <div class="flex items-center justify-between px-6 py-4 bg-purple-600">
+            <h3 class="text-white font-bold tracking-widest" id="header-action">BOOKING-004</h3>
             <button 
                 type="button" 
-                class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                class="text-white hover:text-gray-200 hover:bg-purple-700 rounded-lg p-1.5 transition-colors focus:outline-none"
                 onclick="closeModal()">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -25,33 +23,64 @@
             </button>
         </div>
 
-        <div class="px-6 py-6 space-y-4">
+        <!-- Body -->
+        <div class="flex flex-col gap-4 p-4 bg-gray-100">
 
-            <!-- Room Number -->
-            <div>
-                <p class="text-sm text-gray-500 uppercase tracking-wide">
-                    Room Number
-                </p>
-                <h4 id="room-number" class="text-xl font-bold text-gray-900 mt-1">
-                    101
-                </h4>
+            <!-- Date Row -->
+            <div class="bg-white rounded-xl px-6 py-5 flex items-center justify-between">
+                <!-- Check-in -->
+                <div class="flex flex-col">
+                    <span class="text-xs text-gray-400 uppercase tracking-wide mb-1">Check-in</span>
+                    <span class="text-purple-500 font-medium text-sm">2026-02-04</span>
+                </div>
+
+                <!-- Nights -->
+                <div class="flex flex-col items-center">
+                    <span class="text-xs text-gray-400 uppercase tracking-wide mb-1">Duration</span>
+                    <span class="text-purple-500 font-medium text-sm">2 nights</span>
+                </div>
+
+                <!-- Check-out -->
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-gray-400 uppercase tracking-wide mb-1">Check-out</span>
+                    <span class="text-purple-500 font-medium text-sm">2026-02-06</span>
+                </div>
+                        </div>
+
+            <!-- Guest Info + Booking Details Row -->
+            <div class="flex flex-row items-start gap-4">
+
+                <!-- Guest Details -->
+                <div class="flex-1 bg-white rounded-xl p-4">
+                    <h4 class="font-xs text-gray-400 border-b border-purple-400 pb-2 mb-3 text-sm">
+                        Guest Information (2)
+                    </h4>
+                    <p class="text-gray-700 text-sm py-1">Montemor, Jerald R.</p>
+                    <p class="text-gray-700 text-sm py-1">Montemor, Panpan R.</p>
+                </div>
+
+                <!-- Booking Details -->
+                <div class="flex-1 bg-white rounded-xl p-4">
+                    <h4 class="font-xs text-gray-400 border-b border-purple-400 pb-2 mb-3 text-sm">
+                        Booking Details
+                    </h4>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-900 text-lg">400</span>
+                        <span class="bg-green-400 text-white text-xs font-medium px-4 py-1 rounded-full">
+                            paid
+                        </span>
+                    </div>
+                </div>
+
             </div>
-
-            <!-- Room Type -->
-            <div>
-                <p class="text-sm text-gray-500 uppercase tracking-wide">
-                    Room Type
-                </p>
-                <p id="room-type" class="text-gray-700 mt-1">
-                    Deluxe Suite
-                </p>
-            </div>
-
         </div>
-        
-       
-        
-    
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end gap-2 px-4 py-3 bg-white border-t border-gray-200">
+          
+         
+        </div>
+
     </div>
 </div>
 

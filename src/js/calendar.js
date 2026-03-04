@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const eventModal = document.getElementById('eventModal');
   const headerAction = document.getElementById('header-action');
-  const roomNo = document.getElementById('room-number');
+  // const roomNo = document.getElementById('room-number');
 
   const today = new Date()
   const nextMonth = new Date(today)
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roomNumber = bookingInfo.split(" ")[1];
     //Render the booking information
     headerAction.textContent = bookingId;
-    roomNo.textContent = roomNumber;
+    //roomNo.textContent = roomNumber;
   }
 
   function closeModal() {
