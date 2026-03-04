@@ -207,6 +207,8 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 			})
 		})
 
+		authorize.GET("/api/events/bookingInfo/:bookId", server.GetBookingInfo)
+
 		// Calendar page
 		authorize.GET("/reservation-calendar", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			utils.RenderWithRole(ctx, "calendar.html", gin.H{

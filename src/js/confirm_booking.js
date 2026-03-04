@@ -1,39 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-    //Get the booking info from session storage since it is draft
+    // Get the booking info from session storage
     const bookingInfo = sessionStorage.getItem("bookingDraft");
-    //Parse the booking info
     const bookingSummary = JSON.parse(bookingInfo);
 
-    //Populate the value
+    // Populate the summary values
     const roomId = bookingSummary.room_id;
     let price = document.getElementById("price");
     let total = document.getElementById("total");
-    
-    document.getElementById("room-type").textContent= bookingSummary.room_type;
-    document.getElementById("check-in").textContent= bookingSummary.check_in;
-    document.getElementById("check-out").textContent= bookingSummary.check_out;
-    document.getElementById("guest").textContent= bookingSummary.guest;
 
-    const guestNumber = Number(bookingSummary.guest);
-    const container = document.getElementById('guest-container');
+    document.getElementById("room-type").textContent = bookingSummary.room_type;
+    document.getElementById("check-in").textContent  = bookingSummary.check_in;
+    document.getElementById("check-out").textContent = bookingSummary.check_out;
+    document.getElementById("guest").textContent     = bookingSummary.guest;
+
+    const guestNumber       = Number(bookingSummary.guest);
+    const container         = document.getElementById('guest-container');
 
     // Store all guest data
-    let guestData = [];
-    let currentGuestIndex = 0;
+    let guestData          = [];
+    let currentGuestIndex  = 0;
 
     const shouldSkipFirstGuest = guestNumber >= 2;
-    const totalFormsToShow = shouldSkipFirstGuest ? guestNumber - 1 : 1;
+    const totalFormsToShow     = shouldSkipFirstGuest ? guestNumber - 1 : 1;
 
-    // Function to generate guest-specific fields
+    // ─── Guest-specific fields ───────────────────────────────────────────────
     function getGuestFields(guestNum) {
         return `
-            <!-- Name Fields -->
             <div class="flex flex-col sm:flex-row gap-4 mb-6">
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-gray-900 mb-2">
                         First Name <span class="text-red-600">*</span>
                     </label>
-                    <input type="text" name="firstName" id="firstName-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                    <input type="text" name="firstName" id="firstName-${guestNum}"
+                        class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
                 </div>
             </div>
 
@@ -42,94 +41,97 @@ document.addEventListener("DOMContentLoaded", () => {
                     <label class="block text-sm font-medium text-gray-900 mb-2">
                         Last Name <span class="text-red-600">*</span>
                     </label>
-                    <input type="text" name="lastName" id="lastName-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                    <input type="text" name="lastName" id="lastName-${guestNum}"
+                        class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
                 </div>
             </div>
 
-            <!-- Contact Fields -->
             <div class="flex flex-col sm:flex-row gap-4 mb-6">
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-gray-900 mb-2">
                         Phone Number <span class="text-red-600">*</span>
                     </label>
-                    <input type="tel" name="phone" id="phone-${guestNum}" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
+                    <input type="tel" name="phone" id="phone-${guestNum}"
+                        class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500" required>
                 </div>
             </div>
         `;
     }
 
-    // Common fields (shown on last guest or single guest)
+    // ─── Common fields (special requests + terms) ────────────────────────────
     function getCommonFields() {
         return `
-            <!-- Special Requests -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-900 mb-2">
                     Special Requests (Optional)
                 </label>
-                <textarea rows="5" name="specialRequests" id="specialRequests" class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500 resize-none" placeholder="Any special requests or requirements..."></textarea>
+                <textarea rows="5" name="specialRequests" id="specialRequests"
+                    class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded focus:outline-none focus:border-blue-500 resize-none"
+                    placeholder="Any special requests or requirements..."></textarea>
             </div>
 
-            <!-- Terms Checkbox -->
             <div class="mb-6">
                 <label class="flex items-start">
                     <input type="checkbox" name="terms" id="terms" class="mt-1 mr-3" required>
                     <span class="text-sm text-gray-900">
-                        I agree to the terms and conditions and the cancellation policy <span class="text-red-600">*</span>
+                        I agree to the terms and conditions and the cancellation policy
+                        <span class="text-red-600">*</span>
                     </span>
                 </label>
             </div>
         `;
     }
 
-    // Function to render form for current guest
+    // ─── Render form for current guest ───────────────────────────────────────
     function renderGuestForm() {
-       const isLastGuest = currentGuestIndex === totalFormsToShow - 1;
-       const isFirstGuest = currentGuestIndex === 0;
-        
-       const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
+        const isLastGuest  = currentGuestIndex === totalFormsToShow - 1;
+        const isFirstGuest = currentGuestIndex === 0;
+        const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
 
         container.innerHTML = `
             <h1 class="text-3xl font-semibold text-gray-900 mb-2">
-                ${guestNumber > 1 ? `Guest Information for Guest No. ${actualGuestNum}` : 'Complete Your Booking'}
+                ${guestNumber > 1
+                    ? `Guest Information for Guest No. ${actualGuestNum}`
+                    : 'Complete Your Booking'}
             </h1>
             <p class="text-gray-600 mb-8">
-                ${guestNumber > 1 ? `Please provide details for guest ${actualGuestNum} of ${guestNumber}` : 'Almost there! Just a few final details'}
+                ${guestNumber > 1
+                    ? `Please provide details for guest ${actualGuestNum} of ${guestNumber}`
+                    : 'Almost there! Just a few final details'}
             </p>
-            
+
             ${guestNumber > 1 ? `
                 <div class="mb-6">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-600">Progress</span>
-                        <span class="text-sm font-medium text-gray-900">${currentGuestIndex + 1} / ${guestNumber}</span>
+                        <span class="text-sm font-medium text-gray-900">${currentGuestIndex + 1} / ${totalFormsToShow}</span>
                     </div>
                     <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gray-900 h-2 rounded-full transition-all duration-300" style="width: ${((currentGuestIndex + 1) / guestNumber) * 100}%"></div>
+                        <div class="bg-gray-900 h-2 rounded-full transition-all duration-300"
+                            style="width: ${((currentGuestIndex + 1) / totalFormsToShow) * 100}%">
+                        </div>
                     </div>
                 </div>
             ` : ''}
 
-             ${totalFormsToShow > 1 ? `
-                <div class="progress">
-                    Progress ${currentGuestIndex + 1} / ${totalFormsToShow}
-                </div>
-              ` : ''}
-
-            
             <form id="guest-form">
-                ${guestNumber > 1 ? getGuestFields(currentGuestIndex + 1) : ''}
+                ${guestNumber >= 1 ? getGuestFields(actualGuestNum) : ''}
                 ${isLastGuest || guestNumber === 1 ? getCommonFields() : ''}
-                
-                <!-- Buttons -->
+
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button type="button" id="back-btn" class="flex-1 px-6 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 flex items-center justify-center ${isFirstGuest ? 'opacity-50 cursor-not-allowed' : ''}">
+
+                    <!-- Back Button -->
+                    <button type="button" id="back-btn"
+                        class="flex-1 px-6 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 flex items-center justify-center ${isFirstGuest ? 'opacity-50 cursor-not-allowed' : ''}">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                         Back
                     </button>
-             
-                      ${isLastGuest ? `
-                       <button type="submit"
+
+                    ${isLastGuest ? `
+                        <!-- Card Payment -->
+                        <button type="submit" id="stripe-btn"
                             class="stripe flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
                             Card
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             </svg>
                         </button>
 
-                        <button type="submit" 
+                        <!-- E-Wallet Payment -->
+                        <button type="submit" id="gcash-btn"
                             class="gcash flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
                             EWallet
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,194 +149,204 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <line x1="2" y1="10" x2="22" y2="10" stroke-width="2"/>
                             </svg>
                         </button>
-                        ` : `
-                            <button  id="next-btn" class="flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center ">             
-                                Next
-                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                           </button>`}
-                      
-                       
+                    ` : `
+                        <!-- Next Button -->
+                        <button type="button" id="next-btn"
+                            class="flex-1 px-6 py-3 bg-purple-600 text-white rounded font-medium hover:bg-gray-800 flex items-center justify-center">
+                            Next
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    `}
+
                 </div>
             </form>
         `;
-        
+
         attachEventListeners();
     }
 
-    // Function to collect current form data
+    // ─── Collect current form data ───────────────────────────────────────────
     function collectFormData() {
-        const formData = {};
+        const formData       = {};
         const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
-        
-        if (totalFormsToShow > 1) {
-            formData.firstName = document.getElementById(`firstName-${actualGuestNum}`).value;
-            formData.lastName = document.getElementById(`lastName-${actualGuestNum}`).value;
-            formData.phoneNumber = document.getElementById(`phone-${actualGuestNum}`).value;
-        }
-        
-        // Collect common fields if on last guest
+
+        // Always try to collect guest fields if they exist in the DOM
+        const firstNameEl  = document.getElementById(`firstName-${actualGuestNum}`);
+        const lastNameEl   = document.getElementById(`lastName-${actualGuestNum}`);
+        const phoneEl      = document.getElementById(`phone-${actualGuestNum}`);
+
+        if (firstNameEl)  formData.firstName   = firstNameEl.value;
+        if (lastNameEl)   formData.lastName    = lastNameEl.value;
+        if (phoneEl)      formData.phoneNumber = phoneEl.value;
+
+        // Collect common fields on last step
         if (currentGuestIndex === totalFormsToShow - 1 || guestNumber === 1) {
             formData.specialRequests = document.getElementById('specialRequests').value;
-            formData.terms = document.getElementById('terms').checked;
+            formData.terms           = document.getElementById('terms').checked;
         }
-        
+
+        // DEBUG
+        alert(`Collected Guest ${actualGuestNum}:\nFirst: ${formData.firstName}\nLast: ${formData.lastName}\nPhone: ${formData.phoneNumber}`);
+
         return formData;
     }
 
-    // Function to populate form with saved data
+    // ─── Populate form with previously saved data ────────────────────────────
     function populateFormData() {
-        if (guestData[currentGuestIndex]) {
-            const data = guestData[currentGuestIndex];
-            const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
-            
-            if (totalFormsToShow > 1) {
-                if (data.firstName) document.getElementById(`firstName-${actualGuestNum}`).value = data.firstName;
-                if (data.lastName) document.getElementById(`lastName-${actualGuestNum}`).value = data.lastName;
-                if (data.phoneNumber) document.getElementById(`phone-${actualGuestNum}`).value = data.phoneNumber;
-            }
-            
-            if (currentGuestIndex === totalFormsToShow - 1 || guestNumber === 1) {
-                if (data.specialRequests) document.getElementById('specialRequests').value = data.specialRequests;
-                if (data.terms) document.getElementById('terms').checked = data.terms;
-            }
+        if (!guestData[currentGuestIndex]) return;
+
+        const data           = guestData[currentGuestIndex];
+        const actualGuestNum = shouldSkipFirstGuest ? currentGuestIndex + 2 : currentGuestIndex + 1;
+
+        const firstNameEl = document.getElementById(`firstName-${actualGuestNum}`);
+        const lastNameEl  = document.getElementById(`lastName-${actualGuestNum}`);
+        const phoneEl     = document.getElementById(`phone-${actualGuestNum}`);
+
+        if (firstNameEl && data.firstName)   firstNameEl.value  = data.firstName;
+        if (lastNameEl  && data.lastName)    lastNameEl.value   = data.lastName;
+        if (phoneEl     && data.phoneNumber) phoneEl.value      = data.phoneNumber;
+
+        if (currentGuestIndex === totalFormsToShow - 1 || guestNumber === 1) {
+            const specialEl = document.getElementById('specialRequests');
+            const termsEl   = document.getElementById('terms');
+            if (specialEl && data.specialRequests) specialEl.value   = data.specialRequests;
+            if (termsEl   && data.terms)           termsEl.checked   = data.terms;
         }
     }
 
-    // Attach event listeners
+    // ─── Handle payment ──────────────────────────────────────────────────────
+    async function handleStripePayment() {
+        try {
+            const response = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    room_id:  bookingSummary.room_id,
+                    check_in: bookingSummary.check_in,
+                    check_out: bookingSummary.check_out,
+                    guest:    bookingSummary.guest
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create payment session');
+            }
+
+            const data = await response.json();
+            window.location.href = data.url;
+
+        } catch (error) {
+            alert(`Stripe Error: ${error.message}`);
+        }
+    }
+
+    async function handleGcashPayment() {
+        try {
+            const response = await fetch('/paymongo/create/payment-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    room_id:  bookingSummary.room_id,
+                    check_in: bookingSummary.check_in,
+                    check_out: bookingSummary.check_out,
+                    guest:    bookingSummary.guest
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create payment session');
+            }
+
+            const data = await response.json();
+            sessionStorage.setItem('payment_session_id', data.session_id);
+            window.location.href = data.checkout_url;
+
+        } catch (error) {
+            alert(`GCash Error: ${error.message}`);
+        }
+    }
+
+    // ─── Attach event listeners ──────────────────────────────────────────────
     function attachEventListeners() {
-        const form = document.getElementById('guest-form');
+        const form    = document.getElementById('guest-form');
         const backBtn = document.getElementById('back-btn');
-        
-        // Form submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Save current guest data
-            guestData[currentGuestIndex] = collectFormData();
-         
-            
-            // If last guest, submit all data
-            if (currentGuestIndex === totalFormsToShow - 1) {
-                // Store guest data in sessionStorage for after payment
-                sessionStorage.setItem('guestData', JSON.stringify(guestData));
-                const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));
+        const nextBtn = document.getElementById('next-btn');
 
-                try {
-                    //Stripe payment prcocess
-                    document.querySelector('.stripe').addEventListener('click', async (event) => {
-                        event.preventDefault();
-
-                            const response = await fetch('/api/create-checkout-session', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    room_id: bookingSummary.room_id,
-                                    check_in: bookingSummary.check_in,
-                                    check_out: bookingSummary.check_out,
-                                    guest: bookingSummary.guest
-                                })
-                            });
-                            
-                            if (!response.ok) {
-                                const errorData = await response.json();
-                                throw new Error(errorData.error || 'Failed to create payment session');
-                            }
-                            
-                            const data = await response.json();
-                            const { url } = data;
-                            window.location.href = url;
-                            return;
-                     
-                    });
-
-                     //Paymongo payment
-                    document.querySelector('.gcash').addEventListener('click', async (event) => {
-                        event.preventDefault();
-
-                       
-                        const bookingSummary = JSON.parse(sessionStorage.getItem('bookingDraft'));         
-                        const response = await fetch('/paymongo/create/payment-intent', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                room_id: bookingSummary.room_id,
-                                check_in: bookingSummary.check_in,
-                                check_out: bookingSummary.check_out,
-                                guest: bookingSummary.guest,
-                            })
-                        });
-                        
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || 'Failed to create payment session');
-                        }
-
-                        const data = await response.json();
-                        
-                        sessionStorage.setItem('payment_session_id', data.session_id);
-                        
-                        window.location.href = data.checkout_url;
-                    
-                    });                                  
-                } catch (error) {
-                    alert(`Payment Error: ${error.message}`);
-                }
-
-            } else {
-                // Move to next guest
+        // Next button (not submit — just move forward)
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                guestData[currentGuestIndex] = collectFormData();
                 currentGuestIndex++;
                 renderGuestForm();
                 populateFormData();
-            }
-        });
-        
+            });
+        }
+
         // Back button
-        backBtn.addEventListener('click', () => {
-            if (currentGuestIndex > 0) {
-                // Save current data before going back
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (currentGuestIndex > 0) {
+                    guestData[currentGuestIndex] = collectFormData();
+                    currentGuestIndex--;
+                    renderGuestForm();
+                    populateFormData();
+                }
+            });
+        }
+
+        // Form submit (only on last step — Card or EWallet)
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Save last guest data
                 guestData[currentGuestIndex] = collectFormData();
-                currentGuestIndex--;
-                renderGuestForm();
-                populateFormData();
-            }
-        });
+
+                // Save all guest data to sessionStorage
+                sessionStorage.setItem('guestData', JSON.stringify(guestData));
+
+                // DEBUG — see all collected guests
+                alert(`All guests saved:\n${JSON.stringify(guestData, null, 2)}`);
+
+                // Determine which button was clicked
+                const clickedBtn = e.submitter?.id;
+
+                if (clickedBtn === 'stripe-btn') {
+                    await handleStripePayment();
+                } else if (clickedBtn === 'gcash-btn') {
+                    await handleGcashPayment();
+                }
+            });
+        }
     }
 
-    // Initialize form
+    // ─── Initialize ──────────────────────────────────────────────────────────
     renderGuestForm();
     populateFormData();
 
-
-
-//Calculate the price in the backend
-fetch("/api/booking/calculate", {
+    // ─── Calculate price ─────────────────────────────────────────────────────
+    fetch("/api/booking/calculate", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            room_id: roomId,
+            room_id:  roomId,
             check_in: bookingSummary.check_in,
             check_out: bookingSummary.check_out,
-            guest: Number(bookingSummary.guest)
+            guest:    Number(bookingSummary.guest)
         })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Calculation failed");
-            }
-            return response.json();
-        })
-        .then(data => {
-            price.textContent= "₱" + data.price_per_night;
-            total.textContent=  "₱" + data.total;
-        })
-        .catch(error => console.log(error));
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Calculation failed");
+        return response.json();
+    })
+    .then(data => {
+        price.textContent = "₱" + data.price_per_night;
+        total.textContent = "₱" + data.total;
+    })
+    .catch(error => console.log(error));
 
 });

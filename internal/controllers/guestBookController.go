@@ -22,27 +22,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Server) FetchCalendar(ctx *gin.Context) {
-	var books []models.Book
-
-	roomId := ctx.Param("room_id")
-
-	// Only fetch future/active bookings for calendar display
-	if err := s.Db.
-		Where("check_out_date >= ? AND room_id = ?", time.Now(), roomId).
-		Order("check_in_date ASC").
-		Find(&books).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to fetch bookings",
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"books": books,
-	})
-}
-
 func (s *Server) RoomSelected(ctx *gin.Context) {
 	roomId := ctx.Param("roomid")
 	var room models.Room
@@ -165,6 +144,7 @@ func (s *Server) ConfirmBooking(ctx *gin.Context) {
 		book.Guests[i].Id = fmt.Sprintf("BKGUEST-%03d", i+1)
 		book.Guests[i].BookId = bookingID
 		book.Guests[i].GuestNumber = i + 1
+		// book.Guests[i].FirstName=
 	}
 
 	// Save booking
