@@ -17,6 +17,13 @@
              </a>
         </div>
     </div>
+    <!--Filters-->
+    <div class="flex flex-col sm:flex-row gap-2 justify-end w-full mb-2">
+        <a class="p-2 rounded-md text-center border-2 w-full sm:w-40 border-purple-600">All</a>
+        <a class="p-2 rounded-md text-center border-2 w-full sm:w-40 border-purple-600">CheckOut</a>
+        <a class="p-2 rounded-md text-center border-2 w-full sm:w-40 border-purple-600">CheckIn</a>
+        <a class="p-2 rounded-md text-center border-2 w-full sm:w-40 border-purple-600">Completed</a>
+    </div>
 
     <!-- Table Card -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -37,12 +44,12 @@
                             Type
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            CheckIn
+                            Check-In
                         </th>
                          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            CheckOut
+                            Check-Out
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <!-- <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             No.Guest
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -50,11 +57,11 @@
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Total
-                        </th>
+                        </th>-->
                        
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Payment
-                        </th>
+                        </th> 
                     
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Status
@@ -135,6 +142,114 @@
                 <span id="btn-text">Submit</span>
             </button>
         </div>
+    </div>
+</div>
+
+<!--Reservation Modal-->
+<div id="reservationModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg transform transition-all overflow-hidden">
+ 
+        <!-- Close Button -->
+        <div class="flex items-center justify-end px-4 pt-4">
+            <button
+                type="button"
+                class="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none"
+                onclick="closeReservationModal()">
+                <span class="text-sm font-bold">✕</span>
+            </button>
+        </div>
+ 
+        <!-- Modal Body -->
+        <div class="modal-body px-6 pb-2">
+ 
+            <!-- Guest Info Row -->
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <!-- Avatar + Name -->
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 shadow">
+                        <img src="/src/assets/img/jiro.jpg" alt="Profile"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none'">
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm leading-tight">Montemor, Jerald R.</p>
+                        <p class="text-gray-400 text-xs">Primary guest</p>
+                    </div>
+                </div>
+                <!-- Contact -->
+                <div class="text-right">
+                    <p class="text-sm text-gray-700">xmontemorjerald@gmail.com</p>
+                    <p class="text-sm text-gray-400">09488749263</p>
+                </div>
+            </div>
+ 
+            <!-- Booking ID -->
+            <div class="text-center mb-5">
+                <span class="font-bold text-purple-600 tracking-wide text-base">BOOKING-0001</span>
+            </div>
+ 
+            <!-- Check-in / Duration / Check-out -->
+            <div class="divider mb-4"></div>
+            <div class="grid grid-cols-3 mb-4">
+                <div>
+                    <p class="text-xs text-gray-500 mb-0.5">Check-In Date</p>
+                    <p class="text-sm text-gray-700">03-18-2026</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-0.5">Duration</p>
+                    <p class="text-sm text-gray-700">3 nights</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 mb-0.5">Check-Out Date</p>
+                    <p class="text-sm text-gray-700">03-21-2026</p>
+                </div>
+            </div>
+            <div class="divider mb-4"></div>
+ 
+            <!-- Other Guests -->
+            <div class="mb-1">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-sm text-gray-600 font-medium">Other Guest</p>
+                    <p class="text-sm text-gray-700">1</p>
+                </div>
+                <!-- Table Header -->
+                <div class="grid grid-cols-3 text-xs text-gray-500 py-1 border-b border-gray-200">
+                    <span>Name</span>
+                    <span>Contact</span>
+                    <span class="text-right">Guest Number</span>
+                </div>
+                <!-- Guest Row -->
+                <div class="grid grid-cols-3 text-sm text-gray-400 py-2 border-b border-gray-100">
+                    <span>Montemor, Panpan</span>
+                    <span>09306959605</span>
+                    <span class="text-right">1</span>
+                </div>
+                <!-- Empty state placeholder rows -->
+                <div class="py-6"></div>
+            </div>
+ 
+            <div class="divider mb-4"></div>
+ 
+            <!-- Special Request -->
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 font-medium mb-2">Special Request</p>
+                <div class="min-h-[48px]">
+                    <!-- Special request content goes here -->
+                </div>
+            </div>
+        </div>
+ 
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-white border-t border-gray-100">
+            <button
+                id="btn-submit"
+                type="submit"
+                form="upsertform"
+                class="w-full py-3 text-sm font-semibold tracking-widest text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-colors">
+                CONFIRM CHECK-IN
+            </button>
+        </div>
+ 
     </div>
 </div>
 

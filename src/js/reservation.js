@@ -1,52 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  /* =====================
-     DOM ELEMENTS
-  ====================== */
 
-  /* =====================
+  /* =====================================================================
      DOM ELEMENTS
-  ====================== */
+  ===================================================================== */
   const headerTitle = document.getElementById('header-action');
-  const btnSubmit = document.getElementById('btn-submit');
-  const btnText = document.getElementById('btn-text');
-  const form = document.getElementById('upsertform');
-  const userModal = document.getElementById('cleanerModal');
+  const btnSubmit   = document.getElementById('btn-submit');
+  const btnText     = document.getElementById('btn-text');
+  const form        = document.getElementById('upsertform');
+  const userModal   = document.getElementById('cleanerModal');
+  const reservationModal = document.getElementById('reservationModal');
 
-  if ( !form || !headerTitle || !btnSubmit ) {
+  if (!form || !headerTitle || !btnSubmit) {
     console.warn("Facility page elements not found. JS skipped.");
     return;
   }
 
-
-  /* =====================
-     MODAL FUNCTIONS
-  ====================== */
-  function openModal() {
-    userModal.classList.remove('hidden');
-    userModal.classList.add('flex');
-
-    fetchAttendants();
-  }
-
-  function closeModal() {
-    userModal.classList.add('hidden');
-    userModal.classList.remove('flex');
-
-    document.getElementById('upsertform').reset();
-    updateSelectedCount();
-  }
-
-  window.closeModal = closeModal;
-
-  window.createModal = function () {
-    id = "";
-    headerTitle.innerText = "Create Facility";
-    btnText.innerText = "Create";
-    form.reset();
-    openModal();
-  };
-
-  const tbody = document.getElementById('reservation');
+  const tbody        = document.getElementById('reservation');
   const tableElement = document.querySelector("#default-table");
 
   if (!tbody || !tableElement) {
@@ -54,440 +23,474 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  let dataTable = null;
-  let reservationsData = []; // Store data for reference
+  let dataTable        = null;
+  let reservationsData = [];
+  let bookingId        = "";
+  let roomId           = "";
 
-  /* =====================
-     FETCH ROLES & INIT TABLE
-  ====================== */
+
+  /* =====================================================================
+     MODAL
+  ===================================================================== */
+  function openModal() {
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
+    fetchAttendants();
+  }
+
+  function openReservationModal(){
+    reservationModal.classList.remove('hidden');
+    reservationModal.classList.add('flex');
+  }
+
+  window.openReservationModal = openReservationModal;
+
+  function closeModal() {
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
+    document.getElementById('upsertform').reset();
+    updateSelectedCount();
+  }
+
+  function closeReservationModal() {
+    reservationModal.classList.add('hidden');
+    reservationModal.classList.remove('flex');
+    
+  }
+
+  window.closeModal = closeModal;
+  window.closeReservationModal = closeReservationModal;
+
+  window.createModal = function () {
+    bookingId = "";
+    headerTitle.innerText = "Create Facility";
+    btnText.innerText     = "Create";
+    form.reset();
+    openModal();
+  };
+
+
+  /* =====================================================================
+     FETCH RESERVATIONS & INIT TABLE
+  ===================================================================== */
   fetch('/api/reservations')
     .then(res => {
       if (!res.ok) throw new Error("API failed");
       return res.json();
     })
     .then(data => {
-      reservationsData = data.reservations; // Store for later use
-      
-      // Populate table body
-      tbody.innerHTML = reservationsData.map((r, index) => `
-        <tr class="text-gray-700 dark:text-gray-400" data-index="${index}">
-          <td class="px-4 py-3">
-            <div class="flex items-center text-sm">
-              <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                <img
-                  class="object-cover w-full h-full rounded-full"
-                  src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ"
-                  alt=""
-                  loading="lazy"
-                />
-                <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
-              </div>
-              <div>
-                <p class="font-semibold">${r.User.fullname}</p>
-              </div>
-            </div>
-          </td>
-          <td class="px-4 py-3 text-sm">${r.book_id}</td>
-          <td class="px-4 py-3 text-sm">${r.room_number}</td>
-          <td class="px-4 py-3 text-sm">${r.room_type}</td>
-          <td class="px-4 py-3 text-sm">
-            <span class="px-2 py-1 font-semibold leading-tight text-yellow-800 bg-yellow-100 rounded-full">                              
-              ${new Date(r.check_in_date).toLocaleString('en-CA', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              }).replace(',', '')}
-            </span>
-          </td>
-          <td class="px-4 py-3 text-sm">
-            <span class="px-2 py-1 font-semibold leading-tight text-red-800 bg-red-100 rounded-full">
-              ${new Date(r.check_out_date).toLocaleString('en-CA', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              }).replace(',', '')}
-            </span>
-          </td>
-          <td class="px-4 py-3 text-sm">${r.num_guests}</td>
-          <td class="px-4 py-3 text-sm">${r.price_per_night}</td>
-          <td class="px-4 py-3 text-sm">${r.total_price}</td>
-          <td class="px-4 py-3 text-xs">
-            ${
-              r.payment_status === "Paid"
-                ? `<span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">${r.payment_status}</span>`
-                : `<span class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-full dark:text-white dark:bg-orange-600">${r.payment_status}</span>`
-            }
-          </td>
-          <td class="px-4 py-3 text-sm">${r.status}</td>
-          <td class="px-4 py-3 text-sm">${new Date(r.created_at).toLocaleDateString()}</td>
-          <td class="px-4 py-3 text-sm">
-            ${r.status === "check-out" ? 
-              `<button class="action-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2" 
-                data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="clean">Clean</button>` 
-              : ''
-            }
-            ${r.status === "cleaning" ? 
-              `<button class="action-btn px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 mr-2" 
-                data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="done">Done?</button>` 
-              : ''
-            }
-            ${(() => {
-              const today = new Date();
-              const checkIn = new Date(r.check_in_date);
-              const isSameDay = today.toDateString() === checkIn.toDateString();
-              const timeHasPassed = today.getTime() >= checkIn.getTime();
-              return (isSameDay && timeHasPassed && r.status ==="pending") ? 
-                `<button class="action-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2" data-action="checkin">Checkin</button>` 
-                : '';
-            })()}
-            ${(() => {
-              const now = new Date();
-              const checkOut = new Date(r.check_out_date);
-              const isSameDay = now.toDateString() === checkOut.toDateString();
-              const twoHoursBefore = 2 * 60 * 60 * 1000; 
-              const withinTimeWindow = now.getTime() >= (checkOut.getTime() - twoHoursBefore);
-              return (isSameDay && withinTimeWindow && r.status === "check-in") ? 
-                `<button class="action-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mr-2" data-action="checkout">Checkout</button>` 
-                : '';
-            })()}
-          </td>
-        </tr>
-      `).join("");
+      reservationsData = data.reservations;
+      tbody.innerHTML  = reservationsData.map((r, index) => buildRow(r, index)).join("");
 
-      // Initialize DataTable AFTER populating data
       if (window.simpleDatatables && tableElement) {
         dataTable = new simpleDatatables.DataTable(tableElement, {
-          searchable: true,
-          paging: true,
-          perPage: 10,
+          searchable:    true,
+          paging:        true,
+          perPage:       10,
           perPageSelect: [5, 10, 20, 50],
-          sortable: true,
+          sortable:      true,
         });
       }
 
-      // Attach event listener AFTER DataTable
       attachEventListeners();
     })
     .catch(console.error);
 
-  /* =====================
-     EVENT HANDLERS
-  ====================== */
-  function attachEventListeners() {
-    // Use event delegation on table element (not tbody, as DataTable might replace it)
-    tableElement.addEventListener("click", handleButtonClick, true);
+
+  /* =====================================================================
+     BUILD TABLE ROW
+  ===================================================================== */
+  function buildRow(r, index) {
+    return `
+      <tr class="text-gray-700 dark:text-gray-400" data-index="${index}">
+
+        <!-- Guest Name -->
+        <td class="px-4 py-3">
+          <div class="flex items-center text-sm">
+            <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+              <img
+                class="object-cover w-full h-full rounded-full"
+                src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ"
+                alt="" loading="lazy"
+              />
+              <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
+            </div>
+            <p class="font-semibold">${r.User.fullname}</p>
+          </div>
+        </td>
+
+        <!-- Booking Info -->
+        <td class="px-4 py-3 text-sm">${r.book_id}</td>
+        <td class="px-4 py-3 text-sm">${r.room_number}</td>
+        <td class="px-4 py-3 text-sm">${r.room_type}</td>
+
+        <!-- Check-in Date -->
+        <td class="px-4 py-3 text-sm">
+          <span class="px-2 py-1 font-semibold leading-tight text-yellow-800 bg-yellow-100 rounded-full">
+            ${formatDateTime(r.check_in_date)}
+          </span>
+        </td>
+
+        <!-- Check-out Date -->
+        <td class="px-4 py-3 text-sm">
+          <span class="px-2 py-1 font-semibold leading-tight text-red-800 bg-red-100 rounded-full">
+            ${formatDateTime(r.check_out_date)}
+          </span>
+        </td>
+
+
+        <!-- Payment Status -->
+        <td class="px-4 py-3 text-xs">
+          ${r.payment_status === "Paid"
+            ? `<span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">${r.payment_status}</span>`
+            : `<span class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-full dark:text-white dark:bg-orange-600">${r.payment_status}</span>`
+          }
+        </td>
+
+        <!-- Status & Created -->
+        <td class="px-4 py-3 text-xs">
+          <span class="capitalize px-2 py-1 font-semibold leading-tight rounded-full
+          ${r.status === "pending"
+              ? "text-blue-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-100"
+              : "text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100"}">
+          ${r.status}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-sm">${new Date(r.created_at).toISOString().slice(0, 10)}</td>
+
+        <!-- Action Buttons -->
+        <td class="px-4 py-3 text-xs">
+          ${buildActionButtons(r)}
+        </td>
+
+      </tr>
+    `;
   }
 
 
-  let bookingId = "";
-  let roomId = "";
+  /* =====================================================================
+     HELPERS
+  ===================================================================== */
+  function formatDateTime(dateStr) {
+    return new Date(dateStr).toLocaleString('en-CA', {
+      year:   'numeric',
+      month:  '2-digit',
+      day:    '2-digit',
+      hour:   '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }).replace(',', '');
+  }
+
+  function buildActionButtons(r) {
+    let buttons = '';
+    const now      = new Date();
+    const checkIn  = new Date(r.check_in_date);
+    const checkOut = new Date(r.check_out_date);
+
+    // Clean button — shown after checkout
+    if (r.status === "check-out") {
+      buttons += `
+        <button class="action-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2"
+          data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="clean">
+          Clean
+        </button>`;
+    }
+
+    // Done button — shown while cleaning
+    if (r.status === "cleaning") {
+      buttons += `
+        <button class="action-btn px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 mr-2"
+          data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="done">
+          Done?
+        </button>`;
+    }
+
+    // Check-in button — same day and time has passed
+    const isSameDayCheckIn  = now.toDateString() === checkIn.toDateString();
+    const checkInTimePassed = now.getTime() >= checkIn.getTime();
+
+    if (isSameDayCheckIn && checkInTimePassed && r.status === "pending") {
+      buttons += `
+        <button class="px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 mr-2" onclick = "openReservationModal()">
+          CheckIn?
+        </button>`;
+    }
+    //data-action="checkin"
+    // Check-out button — same day and within 2 hours before checkout
+    const isSameDayCheckOut = now.toDateString() === checkOut.toDateString();
+    const twoHoursBefore    = 2 * 60 * 60 * 1000;
+    const withinWindow      = now.getTime() >= (checkOut.getTime() - twoHoursBefore);
+
+    if (isSameDayCheckOut && withinWindow && r.status === "check-in") {
+      buttons += `
+        <button class="action-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mr-2"
+          data-action="checkout">
+          Checkout
+        </button>`;
+    }
+
+    return buttons;
+  }
+
+
+  /* =====================================================================
+     EVENT LISTENERS
+  ===================================================================== */
+  function attachEventListeners() {
+    tableElement.addEventListener("click", handleButtonClick, true);
+  }
+
   function handleButtonClick(e) {
     const btn = e.target;
-    
-    // Check if it's an action button
     if (!btn.classList.contains('action-btn')) return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    // Find the parent row
-    const row = btn.closest('tr');
-    if (!row) {
-      console.error("Could not find parent row");
-      return;
-    }
+    const row   = btn.closest('tr');
+    const index = parseInt(row?.dataset.index);
 
-    // Get the index from the row
-    const index = parseInt(row.dataset.index);
-    if (isNaN(index) || !reservationsData[index]) {
-      console.error("Invalid row index:", row.dataset.index);
+    if (!row || isNaN(index) || !reservationsData[index]) {
+      console.error("Invalid row or index:", row?.dataset.index);
       return;
     }
 
     const reservation = reservationsData[index];
-    const action = btn.dataset.action;
+    const action      = btn.dataset.action;
 
     if (!action) {
       console.error("Missing action on button");
       return;
     }
 
-     bookingId = btn.dataset.id;
-     roomId = btn.dataset.roomId;
+    bookingId = btn.dataset.id;
+    roomId    = btn.dataset.roomId;
 
+    btn.disabled = true;
     handleAction(action, reservation, btn);
   }
 
-  function handleAction(action, reservation, buttonElement) {
-    // Disable button to prevent double-clicks
-    buttonElement.disabled = true;
-    
-
-    switch(action) {
-      case 'clean':
-        handleClean(reservation, buttonElement);
-        break;
-      case 'checkin':
-        handleCheckin(reservation, buttonElement);
-        break;
-      case 'checkout':
-        handleCheckout(reservation, buttonElement);
-        break;
-      case 'done':
-        handleCompleted(reservation, buttonElement);
-        break;
+  function handleAction(action, reservation, btn) {
+    switch (action) {
+      case 'clean':   handleClean(reservation, btn);     break;
+      case 'checkin': handleCheckin(reservation, btn);   break;
+      case 'checkout':handleCheckout(reservation, btn);  break;
+      case 'done':    handleCompleted(reservation, btn); break;
       default:
         console.warn(`Unknown action: ${action}`);
-        buttonElement.disabled = false;
+        btn.disabled = false;
     }
   }
 
+
+  /* =====================================================================
+     ACTION HANDLERS
+  ===================================================================== */
   function handleClean(reservation, btn) {
-      openModal();
+    openModal();
   }
 
   function handleCheckin(reservation, btn) {
-
-      Swal.fire({
-      title: "Are you sure the guest want to checkin?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
+    Swal.fire({
+      title:             "Are you sure the guest wants to check in?",
+      text:              "This action cannot be undone!",
+      icon:              "warning",
+      showCancelButton:  true,
+      confirmButtonColor:"#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, mark as checkin"
+      confirmButtonText: "Yes, mark as check-in",
     }).then(result => {
-      if (result.isConfirmed) {
+      if (!result.isConfirmed) return;
 
-          fetch(`/api/reservations/checkin/${reservation.book_id}`, { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          })
-            .then(res => res.json())
-            .then(data => {
-              alert(`Guest checked in successfully!`);
-            })
-            .catch(err => {
-              alert('Failed to check in guest');
-              btn.disabled = false;
-            });
-            }
+      fetch(`/api/reservations/checkin/${reservation.book_id}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then(res => res.json())
+        .then(() => {
+            notification("success","Guest successfully checkin");
+            window.location.reload();
+        })
+        .catch(() => {
+          alert("Failed to check in guest");
+          btn.disabled = false;
+        });
     });
-    
-   
   }
 
   function handleCheckout(reservation, btn) {
-    
     Swal.fire({
-        title: "Are you sure the guest want to checkout?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, mark as checkout"
-      }).then(result => {
-        if (result.isConfirmed) {
+      title:             "Are you sure the guest wants to check out?",
+      text:              "This action cannot be undone!",
+      icon:              "warning",
+      showCancelButton:  true,
+      confirmButtonColor:"#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, mark as check-out",
+    }).then(result => {
+      if (!result.isConfirmed) return;
 
-            fetch(`/api/reservations/checkout/${reservation.book_id}`, { 
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-            })
-              .then(res => res.json())
-              .then(data => {
-                alert(`Guest checkout in successfully!`);
-              })
-              .catch(err => {
-                alert('Failed to check in guest');
-                btn.disabled = false;
-              });
-              }
-      });
+      fetch(`/api/reservations/checkout/${reservation.book_id}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then(res => res.json())
+        .then(() => {
+           notification("success","Guest successfully checkin");
+            window.location.reload();
+        })
+        .catch(() => {
+          alert("Failed to check out guest");
+          btn.disabled = false;
+        });
+    });
   }
-
 
   function handleCompleted(reservation, btn) {
-      
-      const formData = {
-        room_id : roomId
-      };
+    Swal.fire({
+      title:             "Is the room fully cleaned?",
+      text:              "This action cannot be undone!",
+      icon:              "warning",
+      showCancelButton:  true,
+      confirmButtonColor:"#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, mark as clean",
+    }).then(result => {
+      if (!result.isConfirmed) return;
 
-      Swal.fire({
-          title: "Are you sure the guest room is cleaned?",
-          text: "This action cannot be undone!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes, mark as clean"
-        }).then(result => {
-          if (result.isConfirmed) {
-
-              fetch(`/api/reservations/completed/${reservation.book_id}`, { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-              })
-                .then(res => res.json())
-                .then(data => {
-                  alert(`Room cleaned successfully`);
-                })
-                .catch(err => {
-                  alert('Failed to check in guest');
-                  btn.disabled = false;
-                });
-                }
+      fetch(`/api/reservations/completed/${reservation.book_id}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ room_id: roomId }),
+      })
+        .then(res => res.json())
+        .then(() => {
+           notification("success","Guest successfully checkin");
+            window.location.reload();
+        })
+        .catch(() => {
+          alert("Failed to mark room as clean");
+          btn.disabled = false;
         });
+    });
   }
-  /* =====================
-    FETCH ATTENDANTS FOR MODAL
-  ====================== */
+
+
+  /* =====================================================================
+     FETCH ATTENDANTS
+  ===================================================================== */
   function fetchAttendants() {
-    const container = document.getElementById('attendant-checkboxes');
-    
-    // Show loading state
+    const container     = document.getElementById('attendant-checkboxes');
     container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Loading attendants...</p>';
-    
+
     fetch('/api/maintenances')
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch attendants");
         return res.json();
       })
-      .then(maintenance => {
-        populateAttendantCheckboxes(maintenance);
-      })
+      .then(maintenance => populateAttendantCheckboxes(maintenance))
       .catch(error => {
         console.error(error);
         container.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Error loading attendants</p>';
       });
   }
 
-  /* =====================
-    POPULATE CHECKBOXES
-  ====================== */
+
+  /* =====================================================================
+     POPULATE ATTENDANT CHECKBOXES
+  ===================================================================== */
   function populateAttendantCheckboxes(maintenanceList) {
     const container = document.getElementById('attendant-checkboxes');
     if (!container) return;
-    
-    container.innerHTML = ''; 
-    
+
+    container.innerHTML = '';
+
     if (maintenanceList.length === 0) {
       container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No attendants available</p>';
       return;
     }
-    
-    maintenanceList.forEach((attendant) => {
-      const label = document.createElement('label');
-      label.className = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
-      
-      // REMOVED onchange attribute
-      label.innerHTML = `
-        <input type="checkbox" 
-              name="attendants[]" 
-              value="${attendant.id}" 
-              data-name="${attendant.name}"
-              id="attendant-${attendant.id}"
-              class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
+
+    maintenanceList.forEach(attendant => {
+      const label       = document.createElement('label');
+      label.className   = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
+      label.innerHTML   = `
+        <input type="checkbox"
+          name="attendants[]"
+          value="${attendant.id}"
+          data-name="${attendant.name}"
+          id="attendant-${attendant.id}"
+          class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
         <span class="text-sm text-gray-700">${attendant.name}</span>
       `;
-      
       container.appendChild(label);
     });
-    
-    // Initialize count to 0
+
+    // Attach change listener
+    container.addEventListener('change', function (e) {
+      if (e.target.name === 'attendants[]') updateSelectedCount();
+    });
+
     updateSelectedCount();
   }
 
-  /* =====================
-    EVENT DELEGATION FOR CHECKBOXES
-  ====================== */
-  document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('attendant-checkboxes');
-    
-    if (container) {
-      container.addEventListener('change', function(e) {
-        if (e.target.name === 'attendants[]') {
-          updateSelectedCount();
-        }
-      });
-    }
-  });
 
-  /* =====================
-    UPDATE SELECTED COUNT
-  ====================== */
+  /* =====================================================================
+     SELECTED COUNT
+  ===================================================================== */
   function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('input[name="attendants[]"]:checked');
+    const checkboxes   = document.querySelectorAll('input[name="attendants[]"]:checked');
     const countElement = document.getElementById('selected-count');
-    if (countElement) {
-      countElement.textContent = checkboxes.length;
-    }
+    if (countElement) countElement.textContent = checkboxes.length;
   }
 
-  /* =====================
-    GET SELECTED ATTENDANTS
-  ====================== */
   function getSelectedAttendants() {
     const checkboxes = document.querySelectorAll('input[name="attendants[]"]:checked');
-    return Array.from(checkboxes).map(cb => ({
-      id: cb.value,
-      name: cb.dataset.name
-    }));
+    return Array.from(checkboxes).map(cb => ({ id: cb.value, name: cb.dataset.name }));
   }
 
-  /* =====================
-      FORM SUBMISSION
-    ====================== */
-  document.getElementById('upsertform').addEventListener('submit', function(e) {
+
+  /* =====================================================================
+     FORM SUBMISSION
+  ===================================================================== */
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-    
+
     const selectedAttendants = getSelectedAttendants();
-    
+
     if (selectedAttendants.length === 0) {
       alert('Please select at least one attendant');
       return;
     }
-    
-    console.log('Selected attendants:', selectedAttendants);
-    console.log('Selected IDs:', selectedAttendants.map(a => a.id));
-    
-    const formData = {
-      cleaner_id: selectedAttendants.map(a => a.id), 
-      room_id: roomId
-    };
-    
-    
-    fetch(`/api/reservations/assigncleaner/${bookingId}`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify(formData) 
-    })
-    .then(response => {
-      return response.json().then(data => {
-        if (!response.ok) {
-          throw new Error(data.error || 'Request failed');
-        }
-        return data;
-      });
-    })
-    .then(data => {
-      alert('Successfully assigned cleaner(s)!');
-      closeModal(); 
 
+    const formData = {
+      cleaner_id: selectedAttendants.map(a => a.id),
+      room_id:    roomId,
+    };
+
+    fetch(`/api/reservations/assigncleaner/${bookingId}`, {
+      method:      'POST',
+      credentials: 'include',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify(formData),
     })
-    .catch(error => {
-      console.error('Error:', error);
-      alert(`Failed to assign cleaner: ${error.message}`);
-    });
+      .then(response =>
+        response.json().then(data => {
+          if (!response.ok) throw new Error(data.error || 'Request failed');
+          return data;
+        })
+      )
+      .then(() => {
+        alert('Successfully assigned cleaner(s)!');
+        closeModal();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert(`Failed to assign cleaner: ${error.message}`);
+      });
   });
+
+  //Modal for Reservaton Information
+
+
 });
