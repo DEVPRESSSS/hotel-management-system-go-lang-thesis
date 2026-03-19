@@ -120,7 +120,28 @@ document.addEventListener("DOMContentLoaded", () => {
           No additional guests
         </div>
       `;
+
     }
+    const footer = document.getElementById('footer-reservation');
+    if(!footer) return;
+    footer.innerHTML = "";
+
+    if(r.status === "pending"){
+      footer.innerHTML += `
+        <button id="btn-confirm-checkin" type="button" onclick="confirmCheckin()"
+                  class="w-full py-3 text-sm font-semibold tracking-widest text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-colors">
+                  CONFIRM CHECK-IN?
+        </button>
+      `;
+    }else if(r.status === "check-in"){
+      footer.innerHTML += `
+      <button id="btn-confirm-check-out" type="button" onclick="confirmCheckOut()"
+                class="w-full py-3 text-sm font-semibold tracking-widest bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-colors">
+                CONFIRM CHECK-OUT?
+            </button>
+      `;
+    }
+    
  
     // Special requests
     const specialReqEl = document.getElementById('special-request');
@@ -138,6 +159,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!reservation) return;
     //closeReservationModal();
     handleCheckin(reservation, document.getElementById('btn-confirm-checkin'));
+  };
+   window.confirmCheckOut = function () {
+    const reservation = reservationsData.find(r => r.book_id === bookingId);
+    if (!reservation) return;
+    //closeReservationModal();
+    handleCheckout(reservation, document.getElementById('btn-confirm-check-out'));
   };
 
 
@@ -263,16 +290,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Clean button — shown after checkout
     if (r.status === "check-out") {
       buttons += `
-        <button class="action-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 mr-2"
+        <button class="action-btn px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 mr-2"
           data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="clean">
-          Clean
+          Clean?
         </button>`;
     }
 
     // Done button — shown while cleaning
     if (r.status === "cleaning") {
       buttons += `
-        <button class="action-btn px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 mr-2"
+        <button class="action-btn px-3 py-1 bg-purple-500 text-white w-full rounded-full hover:bg-purple-600 mr-2"
           data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="done">
           Done?
         </button>`;
@@ -295,10 +322,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const twoHoursBefore    = 2 * 60 * 60 * 1000;
     const withinWindow      = now.getTime() >= (checkOut.getTime() - twoHoursBefore);
 
+    console.log(`Value of NOW:${now.toDateString() + " " + "Value Of CheckOut " + checkOut.toDateString() + " " + r.book_id + " " + "Status: " + r.status}`);
+    // console.log(`Result for same day checkout **** ${isSameDayCheckOut + "from " + r.book_id}`);
+    
     if (isSameDayCheckOut && withinWindow && r.status === "check-in") {
       buttons += `
-        <button class="action-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mr-2"
-          data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="checkout">
+        <button class="px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 mr-2"
+          data-room-id="${r.room_id}" data-id="${r.book_id}" onclick="populateReservationModal(${index})">
           Checkout
         </button>`;
     }
