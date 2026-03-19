@@ -17,7 +17,9 @@ func (s *Server) GetAllReservations(ctx *gin.Context) {
 
 	//Get all the reservations from book table
 	var books []models.Book
-	if err := s.Db.Preload("User").Find(&books).Error; err != nil {
+	if err := s.Db.Preload("User").
+		Preload("Guests").
+		Find(&books).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to fetch bookings"})
 		return
 	}
@@ -28,6 +30,7 @@ func (s *Server) GetAllReservations(ctx *gin.Context) {
 		reservation := dto.ReservationVM{
 			BookId:          book.BookId,
 			UserId:          book.UserId,
+			Email:           book.User.Email,
 			Name:            book.User.FullName,
 			RoomId:          book.RoomId,
 			RoomNumber:      book.RoomNumber,

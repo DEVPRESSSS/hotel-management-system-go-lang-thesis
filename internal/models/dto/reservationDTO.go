@@ -10,6 +10,8 @@ type ReservationVM struct {
 	BookId string `json:"book_id"`
 	UserId string `json:"user_id"`
 	Name   string `json:"name"`
+	Email   string `json:"email"`
+	Contact   string `json:"contact"`
 
 	// Room Information
 	RoomId     string `json:"room_id"`

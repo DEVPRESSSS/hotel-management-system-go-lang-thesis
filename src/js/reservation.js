@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnText     = document.getElementById('btn-text');
   const form        = document.getElementById('upsertform');
   const userModal   = document.getElementById('cleanerModal');
+
   const reservationModal = document.getElementById('reservationModal');
 
   if (!form || !headerTitle || !btnSubmit) {
@@ -30,20 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =====================================================================
-     MODAL
+     MODAL — CLEANER
   ===================================================================== */
   function openModal() {
     userModal.classList.remove('hidden');
     userModal.classList.add('flex');
     fetchAttendants();
   }
-
-  function openReservationModal(){
-    reservationModal.classList.remove('hidden');
-    reservationModal.classList.add('flex');
-  }
-
-  window.openReservationModal = openReservationModal;
 
   function closeModal() {
     userModal.classList.add('hidden');
@@ -52,14 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSelectedCount();
   }
 
-  function closeReservationModal() {
-    reservationModal.classList.add('hidden');
-    reservationModal.classList.remove('flex');
-    
-  }
-
   window.closeModal = closeModal;
-  window.closeReservationModal = closeReservationModal;
 
   window.createModal = function () {
     bookingId = "";
@@ -67,6 +54,90 @@ document.addEventListener("DOMContentLoaded", () => {
     btnText.innerText     = "Create";
     form.reset();
     openModal();
+  };
+
+
+  /* =====================================================================
+     MODAL — RESERVATION (CHECK-IN)
+  ===================================================================== */
+  function openReservationModal() {
+    reservationModal.classList.remove('hidden');
+    reservationModal.classList.add('flex');
+  }
+
+  function closeReservationModal() {
+    reservationModal.classList.add('hidden');
+    reservationModal.classList.remove('flex');
+  }
+
+  window.openReservationModal  = openReservationModal;
+  window.closeReservationModal = closeReservationModal;
+
+  window.populateReservationModal = function (index) {
+    const r = reservationsData[index];
+    if (!r) return;
+
+    // Store for confirm action
+    bookingId = r.book_id;
+    roomId    = r.room_id;
+
+    // Calculate duration in nights
+    const checkIn  = new Date(r.check_in_date);
+    const checkOut = new Date(r.check_out_date);
+    const nights   = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+    // Guest info
+    document.getElementById('name').textContent       = r.name          || '—';
+    document.getElementById('email').textContent      = r.email         || '—';
+    document.getElementById('contact-no').textContent    = r.contact       || '—';
+
+    // Booking details
+    document.getElementById('booking-no').textContent    = r.book_id;
+    document.getElementById('check-in-date').textContent      = formatDateTime(r.check_in_date);
+    document.getElementById('check-out-date').textContent     = formatDateTime(r.check_out_date);
+    document.getElementById('duration').textContent      = `${nights} night${nights !== 1 ? 's' : ''}`;
+    document.getElementById('guest-count').textContent   = `${r.num_guests} guest${r.num_guests !== 1 ? 's' : ''}`;
+    document.getElementById('amount').textContent         = `₱${Number(r.total_price).toLocaleString()}`;
+    document.getElementById('payment-status').textContent = r.payment_status || '—';
+
+    //Populate all the booking guest
+    
+    const guestRows = document.getElementById('guest-rows');
+    guestRows.innerHTML = "";
+    if(r.guests && r.guests.length > 0){
+         r.guests.forEach(g =>{
+          guestRows.innerHTML += `
+            <div class="grid grid-cols-3 text-sm text-gray-700 py-2 border-b border-gray-100">
+              <span>${g.lastname}, ${g.firstname}</span>
+              <span>${g.phonenumber}</span>
+              <span class="text-right">${g.guest_number}</span>
+            </div>
+          `;
+      });
+    } else {
+      guestRows.innerHTML = `
+        <div class="py-4 text-sm text-gray-400 text-center">
+          No additional guests
+        </div>
+      `;
+    }
+ 
+    // Special requests
+    const specialReqEl = document.getElementById('special-request');
+    if (specialReqEl) {
+      specialReqEl.textContent = r.special_requests?.trim() || 'None';
+    }
+
+    openReservationModal();
+
+  };
+
+  
+  window.confirmCheckin = function () {
+    const reservation = reservationsData.find(r => r.book_id === bookingId);
+    if (!reservation) return;
+    //closeReservationModal();
+    handleCheckin(reservation, document.getElementById('btn-confirm-checkin'));
   };
 
 
@@ -138,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
           </span>
         </td>
 
-
         <!-- Payment Status -->
         <td class="px-4 py-3 text-xs">
           ${r.payment_status === "Paid"
@@ -147,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         </td>
 
-        <!-- Status & Created -->
+        <!-- Status -->
         <td class="px-4 py-3 text-xs">
           <span class="capitalize px-2 py-1 font-semibold leading-tight rounded-full
           ${r.status === "pending"
@@ -156,11 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
           ${r.status}
           </span>
         </td>
+
+        <!-- Created -->
         <td class="px-4 py-3 text-sm">${new Date(r.created_at).toISOString().slice(0, 10)}</td>
 
         <!-- Action Buttons -->
         <td class="px-4 py-3 text-xs">
-          ${buildActionButtons(r)}
+          ${buildActionButtons(r, index)}
         </td>
 
       </tr>
@@ -182,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }).replace(',', '');
   }
 
-  function buildActionButtons(r) {
+  function buildActionButtons(r, index) {
     let buttons = '';
     const now      = new Date();
     const checkIn  = new Date(r.check_in_date);
@@ -212,11 +284,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isSameDayCheckIn && checkInTimePassed && r.status === "pending") {
       buttons += `
-        <button class="px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 mr-2" onclick = "openReservationModal()">
+        <button class="px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 mr-2"
+          onclick="populateReservationModal(${index})">
           CheckIn?
         </button>`;
     }
-    //data-action="checkin"
+
     // Check-out button — same day and within 2 hours before checkout
     const isSameDayCheckOut = now.toDateString() === checkOut.toDateString();
     const twoHoursBefore    = 2 * 60 * 60 * 1000;
@@ -225,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isSameDayCheckOut && withinWindow && r.status === "check-in") {
       buttons += `
         <button class="action-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mr-2"
-          data-action="checkout">
+          data-room-id="${r.room_id}" data-id="${r.book_id}" data-action="checkout">
           Checkout
         </button>`;
     }
@@ -273,10 +346,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleAction(action, reservation, btn) {
     switch (action) {
-      case 'clean':   handleClean(reservation, btn);     break;
-      case 'checkin': handleCheckin(reservation, btn);   break;
-      case 'checkout':handleCheckout(reservation, btn);  break;
-      case 'done':    handleCompleted(reservation, btn); break;
+      case 'clean':    handleClean(reservation, btn);    break;
+      case 'checkin':  handleCheckin(reservation, btn);  break;
+      case 'checkout': handleCheckout(reservation, btn); break;
+      case 'done':     handleCompleted(reservation, btn);break;
       default:
         console.warn(`Unknown action: ${action}`);
         btn.disabled = false;
@@ -301,7 +374,10 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, mark as check-in",
     }).then(result => {
-      if (!result.isConfirmed) return;
+      if (!result.isConfirmed) {
+        if (btn) btn.disabled = false;
+        return;
+      }
 
       fetch(`/api/reservations/checkin/${reservation.book_id}`, {
         method:  'POST',
@@ -309,12 +385,12 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then(res => res.json())
         .then(() => {
-            notification("success","Guest successfully checkin");
-            window.location.reload();
+          notification("success", "Guest successfully checked in");
+          window.location.reload();
         })
         .catch(() => {
           alert("Failed to check in guest");
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
         });
     });
   }
@@ -329,7 +405,10 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, mark as check-out",
     }).then(result => {
-      if (!result.isConfirmed) return;
+      if (!result.isConfirmed) {
+        if (btn) btn.disabled = false;
+        return;
+      }
 
       fetch(`/api/reservations/checkout/${reservation.book_id}`, {
         method:  'POST',
@@ -337,12 +416,12 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then(res => res.json())
         .then(() => {
-           notification("success","Guest successfully checkin");
-            window.location.reload();
+          notification("success", "Guest successfully checked out");
+          window.location.reload();
         })
         .catch(() => {
           alert("Failed to check out guest");
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
         });
     });
   }
@@ -357,7 +436,10 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, mark as clean",
     }).then(result => {
-      if (!result.isConfirmed) return;
+      if (!result.isConfirmed) {
+        if (btn) btn.disabled = false;
+        return;
+      }
 
       fetch(`/api/reservations/completed/${reservation.book_id}`, {
         method:  'POST',
@@ -366,12 +448,12 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then(res => res.json())
         .then(() => {
-           notification("success","Guest successfully checkin");
-            window.location.reload();
+          notification("success", "Room marked as clean");
+          window.location.reload();
         })
         .catch(() => {
           alert("Failed to mark room as clean");
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
         });
     });
   }
@@ -412,9 +494,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     maintenanceList.forEach(attendant => {
-      const label       = document.createElement('label');
-      label.className   = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
-      label.innerHTML   = `
+      const label     = document.createElement('label');
+      label.className = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
+      label.innerHTML = `
         <input type="checkbox"
           name="attendants[]"
           value="${attendant.id}"
@@ -426,7 +508,6 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(label);
     });
 
-    // Attach change listener
     container.addEventListener('change', function (e) {
       if (e.target.name === 'attendants[]') updateSelectedCount();
     });
@@ -451,7 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =====================================================================
-     FORM SUBMISSION
+     FORM SUBMISSION (assign cleaner)
   ===================================================================== */
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -489,8 +570,5 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(`Failed to assign cleaner: ${error.message}`);
       });
   });
-
-  //Modal for Reservaton Information
-
 
 });
