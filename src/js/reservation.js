@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
               />
               <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
             </div>
-            <p class="font-semibold">${r.User.fullname}</p>
+            <p class="font-semibold">${r.name}</p>
           </div>
         </td>
 

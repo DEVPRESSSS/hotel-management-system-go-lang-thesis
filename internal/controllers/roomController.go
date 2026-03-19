@@ -337,7 +337,7 @@ func GenerateLogId(db *gorm.DB) (string, error) {
 	return fmt.Sprintf("LOG-%03d", nextNumber), nil
 }
 
-// Delete role
+// Delete room images
 func (s *Server) DeleteRoomImage(ctx *gin.Context) {
 	filename := ctx.Param("filename")
 

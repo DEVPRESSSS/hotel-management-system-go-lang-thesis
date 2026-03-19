@@ -15,15 +15,41 @@ import (
 
 func (s *Server) GetAllReservations(ctx *gin.Context) {
 
+	//Get all the reservations from book table
 	var books []models.Book
-	if err := s.Db.Preload("User").
-		Find(&books).Error; err != nil {
-
+	if err := s.Db.Preload("User").Find(&books).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to fetch bookings"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"reservations": books})
 
+	//Map the reservations to reservation VM to avoid exposing senstive data of the user
+	var reservationsDTO []dto.ReservationVM
+	for _, book := range books {
+		reservation := dto.ReservationVM{
+			BookId:          book.BookId,
+			UserId:          book.UserId,
+			Name:            book.User.FullName,
+			RoomId:          book.RoomId,
+			RoomNumber:      book.RoomNumber,
+			RoomType:        book.RoomType,
+			CheckInDate:     book.CheckInDate,
+			CheckOutDate:    book.CheckOutDate,
+			NumGuests:       book.NumGuests,
+			Guests:          book.Guests,
+			TotalPrice:      book.TotalPrice,
+			PricePerNight:   book.PricePerNight,
+			Status:          book.Status,
+			PaymentStatus:   book.PaymentStatus,
+			SpecialRequests: book.SpecialRequests,
+			CreatedAt:       book.CreatedAt,
+			UpdatedAt:       book.UpdatedAt,
+			CancelledAt:     book.CancelledAt,
+		}
+
+		reservationsDTO = append(reservationsDTO, reservation)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"reservations": reservationsDTO})
 }
 
 func (s *Server) GetAllEventsReservations(ctx *gin.Context) {
@@ -110,7 +136,7 @@ func (s *Server) AssignCleaner(ctx *gin.Context) {
 	})
 }
 
-// Assign cleaner
+// CheckinStatus
 func (s *Server) CheckinStatus(ctx *gin.Context) {
 	bookingId := ctx.Param("id")
 
@@ -137,7 +163,7 @@ func (s *Server) CheckinStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": "Checking in...."})
 }
 
-// Assign cleaner
+// CheckOut Status
 func (s *Server) CheckOut(ctx *gin.Context) {
 	bookingId := ctx.Param("id")
 
@@ -164,7 +190,6 @@ func (s *Server) CheckOut(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": "Checking in...."})
 }
 
-// Assign cleaner
 // Assign cleaner
 func (s *Server) Completed(ctx *gin.Context) {
 
