@@ -94,7 +94,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		})
 		authorize.GET("/guest/food/services", rbac.RBACMiddleware("booking"), func(ctx *gin.Context) {
 			utils.RenderWithRole(ctx, "food_request.html", gin.H{
-				"title": "Dashboard",
+				"title": "Food request",
 			})
 		})
 
@@ -102,6 +102,11 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// FOOD CATEGORY MANAGEMENT
 		// ==============================================================================================================
 		authorize.GET("/api/food/category", rbac.RBACMiddleware("read"), server.GetFoodCategory)
+		authorize.GET("/food/category", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
+			utils.RenderWithRole(ctx, "food_category.html", gin.H{
+				"title": "Food Category",
+			})
+		})
 
 		// ==============================================================================================================
 		// ADMIN DASHBOARD
