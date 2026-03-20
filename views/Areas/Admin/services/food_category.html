@@ -12,8 +12,7 @@
             <button 
                 type="button" 
                 class="inline-flex items-center justify-center  p-3 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
-                onclick="createModal()">
-              
+                onclick="createModal()">       
                 Create
             </button>
         </div>
@@ -32,7 +31,7 @@
                             Category Name
                         </th>
                         <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
+                            Action
                         </th>
                     </tr>
                 </thead>
@@ -49,7 +48,7 @@
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg transform transition-all overflow-hidden">
         <!-- Modal Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white rounded-t-2xl">
-            <h3 class="text-xl font-semibold text-gray-900" id="header-action">Create Amenity</h3>
+            <h3 class="text-xl font-semibold text-gray-900" id="header-action"></h3>
             <button 
                 type="button" 
                 class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -100,6 +99,7 @@
 <script src="/src/js/state.js"></script>
 <script src="/src/js/notification/notification.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3"></script>
+<script src="/src/js/food_category.js" defer></script>
 
 {{ template "dashboard_footer.html" }}
 {{end}}
