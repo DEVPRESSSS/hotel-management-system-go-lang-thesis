@@ -27,15 +27,13 @@
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             CategoryId
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Category Name
-                        </th>
+                       
                         <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Action
                         </th>
                     </tr>
                 </thead>
-                <tbody id="users-body" class="bg-white divide-y divide-gray-200">
+                <tbody id="category-body" class="bg-white divide-y divide-gray-200">
                     <!-- Data will be populated here -->
                 </tbody>
             </table>
@@ -98,8 +96,9 @@
 
 <script src="/src/js/state.js"></script>
 <script src="/src/js/notification/notification.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3" defer></script>
 <script src="/src/js/food_category.js" defer></script>
+
 
 {{ template "dashboard_footer.html" }}
 {{end}}

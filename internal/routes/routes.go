@@ -102,6 +102,9 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 		// FOOD CATEGORY MANAGEMENT
 		// ==============================================================================================================
 		authorize.GET("/api/food/category", rbac.RBACMiddleware("read"), server.GetFoodCategory)
+		authorize.POST("/api/food/category/", rbac.RBACMiddleware("create"), server.Upsert)
+		authorize.PUT("/api/food/category/:id", rbac.RBACMiddleware("update"), server.Upsert)
+
 		authorize.GET("/food/category", rbac.RBACMiddleware("read"), func(ctx *gin.Context) {
 			utils.RenderWithRole(ctx, "food_category.html", gin.H{
 				"title": "Food Category",
