@@ -3,20 +3,20 @@ package utils
 import (
 	"HMS-GO/internal/models"
 	"bytes"
-	"crypto/tls"
 	"html/template"
 	"log"
 	"os"
 	"path/filepath"
 
-	"github.com/k3a/html2text"
-	"gopkg.in/gomail.v2"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type EmailData struct {
 	URL       string
 	FirstName string
 	Subject   string
+	Year      int
 }
 
 // ? Email template parser
@@ -41,39 +41,31 @@ func ParseTemplateDir(dir string) (*template.Template, error) {
 }
 
 func SendEmail(user *models.User, data *EmailData, emailTemp string) {
-
-	// Sender data.
-	from := os.Getenv("EMAIL_FROM")
-	smtpPass := os.Getenv("SMTP_PASSWORD")
-	smtpUser := os.Getenv("SMTP_USER")
-	to := user.Email
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := 587
-
-	var body bytes.Buffer
-
-	templatePath := "views"
-	template, err := ParseTemplateDir(templatePath)
+	// Parse all templates in the directory
+	tmpl, err := ParseTemplateDir("views")
 	if err != nil {
-		log.Fatal("Could not parse template", err)
+		log.Printf("Template parse error: %v\n", err)
+		return
 	}
 
-	template.ExecuteTemplate(&body, emailTemp, &data)
-
-	m := gomail.NewMessage()
-
-	m.SetHeader("From", from)
-	m.SetHeader("To", to)
-	m.SetHeader("Subject", data.Subject)
-	m.SetBody("text/html", body.String())
-	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
-
-	d := gomail.NewDialer(smtpHost, smtpPort, smtpUser, smtpPass)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	// Send Email
-	if err := d.DialAndSend(m); err != nil {
-		log.Fatal("Could not send email: ", err)
+	// Execute the specific template into a buffer
+	var body bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&body, emailTemp, data); err != nil {
+		log.Printf("Template execute error: %v\n", err)
+		return
 	}
 
+	from := mail.NewEmail("devpress", "xmontemorjerald@gmail.com")
+	subject := data.Subject
+	to := mail.NewEmail(user.Username, user.Email)
+	htmlContent := body.String()
+	message := mail.NewSingleEmail(from, subject, to, "", htmlContent)
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+	if err != nil {
+		log.Printf("SendGrid Error: %v\n", err)
+	} else {
+		log.Printf("Status Code: %d\n", response.StatusCode)
+		log.Printf("Headers: %v\n", response.Headers)
+	}
 }

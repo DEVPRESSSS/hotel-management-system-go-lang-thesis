@@ -108,7 +108,6 @@ func (s *Server) ForgotPassword(ctx *gin.Context) {
 		firstName = strings.Split(firstName, " ")[1]
 	}
 
-	// Get client origin from environment variable
 	clientOrigin := os.Getenv("BASE_URL")
 
 	// Send Email
@@ -116,6 +115,7 @@ func (s *Server) ForgotPassword(ctx *gin.Context) {
 		URL:       clientOrigin + "/resetpassword-form/" + resetToken,
 		FirstName: firstName,
 		Subject:   "Your password reset token (valid for 15min)",
+		Year:      time.Now().Year(),
 	}
 	utils.SendEmail(&user, &emailData, "resetPassword.html")
 
