@@ -15,8 +15,13 @@ const roomCapacity = document.getElementById('roomCapacity');
 const roomFloor = document.getElementById('roomFloor');
 const description = document.getElementById('roomDescription');
 const amenitiesContainer = document.getElementById("amenities");
+const guestCount = document.getElementById("guest");
+//Store the book ranges in global variable
+let bookedRanges = []
 //Book now button
+let options = "";
 
+//GetSelectedDate
 
 fetch(`/api/roomselected/${roomId}`)
         .then(response => {
@@ -37,16 +42,22 @@ fetch(`/api/roomselected/${roomId}`)
 
           //Populate the room price
           roomPrice.textContent = room.price;
+          guestCount.innerHTML = "";
+          for(let i =room.capacity; i >=1 ;i--){
 
+              options +=`<option class ="bg-red-50" value ="${i}"> ${i} ${ i ===1 ? "guest" : "guests"}  </option>`;
+
+          }
+          guestCount.innerHTML = options;
           //Populate the room capacity
           roomCapacity.textContent = room.capacity;
-
+      
          //Populate the room floor
           roomFloor.textContent = room.Floor.floorname;
 
           //Populate the room description
           description.textContent = room.RoomType.description;
-
+          
           //Populate the room description
           amenitiesContainer.innerHTML = ""; 
 
@@ -74,21 +85,38 @@ const bookNowBtn = document.getElementById("book-now");
 bookNowBtn.addEventListener("click", function (e) {
   e.preventDefault(); 
 
-  // const checkIn = document.getElementById("checkin").value;
-  // const checkOut = document.getElementById("check-out").value;
-  const checkIn = document.querySelector(".checkin").value
+  const checkIn = document.querySelector(".checkin").value;
   const checkOut = document.querySelector(".checkout").value;
   const numberOfGuest = document.getElementById("guest").value;
 
-  if(numberOfGuest > roomCapacity.textContent){
-    notification("error", "Capacity for this room does not match please select another one!!")
+  if (!checkIn || !checkOut) {
+    notification("error", "Please select check-in and check-out dates");
     return;
   }
 
-  if (!checkIn || !checkOut) {
-    notification("error", "Please select check-in and check-out dates")
+  const checkInDate = new Date(checkIn.split(" ")[0]);
+  const checkOutDate = new Date(checkOut.split(" ")[0]);
+
+  if (checkInDate >= checkOutDate) {
+    notification("error", "Check-out must be after check-in.");
     return;
   }
+
+  for (const range of bookedRanges) {
+    const from = new Date(range.from);
+    const to = new Date(range.to);
+    if (checkInDate < to && checkOutDate > from) {
+      notification("error", "Room is already booked for the selected dates.");
+      return;
+    }
+  }
+
+  if (numberOfGuest > roomCapacity.textContent) {
+    notification("error", "Capacity for this room does not match!");
+    return;
+  }
+  console.log(checkIn > checkOut);
+  
 
   if(checkIn == checkOut){
     notification("error", "Same day checkout is not supported")
@@ -117,9 +145,10 @@ bookNowBtn.addEventListener("click", function (e) {
 
 //#region--Display dates status in datetime picker
 const currentDate = new Date();
-console.log(currentDate);
 const nextMonth = new Date(currentDate);
 
+
+//Fetch the book ranges from db
 fetch(`/api/calendar/${roomId}`)
   .then(response => {
     if (!response.ok) throw new Error("Failed to load");
@@ -127,9 +156,6 @@ fetch(`/api/calendar/${roomId}`)
   })
   .then(data => {
     const booked = data.books;
-    
-    // Create an array to store all booked date ranges
-    const bookedRanges = [];
     
     if (booked.length > 0) {
       booked.forEach(booking => {
@@ -154,11 +180,13 @@ fetch(`/api/calendar/${roomId}`)
 
       onDayCreate: function(dObj, dStr, fp, dayElem) {
           const date = dayElem.dateObj;
-          
+        
           // Use local date string instead of UTC to avoid timezone issues
           const dateStr = date.getFullYear() + '-' + 
                           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
                           String(date.getDate()).padStart(2, '0');
+
+   
           
           // Check if date is within ANY booked range
           let isBooked = false;
@@ -181,4 +209,6 @@ fetch(`/api/calendar/${roomId}`)
   })
   .catch(error => console.log(error));
 //#endregion
+
+
 });

@@ -33,29 +33,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ── Action buttons per status ────────────────────────────────────
-    function getActionButtons(status, bookId) {
-        sessionStorage.setItem("bookId", bookId);
-        switch (status) {
-            case "check-in":
-                return `
-                    <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Receipt</button>
-                    <a href="/guest/food/services" class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-600 transition">Request Service</a>`;
-            case "pending":
-                return `
-                    <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Modify</button>
-                    <button class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-700 transition">View</button>`;
-            case "completed":
-                return `
-                    <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Receipt</button>
-                    <button class="text-xs bg-gray-800 text-white rounded px-3 py-1.5 hover:bg-gray-900 transition">Book Again</button>`;
-            case "cancelled":
-                return `
-                    <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">View</button>`;
-            default:
-                return `
-                    <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">View</button>`;
-        }
-    }
+    // function getActionButtons(status, bookId) {
+    //     sessionStorage.setItem("bookId", bookId);
+    //     switch (status) {
+    //         case "check-in":
+    //             return `
+    //                 <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Receipt</button>
+    //                 <a href="/guest/food/services" class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-600 transition">Request Service</a>`;
+    //         case "pending":
+    //             return `
+    //                 <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Modify</button>
+    //                 <button class="text-xs bg-purple-700 text-white rounded p-2 hover:bg-purple-700 transition">View</button>`;
+    //         case "completed":
+    //             return `
+    //                 <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">Receipt</button>
+    //                 <button class="text-xs bg-gray-800 text-white rounded px-3 py-1.5 hover:bg-gray-900 transition">Book Again</button>`;
+    //         case "cancelled":
+    //             return `
+    //                 <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">View</button>`;
+    //         default:
+    //             return `
+    //                 <button class="text-xs border border-gray-300 text-gray-500 rounded p-2 hover:border-gray-500 hover:text-gray-700 transition">View</button>`;
+    //     }
+    // }
 
     // ── Progress bar (only for active check-in) ──────────────────────
     function getProgressBar(res) {
@@ -154,9 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
 
                         <!-- Footer: actions -->
-                        <div class="flex items-center justify-end flex-wrap gap-2">
-                            ${getActionButtons(res.status, res.book_id)}
-                        </div>
+                        
                     </div>
                 `;
 
@@ -167,4 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
             container.appendChild(fragment);
         })
         .catch(error => console.error("Booking fetch error:", error));
+
+        //<div class="flex items-center justify-end flex-wrap gap-2">  {getActionButtons(res.status, res.book_id)} </div>
+                       
+                          
 });

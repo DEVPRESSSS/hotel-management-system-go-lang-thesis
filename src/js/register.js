@@ -12,9 +12,7 @@
       errorMessage.classList.remove("hidden");
       return false;
     }
-    
-    // errorMessage.textContent = "";
-    // errorMessage.classList.add("hidden");
+
     return true;
   }
 
@@ -29,20 +27,11 @@
       this.value = this.value
           .replace(/[^A-Za-z]/g, "");
   });
-  //Password
-  document.getElementById('password').addEventListener("input", function () {
-      this.value = this.value
-          .replace(/[^]/g, "");
-  });
-  //Confirm password
-   document.getElementById('confirm-password').addEventListener("input", function () {
-      this.value = this.value
-          .replace(/[^]/g, "");
-  });
+ 
   //Email validation
   document.getElementById('email').addEventListener("input", function () {
       this.value = this.value
-          .replace(/[^A-Za-z.@]/g, "");
+          .replace(/[^A-Za-z0-9.@]/g, "");
   });
 
 /* =====================

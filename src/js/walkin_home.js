@@ -51,13 +51,13 @@ function renderRooms(rooms) {
                     <span>👥 ${room.capacity}</span>
                     <span>🏢 ${room.Floor.floorname}</span>
                 </div>
-
-                <a id="book-btn" data-room_id = "${room.roomid}"
+                 <a id="book-btn" data-room_id = "${room.roomid}"
                     class="booknow-btn w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold p-2"
                     ${room.status !== "available" ? "disabled class='opacity-50 cursor-not-allowed'" : ""}
-                >
-                    ${room.status === "available" ? "Book Now" : "Unavailable"}
+                     >
+                    Book Now
                 </a>
+               
             </div>
         `;
         //   <div class="flex items-center mb-3">

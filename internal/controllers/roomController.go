@@ -224,7 +224,7 @@ func (s *Server) UpdateRoom(ctx *gin.Context) {
 	})
 }
 
-// Delete role
+// Delete room
 func (s *Server) DeleteRoom(ctx *gin.Context) {
 	roomId := ctx.Param("roomid")
 
@@ -253,7 +253,7 @@ func (s *Server) DeleteRoom(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
-// Get all the services from db
+// Get all the rooms from db
 func (s *Server) GetRooms(ctx *gin.Context) {
 
 	var rooms []models.Room

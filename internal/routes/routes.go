@@ -134,6 +134,7 @@ func AuthRoutes(db *gorm.DB, router *gin.Engine) {
 
 		// Get available rooms
 		authorize.GET("/avail/rooms", rbac.RBACMiddleware("booking"), server.GetRooms)
+		authorize.GET("/avail/rooms/:filter", rbac.RBACMiddleware("booking"), server.FilterRoom)
 		authorize.GET("/booking/history", rbac.RBACMiddleware("booking"), server.GetGuestHistoryBookings)
 
 		// Calendar and room selection

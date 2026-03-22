@@ -187,9 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.terms           = document.getElementById('terms').checked;
         }
 
-        // DEBUG
-        alert(`Collected Guest ${actualGuestNum}:\nFirst: ${formData.firstName}\nLast: ${formData.lastName}\nPhone: ${formData.phoneNumber}`);
-
         return formData;
     }
 
@@ -308,9 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Save all guest data to sessionStorage
                 sessionStorage.setItem('guestData', JSON.stringify(guestData));
-
-                // DEBUG — see all collected guests
-                alert(`All guests saved:\n${JSON.stringify(guestData, null, 2)}`);
 
                 // Determine which button was clicked
                 const clickedBtn = e.submitter?.id;

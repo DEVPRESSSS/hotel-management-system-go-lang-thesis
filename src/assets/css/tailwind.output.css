@@ -31150,6 +31150,8 @@ video {
   box-shadow: 0 0 0 3px hsla(327.4, 82.9%, 83.9%, 0.45);
 }
 
+@import "simple-datatables/dist/style.css";
+
 @media (min-width: 640px) {
   .sm\:space-y-0 > :not(template) ~ :not(template) {
     --space-y-reverse: 0;
