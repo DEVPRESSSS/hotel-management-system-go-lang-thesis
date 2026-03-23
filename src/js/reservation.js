@@ -592,12 +592,11 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       )
       .then(() => {
-        alert('Successfully assigned cleaner(s)!');
+        notification("success", "Assigned cleaner successfully");
         closeModal();
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert(`Failed to assign cleaner: ${error.message}`);
+        notification("error", error);
       });
   });
 
